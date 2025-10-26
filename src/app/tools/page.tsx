@@ -52,7 +52,7 @@ export default function DelimXSymmetric() {
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
-  const convertTimeoutRef = useRef<NodeJS.Timeout>();
+  const convertTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Load from localStorage
   useEffect(() => {
@@ -161,14 +161,14 @@ export default function DelimXSymmetric() {
     localStorage.setItem("delimxHistory", JSON.stringify(newHistory));
   }, [outputText, mode, delimiter, customDelimiter, inputText, history]);
 
-  // Handlers
-  const handleConvert = () => {
+  // ALL HANDLERS WRAPPED IN useCallback
+  const handleConvert = useCallback(() => {
     convert();
     showToast("Converted successfully!", "✨");
     saveToHistory();
-  };
+  }, [convert, showToast, saveToHistory]);
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     if (!outputText) {
       showToast("Nothing to copy", "⚠️");
       return;
@@ -178,17 +178,18 @@ export default function DelimXSymmetric() {
       showToast("Copied to clipboard!", "📋");
       saveToHistory();
     } catch (e) {
+      console.log(e);
       showToast("Copy failed", "❌");
     }
-  };
+  }, [outputText, showToast, saveToHistory]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInputText("");
     setOutputText("");
     showToast("Cleared", "🧹");
-  };
+  }, [showToast]);
 
-  const handleReverse = () => {
+  const handleReverse = useCallback(() => {
     if (!outputText) return;
     const activeDelimiter = customDelimiter || delimiter;
     const items = outputText
@@ -200,9 +201,9 @@ export default function DelimXSymmetric() {
         : items.reverse().join(activeDelimiter + " ");
     setOutputText(result);
     showToast("Reversed", "↕️");
-  };
+  }, [outputText, mode, customDelimiter, delimiter, showToast]);
 
-  const handleShuffle = () => {
+  const handleShuffle = useCallback(() => {
     if (!outputText) return;
     const activeDelimiter = customDelimiter || delimiter;
     const items = outputText
@@ -215,9 +216,9 @@ export default function DelimXSymmetric() {
         : shuffled.join(activeDelimiter + " ");
     setOutputText(result);
     showToast("Shuffled", "🎲");
-  };
+  }, [outputText, mode, customDelimiter, delimiter, showToast]);
 
-  const handleNumber = () => {
+  const handleNumber = useCallback(() => {
     if (!outputText) return;
     const activeDelimiter = customDelimiter || delimiter;
     const items = outputText
@@ -230,28 +231,28 @@ export default function DelimXSymmetric() {
         : numbered.join(activeDelimiter + " ");
     setOutputText(result);
     showToast("Numbered", "🔢");
-  };
+  }, [outputText, mode, customDelimiter, delimiter, showToast]);
 
-  const handleUppercase = () => {
+  const handleUppercase = useCallback(() => {
     if (!outputText) return;
     setOutputText(outputText.toUpperCase());
     showToast("UPPERCASE", "🔠");
-  };
+  }, [outputText, showToast]);
 
-  const handleLowercase = () => {
+  const handleLowercase = useCallback(() => {
     if (!outputText) return;
     setOutputText(outputText.toLowerCase());
     showToast("lowercase", "🔡");
-  };
+  }, [outputText, showToast]);
 
-  const handleCount = () => {
+  const handleCount = useCallback(() => {
     if (!outputText) return;
     const activeDelimiter = customDelimiter || delimiter;
     const items = outputText
       .split(mode === "split" ? "\n" : activeDelimiter)
       .filter(Boolean);
     showToast(`Total: ${items.length} items`, "📊");
-  };
+  }, [outputText, mode, customDelimiter, delimiter, showToast]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -421,7 +422,7 @@ export default function DelimXSymmetric() {
       {/* Main Container */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-          {/* Sidebar - Total height calculated: 120 + 180 + 180 + 200 + (4 * 16 spacing) = 744px */}
+          {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 h-fit space-y-4">
             {/* Mode Card */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 h-[120px] flex flex-col">
@@ -578,7 +579,7 @@ export default function DelimXSymmetric() {
                 <ToggleOption
                   label="Auto Convert"
                   checked={autoConvert}
-                  onChange={setAutoConvert}
+                  onChange={(v) => setAutoConvert(v)}
                 />
                 <ToggleOption
                   label="Remove Duplicates"
@@ -599,9 +600,9 @@ export default function DelimXSymmetric() {
             </div>
           </aside>
 
-          {/* Main Editor Area - MATCHED HEIGHT WITH SIDEBAR (744px total) */}
+          {/* Main Editor Area */}
           <main className="space-y-6">
-            {/* Editor Card - min-h-[744px] to match sidebar total height */}
+            {/* Editor Card */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 min-h-[680px] flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
@@ -611,7 +612,7 @@ export default function DelimXSymmetric() {
                 </span>
               </div>
 
-              {/* Text Areas - Flex-1 to fill remaining space */}
+              {/* Text Areas */}
               <div className="grid md:grid-cols-2 gap-6 mb-6 flex-1">
                 {/* Input */}
                 <div className="flex flex-col">
