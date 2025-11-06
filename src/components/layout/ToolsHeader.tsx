@@ -126,6 +126,18 @@ export function ToolsHeader() {
                     </Link>
                     <div className="border-t border-slate-200 dark:border-slate-700 my-2" />
                     <Link
+                      href="/tools/lorem"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
+                    >
+                      <span className="text-xl">📝</span>
+                      <div>
+                        <div className="font-semibold text-sm">Lorem Ipsum</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          Placeholder text generator
+                        </div>
+                      </div>
+                    </Link>
+                    <Link
                       href="/tools"
                       className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400"
                     >
