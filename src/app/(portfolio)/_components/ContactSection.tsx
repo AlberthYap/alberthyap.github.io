@@ -28,7 +28,7 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-slate-800 transition-colors duration-300"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 transition-colors duration-300"
     >
       <div className="max-w-4xl mx-auto text-center">
         {/* Header */}
@@ -56,7 +56,7 @@ export default function ContactSection() {
             href="https://github.com/alberthyap"
             target="_blank"
             rel="noopener noreferrer"
-            className="group border-2 border-emerald-500 dark:border-emerald-400 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 dark:hover:bg-emerald-400 hover:text-white bg-white dark:bg-slate-900 transition-all duration-300 px-8 py-4 rounded-xl font-semibold inline-flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
+            className="group border-2 border-emerald-500 dark:border-emerald-400 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 dark:hover:bg-emerald-400 hover:text-white bg-white dark:bg-slate-800 transition-all duration-300 px-8 py-4 rounded-xl font-semibold inline-flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
           >
             <Github className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
             GitHub
@@ -65,7 +65,7 @@ export default function ContactSection() {
             href="https://linkedin.com/in/alberth-yaputra"
             target="_blank"
             rel="noopener noreferrer"
-            className="group border-2 border-emerald-500 dark:border-emerald-400 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 dark:hover:bg-emerald-400 hover:text-white bg-white dark:bg-slate-900 transition-all duration-300 px-8 py-4 rounded-xl font-semibold inline-flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
+            className="group border-2 border-emerald-500 dark:border-emerald-400 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 dark:hover:bg-emerald-400 hover:text-white bg-white dark:bg-slate-800 transition-all duration-300 px-8 py-4 rounded-xl font-semibold inline-flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
           >
             <Linkedin className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
             LinkedIn

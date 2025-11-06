@@ -1,33 +1,17 @@
 "use client";
 
-import { ShoppingCart, BarChart3, Lock, ArrowRight } from "lucide-react";
+import { BarChart3, ArrowRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const projects = [
-  // {
-  //   title: "Inventory Management System",
-  //   description:
-  //     "Aplikasi manajemen inventory dengan fitur CRUD, role-based access, dan tracking transaksi menggunakan Next.js dan FastAPI.",
-  //   icon: ShoppingCart,
-  //   tags: ["Next.js", "FastAPI", "MySQL"],
-  //   colors: "from-emerald-400 to-emerald-600",
-  // },
   {
-    title: "Data Automation Pipeline",
-    description:
-      "Pipeline otomasi untuk pemrosesan data perbankan enterprise yang mengurangi pekerjaan manual hingga 60%.",
+    title: "Developer Tools",
+    description: "Tools for developers. Built with Next.js and TypeScript.",
     icon: BarChart3,
-    tags: ["Python", "Django", "Docker"],
+    tags: ["Typescript", "Next.js"],
     colors: "from-teal-400 to-cyan-600",
+    url: "/tools",
   },
-  // {
-  //   title: "Authentication System",
-  //   description:
-  //     "Sistem autentikasi lengkap dengan JWT, role management, dan refresh token menggunakan React dan FastAPI.",
-  //   icon: Lock,
-  //   tags: ["React", "FastAPI", "Prisma"],
-  //   colors: "from-lime-400 to-emerald-600",
-  // },
 ];
 
 export default function ProjectsSection() {
@@ -94,7 +78,7 @@ export default function ProjectsSection() {
                   ))}
                 </div>
                 <a
-                  href="#"
+                  href={project.url}
                   className="text-emerald-500 dark:text-emerald-400 font-semibold hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors inline-flex items-center group/link"
                 >
                   View Project
