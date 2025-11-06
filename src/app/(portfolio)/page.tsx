@@ -21,6 +21,13 @@ const ExperienceSection = dynamic(
   }
 );
 
+const ProjectsSection = dynamic(() => import("./_components/ProjectSection"), {
+  loading: () => (
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-800 animate-pulse" />
+  ),
+  ssr: true,
+});
+
 const ContactSection = dynamic(() => import("./_components/ContactSection"), {
   loading: () => (
     <div className="min-h-screen bg-white dark:bg-slate-900 animate-pulse" />
@@ -34,6 +41,7 @@ export default function HomePage() {
       <HeroSection />
       <AboutSection />
       <ExperienceSection />
+      <ProjectsSection />
       <ContactSection />
     </>
   );
