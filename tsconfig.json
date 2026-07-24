@@ -1,18 +1,13 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
+  // Stricter TypeScript flags (`noUncheckedIndexedAccess`, etc.) are
+  // configured via `typescript.tsConfig` in `nuxt.config.ts` so Nuxt
+  // injects them into the generated project-reference fragments.
   "files": [],
   "references": [
-    {
-      "path": "./.nuxt/tsconfig.app.json"
-    },
-    {
-      "path": "./.nuxt/tsconfig.server.json"
-    },
-    {
-      "path": "./.nuxt/tsconfig.shared.json"
-    },
-    {
-      "path": "./.nuxt/tsconfig.node.json"
-    }
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
   ]
 }

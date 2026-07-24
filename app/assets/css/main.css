@@ -1,0 +1,71 @@
+/*
+ * app/assets/css/main.css
+ *
+ * Tailwind CSS 4 entry (architecture.md §10.1).
+ * - `@import "tailwindcss"` loads the v4 engine.
+ * - `@theme` registers DESIGN.md design tokens as CSS custom properties;
+ *   Tailwind uses these to auto-generate utilities
+ *   (`bg-bg`, `text-text`, `border-border`, `bg-primary`, etc.).
+ * - Self-hosted Geist fonts will be wired via @font-face blocks here in
+ *   Phase 1 (DESIGN.md §4.1 + architecture.md §11.3) once font files land
+ *   in `app/assets/fonts/`.
+ */
+@import "tailwindcss";
+
+@theme {
+  /* ── Colors — DESIGN.md §3 ─────────────────────────────────────── */
+  --color-bg:              #070B08;
+  --color-surface:         #111A14;
+  --color-text:            #EAF1E6;
+  --color-muted:           #94A88F;
+  --color-primary:         #00DC82;
+  --color-primary-soft:    rgb(0 220 130 / 0.16);
+  --color-accent:          #86EFAC;
+  --color-danger:          #F87171;
+  --color-warning:         #FBBF24;
+  --color-border:          rgb(234 241 230 / 0.06);
+  --color-border-strong:   rgb(234 241 230 / 0.12);
+
+  /* ── Typography — DESIGN.md §4 ─────────────────────────────────── */
+  --font-sans: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace,
+               SFMono-Regular, monospace;
+
+  /* ── Motion — DESIGN.md §8.4 ───────────────────────────────────── */
+  --motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-micro:  150ms;
+  --motion-small:  200ms;
+  --motion-medium: 350ms;
+  --motion-large:  500ms;
+
+  /* ── Radii — DESIGN.md §Appendix A ─────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  /* Tailwind utility form preferred (architecture.md §10.3); kept explicit
+     `-webkit-font-smoothing` to ensure crisp Geist/Inter rendering. */
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
