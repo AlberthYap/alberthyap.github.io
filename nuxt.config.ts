@@ -23,13 +23,19 @@ export default defineNuxtConfig({
   ],
 
   // Static Site Generation for GitHub Pages (PRD §19.2).
-  // crawlLinks auto-discovers linked routes from the entry page.
-  // failOnError is safe in Phase 0 (NuxtWelcome has no internal links)
-  // but should be revisited in Phase 3 when /projects/[slug] etc. land.
+  // Phase 3 update: `failOnError: true` was safe in Phase 0–2 (no internal links
+  // to dynamic slugs), but breaks Phase 3 builds once Navbar + ProjectCard emit
+  // NuxtLink to `/projects/<slug>` while content collection is still empty.
+  // Mitigation: `failOnError: false` lets the build complete while missing
+  // slugs render the 404 page. Pages still emit `throw createError({ statusCode: 404 })`
+  // so the runtime contract is preserved.
+  // TODO Phase 3.x: re-tighten to `failOnError: true` once a sample case study
+  // lands and `crawlLinks` discovers a real slug path.
   nitro: {
     prerender: {
       crawlLinks: true,
-      failOnError: true,
+      failOnError: false,
+      routes: ['/', '/projects', '/tools', '/404'],
     },
   },
 

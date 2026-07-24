@@ -6,6 +6,8 @@ interface Props {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   /** Visual size override. Defaults to match `as`. Override only when visual emphasis differs from semantic role (rare). */
   size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  /** Optional id, useful for `aria-labelledby` wiring on parent sections. */
+  id?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,6 +31,7 @@ const classes = computed(() => ['text-text', sizeClasses[effectiveSize.value]])
 <template>
   <component
     :is="props.as"
+    :id="props.id"
     :class="classes"
   >
     <slot />
