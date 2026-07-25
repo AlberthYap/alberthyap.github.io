@@ -1,36 +1,55 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+/**
+ * Navbar — Floating glass-panel pill (Organic Professional design).
+ *
+ * Pattern from example.html: a centered `rounded-full` pill at the
+ * top of the viewport, capped to ~95% width and a generous max-width
+ * container (`container-max` = 1200 px). The pill stays fixed so it
+ * always floats above grid + glow decorations.
+ *
+ * Compared to the old sticky-banner nav:
+ *   • Brand stays left, links stay right, CTA becomes a primary pill.
+ *   • All chrome shares one `.glass-panel` rather than per-link borders.
+ *   • Mobile collapses to a hamburger that opens an inline drawer
+ *     BELOW the pill (still scrollable, doesn't break the floating
+ *     gesture).
+ *
+ * Scroll-spy is preserved via `useInjectActiveSection` so the matching
+ * `data-section-id` link gets `data-active="true"` (nav-link pin).
+ */
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
-import PageContainer from '~~/app/components/layout/PageContainer.vue'
+import ThemeToggle from '~~/app/components/ui/ThemeToggle.vue'
 
 import { NAV_LINKS, SITE_NAME } from '~~/shared/constants/site'
+import { useInjectActiveSection } from '~~/app/composables/useActiveSection'
 
 const route = useRoute()
-const isScrolled = ref(false)
+const activeSection = useInjectActiveSection()
 const isMobileMenuOpen = ref(false)
 
-// DESIGN.md §6.1: Navbar transparent at top, gains background once scrollY ≥ 16 px.
-function onScroll() {
-  isScrolled.value = window.scrollY >= 16
+/** Pull the section id out of a hash-anchor `to` like `/#about` → `about`. */
+function sectionIdFrom(to: string): string | null {
+  const hashIdx = to.indexOf('#')
+  if (hashIdx === -1) return null
+  const raw = to.slice(hashIdx + 1)
+  return raw.length === 0 ? null : raw
 }
 
-onMounted(() => {
-  window.addEventListener('scroll', onScroll, { passive: true })
-  onScroll()
-})
-onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', onScroll)
-  }
-})
+/**
+ * Active-state predicate. Lights up when the user is on `/` AND the
+ * scroll-spy says this section's id is currently dominant.
+ */
+function navLinkActive(to: string): boolean {
+  if (route.path !== '/') return false
+  const id = sectionIdFrom(to)
+  return id !== null && activeSection.currentSectionId.value === id
+}
 
-function isActive(to: string): boolean {
-  if (to === '/') return route.path === '/'
-  // Anchors like '/#about' never highlight via path matching.
-  if (to.startsWith('/#')) return false
-  return route.path === to || route.path.startsWith(`${to}/`)
+function navLinkAriaCurrent(to: string): 'location' | undefined {
+  return navLinkActive(to) ? 'location' : undefined
 }
 
 function closeMobile() {
@@ -39,46 +58,53 @@ function closeMobile() {
 </script>
 
 <template>
-  <header
-    :class="[
-      'sticky top-0 z-50 h-16 w-full border-b border-transparent',
-      'transition-colors duration-[var(--motion-small)] ease-[var(--motion-easing)]',
-      isScrolled
-        ? 'bg-[color-mix(in_oklab,var(--color-bg)_85%,transparent)] backdrop-blur-md border-border'
-        : 'bg-transparent',
-    ]"
-  >
-    <PageContainer class="flex h-full items-center justify-between gap-4">
+  <header class="fixed inset-x-0 top-4 z-50 px-4 pointer-events-none">
+    <!-- Pill nav — centered, 95% wide-ish, capped at container-max. pointer-events:auto
+         on the pill itself so the surrounding px-4 gutter doesn't capture clicks. -->
+    <div
+      class="glass-panel mx-auto flex w-full max-w-[var(--spacing-container)] items-center justify-between gap-4 rounded-full px-6 py-3 pointer-events-auto"
+    >
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
-        class="font-semibold text-text hover:text-primary transition-colors"
+        class="font-serif text-headline-lg font-bold text-primary tracking-tight"
       >
         {{ SITE_NAME }}
       </NuxtLink>
 
-      <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+      <nav
+        class="hidden md:flex items-center gap-8 font-mono text-label-md uppercase tracking-widest"
+        aria-label="Primary"
+      >
         <NuxtLink
           v-for="link in NAV_LINKS"
           :key="link.to"
           :to="link.to"
-          class="text-sm font-medium text-muted hover:text-primary transition-colors"
-          :class="{ 'text-primary': isActive(link.to) }"
-          :aria-current="isActive(link.to) ? 'page' : undefined"
+          class="nav-link text-muted hover:text-text transition-colors duration-200"
+          :data-active="navLinkActive(link.to) ? 'true' : 'false'"
+          :aria-current="navLinkAriaCurrent(link.to)"
         >
           {{ link.label }}
         </NuxtLink>
       </nav>
 
-      <div class="hidden md:block">
-        <LinkButton to="#contact" variant="primary" size="sm">
+      <!-- Right cluster: theme toggle + primary CTA. Visible from md+; mobile gets a
+           hamburger that sits inside the pill. -->
+      <div class="hidden md:flex items-center gap-3">
+        <ThemeToggle />
+        <LinkButton
+          to="#contact"
+          variant="primary"
+          size="sm"
+          class="rounded-full"
+        >
           Get in touch
         </LinkButton>
       </div>
 
       <button
         type="button"
-        class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-text hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         :aria-expanded="isMobileMenuOpen"
         aria-controls="mobile-menu"
         :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
@@ -86,34 +112,42 @@ function closeMobile() {
       >
         <span aria-hidden="true">{{ isMobileMenuOpen ? '×' : '☰' }}</span>
       </button>
-    </PageContainer>
+    </div>
 
+    <!-- Mobile drawer — slides out below the pill at md-; full keyboard navigable. -->
     <div
       v-if="isMobileMenuOpen"
       id="mobile-menu"
-      class="md:hidden border-t border-border bg-bg"
+      class="md:hidden glass-panel mx-auto mt-2 w-full max-w-[var(--spacing-container)] rounded-2xl p-4 pointer-events-auto"
     >
-      <PageContainer class="flex flex-col gap-1 py-4">
+      <nav
+        class="flex flex-col gap-1 font-mono text-label-md uppercase tracking-widest"
+        aria-label="Primary mobile"
+      >
         <NuxtLink
           v-for="link in NAV_LINKS"
           :key="link.to"
           :to="link.to"
-          class="block rounded-md px-3 py-2 text-base text-muted hover:bg-surface hover:text-primary"
-          :class="{ 'text-primary bg-surface': isActive(link.to) }"
+          class="nav-link block rounded-md px-3 py-2 text-muted hover:text-text hover:bg-surface-container-high"
+          :data-active="navLinkActive(link.to) ? 'true' : 'false'"
+          :aria-current="navLinkAriaCurrent(link.to)"
           @click="closeMobile"
         >
           {{ link.label }}
         </NuxtLink>
+      </nav>
+      <div class="mt-4 flex items-center justify-between gap-3">
+        <ThemeToggle />
         <LinkButton
           to="#contact"
           variant="primary"
           size="md"
-          class="mt-2 w-full justify-center"
+          class="rounded-full flex-1 justify-center"
           @click="closeMobile"
         >
           Get in touch
         </LinkButton>
-      </PageContainer>
+      </div>
     </div>
   </header>
 </template>

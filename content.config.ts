@@ -1,7 +1,12 @@
 import { defineCollection, defineContentConfig } from '@nuxt/content'
 
-import { ProjectSchema } from '~~/shared/schemas/project'
-import { ToolSchema } from '~~/shared/schemas/tool'
+// content.config.ts is loaded by Node during `nuxi prepare` (NOT by Vite),
+// so the `~~/` and `@/` aliases configured for the Vite build don't
+// resolve here. Relative paths work in both contexts.
+import { ProjectSchema } from '../shared/schemas/project'
+import { ToolSchema } from '../shared/schemas/tool'
+import { AboutSchema } from '../shared/schemas/about'
+import { ExperienceSchema } from '../shared/schemas/experience'
 
 /**
  * Nuxt Content v3 collection configuration.
@@ -25,6 +30,18 @@ export default defineContentConfig({
       type: 'data', // YAML-only structured records; tool metadata
       source: 'tools/**/*.yml',
       schema: ToolSchema,
+    }),
+    // Singleton About page (one file at `content/about.md`).
+    about: defineCollection({
+      type: 'page',
+      source: 'about.md',
+      schema: AboutSchema,
+    }),
+    // Experience entries — markdown narratives + skill groups in frontmatter.
+    experience: defineCollection({
+      type: 'page',
+      source: 'experience/**/*.md',
+      schema: ExperienceSchema,
     }),
   },
 })

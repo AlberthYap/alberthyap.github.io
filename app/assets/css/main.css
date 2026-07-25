@@ -1,45 +1,68 @@
 /*
  * app/assets/css/main.css
  *
- * Tailwind CSS 4 entry (architecture.md §10.1).
- * - `@import "tailwindcss"` loads the v4 engine.
- * - `@theme` registers DESIGN.md design tokens as CSS custom properties;
- *   Tailwind uses these to auto-generate utilities
- *   (`bg-bg`, `text-text`, `border-border`, `bg-primary`, etc.).
- * - Self-hosted Geist fonts will be wired via @font-face blocks here in
- *   Phase 1 (DESIGN.md §4.1 + architecture.md §11.3) once font files land
- *   in `app/assets/fonts/`.
+ * Tailwind CSS 4 entry for the Organic Professional design system.
+ *
+ * Color: Material 3 tonal palette. LIGHT mode is the visual default
+ * (DESIGN.md "Organic Professional" v3.0 — "airy, fresh, inviting").
+ * Dark mode is an override via `[data-theme="dark"]` on <html>.
+ * Every shade carries a semantic name so templates use class names
+ * like `bg-bg text-text border-outline` instead of literal hex.
+ *
+ * Typography: Literata (serif headlines) + Nunito Sans (body) +
+ * Geist Mono (code). Self-hosted via @font-face blocks below.
+ *
+ * Shape: rounded corner language from the spec — sm 4 px / DEFAULT 8
+ * px / lg 12 px / xl 16 px / 2xl 24 px.
+ *
+ * Motion: tokenised easing + duration; staggered `[data-stagger]`
+ * reveals continue to drive per-section cascades.
  */
 @import "tailwindcss";
 
-/* Self-hosted Geist Sans + Geist Mono per `DESIGN.md` §4.1 and
-   `architecture.md` §11.3. Files expected at app/assets/fonts/Geist-*.woff2
-   per app/assets/fonts/README.md. `font-display: swap` keeps text visible
-   while the font loads (prevents FOIT). */
+/* ────────────────────────────────────────────────────────────────────────
+ * Self-hosted woff2 fonts. Stays consistent with the project's no-CDN
+ * philosophy so the static bundle ships the typography pair entirely
+ * inline; no Google Fonts request.
+ * ──────────────────────────────────────────────────────────────────────── */
 @font-face {
-  font-family: "Geist Sans";
-  src: url("~/assets/fonts/Geist-Sans-Regular.woff2") format("woff2");
+  font-family: "Literata";
+  src: url("~/assets/fonts/Literata-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Geist Sans";
-  src: url("~/assets/fonts/Geist-Sans-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Geist Sans";
-  src: url("~/assets/fonts/Geist-Sans-Semibold.woff2") format("woff2");
+  font-family: "Literata";
+  src: url("~/assets/fonts/Literata-Semibold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Geist Sans";
-  src: url("~/assets/fonts/Geist-Sans-Bold.woff2") format("woff2");
+  font-family: "Literata";
+  src: url("~/assets/fonts/Literata-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("~/assets/fonts/NunitoSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("~/assets/fonts/NunitoSans-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("~/assets/fonts/NunitoSans-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -59,43 +82,410 @@
   font-display: swap;
 }
 
+/* ────────────────────────────────────────────────────────────────────────
+ * @theme — DESIGN.md "Organic Professional" v3.0 tokens. LIGHT-first per
+ * the YAML data (background `#f7faf4`, primary `#386948`, on-surface
+ * `#2c342e`). The dark-mode override lives in `:root[data-theme="dark"]`
+ * below this block.
+ *
+ * Naming follows Material 3 tonal vocabulary (surface / on-surface /
+ * primary-container, etc.) so a Vue template's class names stay
+ * semantic — `bg-bg text-text border-outline`, etc.
+ *
+ * Font tokens: `--font-*` auto-generates matching utilities; `--text-*`
+ * tokens auto-generate `text-*` sizing utilities, with `--line-height`
+ * and `--letter-spacing` suffixed forms for auto-pairing.
+ * ──────────────────────────────────────────────────────────────────────── */
 @theme {
-  --color-bg:              #070B08;
-  --color-surface:         #111A14;
-  --color-text:            #EAF1E6;
-  --color-muted:           #94A88F;
-  --color-primary:         #00DC82;
-  --color-primary-soft:    rgb(0 220 130 / 0.16);
-  --color-accent:          #86EFAC;
-  --color-danger:          #F87171;
-  --color-warning:         #FBBF24;
-  --color-border:          rgb(234 241 230 / 0.06);
-  --color-border-strong:   rgb(234 241 230 / 0.12);
+  /* Surfaces — light tonal layers from lowest (white) to highest (sage tint). */
+  --color-bg:                      #f7faf4;        /* background = surface */
+  --color-surface:                 #f7faf4;        /* base surface */
+  --color-surface-dim:             #d3dcd3;        /* deeper tone for darker shells */
+  --color-surface-bright:          #f7faf4;        /* = base for symmetry */
+  --color-surface-container-lowest: #ffffff;       /* pure white core */
+  --color-surface-container-low:   #f0f5ee;        /* palest sage tint */
+  --color-surface-container:       #e9f0e8;        /* gentle sage tint */
+  --color-surface-container-high:  #e3eae2;        /* deeper sage tint */
+  --color-surface-container-highest: #dce5db;      /* deepest sage tint */
+  --color-surface-variant:         #dce5db;        /* = highest */
 
-  --font-sans: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont,
-               "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace,
-               SFMono-Regular, monospace;
+  /* On-surface text/icon tones. */
+  --color-text:                    #2c342e;        /* on-surface default */
+  --color-muted:                   #59615a;        /* on-surface-variant */
+  --color-inverse-surface:         #0b0f0c;        /* dark for inverse use */
+  --color-inverse-on-surface:      #9a9e99;        /* light grey on dark */
 
-  --motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-micro:  150ms;
-  --motion-small:  200ms;
-  --motion-medium: 350ms;
-  --motion-large:  500ms;
+  /* Outlines (subtle borders + hairlines). */
+  --color-outline:                 #747d75;
+  --color-outline-variant:         #abb4ac;
 
-  --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-pill: 999px;
+  /* Primary — deep, muted forest sage (Material tonal anchor). */
+  --color-primary:                 #4a8c66;        /* moderate lift (#386948 → #4a8c66, 2026‑07 round+3):
+                                                          light contrast ~5.9:1 → ~3.8:1 (passes AA Large);
+                                                          dark contrast ~3:1 → ~4.8:1 (passes AA body) */
+  --color-primary-tint:            #4a8c66;        /* surface-tint follows primary lif
+  --color-on-primary:              #e8ffe9;        /* mint light */
+  --color-primary-container:       #b9efc5;        /* pale sage container */
+  --color-on-primary-container:    #2a5b3b;        /* deep sage text on container */
+  --color-inverse-primary:         #bef5ca;        /* light sage for inverse */
+
+  /* Secondary — warm taupe/stone, lower-emphasis accents. */
+  --color-secondary:               #665e53;
+  --color-on-secondary:            #fff8f2;
+  --color-secondary-container:     #ece1d3;
+  --color-on-secondary-container:  #585146;
+
+  /* Tertiary — deep ochre/gold, reserved highlights. */
+  --color-tertiary:                #745c27;
+  --color-on-tertiary:             #fff8f1;
+  --color-tertiary-container:      #fad998;
+  --color-on-tertiary-container:   #614b18;
+
+  /* Error + danger. */
+  --color-error:                   #a83836;
+  --color-on-error:                #fff7f6;
+  --color-error-container:         #fa746f;
+  --color-on-error-container:      #6e0a12;
+
+  /* Semantic aliases (used by utility classes via legacy names). */
+  --color-border:        rgb(44 52 46 / 0.10);   /* hairline on light */
+  --color-border-strong: rgb(44 52 46 / 0.20);
+  --color-accent:        #bef5ca;                  /* = inverse-primary */
+  --color-warning:       #fad998;                  /* = tertiary-container */
+  --color-danger:        #a83836;                  /* = error */  --color-primary-soft:  rgb(74 140 102 / 0.10);   /* tint for hover bg on light; hue tracks lifted primary #4a8c66 */
+
+  /* ─────────────────────────────────────────────────────────────────
+   * Terminal/paper-flavoured tokens (theme-fixed). These describe the
+   * dashboard mockup's "paper manuscript" mood and are intentionally
+   * identical in @theme AND :root[data-theme="dark"] below — the
+   * dashboard reads as a self-contained light cream panel regardless
+   * of page theme, matching the cream/light aesthetic the user
+   * preferred over the previous CRT-dark shell.
+   *
+   * When the page theme is dark (deep sage) the cream panel stands
+   * out via sheer tonal contrast (cream-on-dark); when the page is
+   * light (cream) the panel reads via its slightly cooler/warmer
+   * cream tier and the soft sage drop shadow. Either way the panel
+   * never flips "mode" with the page — it's an inserted paper sheet.
+   *
+   * Color picks harmonise with the page tonal family: deep sage
+   * fg (#2c342e) reads matched against cream bg (#FFFFFF), warm grey
+   * caption (#6b6660) sits at body-text AA on the chrome band,
+   * forest sage keyword (#15803d) makes `impl` / `pub fn` / `self`
+   * legible without overpowering the manuscript mood.
+   * ───────────────────────────────────────────────────────────────── */
+  --color-terminal-bg:            #FFFFFF;
+  --color-terminal-chrome:        #F0EDE6;
+  --color-terminal-fg:            #2c342e;
+  --color-terminal-caption:       #6b6660;
+  --color-terminal-caption:       #7B7670;
+  --color-terminal-comment:       #6B6660;
+  --color-terminal-keyword:       #4a8c66;   /* round+5 swap: keyword now = lifted primary (highlight tier);
+                                                     was #3F7250 (muted). fn/keyword hierarchy inverted so
+                                                     `pub`/`impl`/`fn`/`self` read as the structural cue. */
+  --color-terminal-fn:            #3F7250;   /* round+5 swap: fn name now muted; was previously
+                                                     the keyword tier (#4a8c66). */
+  --color-terminal-type:          #745C27;
+  --color-terminal-string:        #B91C1C;
+  --color-terminal-tab-active:    #4a8c66;   /* round+5 sync: active tab tracks the new highlight tier. */
+  --color-terminal-border:        rgb(44 52 46 / 0.12);
+
+  /* Typography — DESIGN §4 "Organic Professional"
+     Literata (serif headlines) + Nunito Sans (body) + Geist Mono (code). */
+  --font-serif: "Literata", "Literata Variable", Georgia, "Times New Roman", serif;
+  --font-sans:  "Nunito Sans", "Nunito Sans Variable", "Inter", -apple-system,
+                BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono:  "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Type scale. Tailwind v4 derives `text-*` from `--text-*`. The
+     suffixed `--line-height` / `--letter-spacing` / `--font-weight` are
+     auto-paired per the YAML scale. */
+  --text-display:    64px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 700;
+
+  --text-headline-xl:    48px;
+  --text-headline-xl--line-height: 1.10;
+  --text-headline-xl--letter-spacing: -0.020em;
+  --text-headline-xl--font-weight: 700;
+
+  --text-headline-lg:    32px;
+  --text-headline-lg--line-height: 1.25;
+  --text-headline-lg--letter-spacing: -0.010em;
+  --text-headline-lg--font-weight: 700;          /* YAML headline-lg weight */
+
+  --text-headline-md:    28px;
+  --text-headline-md--line-height: 1.30;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm:    24px;
+  --text-headline-sm--line-height: 1.35;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg:    18px;
+  --text-body-lg--line-height: 1.55;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md:    16px;
+  --text-body-md--line-height: 1.50;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm:    14px;
+  --text-body-sm--line-height: 1.45;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-md:    14px;
+  --text-label-md--line-height: 1.40;
+  --text-label-md--letter-spacing: 0.010em;
+  --text-label-md--font-weight: 600;
+
+  --text-label-sm:    12px;
+  --text-label-sm--line-height: 1.40;
+  --text-label-sm--letter-spacing: 0.060em;
+  --text-label-sm--font-weight: 500;
+
+  /* Spacing — 8px baseline rhythm (DESIGN §5). */
+  --spacing-xs:  4px;
+  --spacing-sm:  8px;            /* base rhythm */
+  --spacing-md:  16px;           /* gutter / column gap */
+  --spacing-lg:  24px;           /* margin / section margin */
+  --spacing-xl:  32px;
+  --spacing-2xl: 48px;
+  --spacing-section: 120px;      /* py between narrative sections */
+  --spacing-container: 1200px;   /* max content width */
+  --spacing-navbar-height: 80px; /* floating glass-panel pill height
+                                    (top-4 padding + ~64px content).
+                                    Templates needing to anchor content
+                                    below the navbar (sticky counters,
+                                    jump-back links) reference this token
+                                    via Tailwind v4 arbitrary value
+                                    `top-[var(--spacing-navbar-height)]`
+                                    so they track navbar re-flows. */
+
+  /* Radius — DESIGN §7 "Rounded (level 2)" scale, mapped 1:1 to the
+     YAML `rounded` block. Class → token → px:
+       rounded-sm    → 0.25rem (4 px)
+       rounded       → 0.5rem  (8 px)  (DEFAULT — bare `--radius`)
+       rounded-md    → 0.75rem (12 px)
+       rounded-lg    → 1rem    (16 px)
+       rounded-xl    → 1.5rem  (24 px) */
+  --radius-sm:   4px;
+  --radius:      8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* Motion language. */
+  --motion-easing:  cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-micro:  120ms;
+  --motion-small:  180ms;
+  --motion-medium: 280ms;
+  --motion-large:  420ms;
 }
 
-@layer base {
-  html {
-    color-scheme: dark;
+/* ────────────────────────────────────────────────────────────────────────
+ * Dark palette — applied when user toggles to dark via ThemeToggle, or
+ * when the no-flash script resolves a stored `theme-pref="dark"` from
+ * localStorage.
+ *
+ * PRIMARY-FAMILY PARITY (user override, 2026‑07): every token in the
+ * primary tonal family mirrors the light block's value verbatim so
+ * the brand reads identically regardless of theme.
+ *
+ *   Brand lifted (#386948 → #4a8c66, 2026‑07‑round+3) to pick up
+ *   dark-mode presence: contrast with the near-black page bg jumps
+ *   ~3:1 → ~4.8:1 (passes WCAG AA body text 4.5:1); light-mode
+ *   softens to ~3.8:1 (passes AA Large Text only, still legible as
+ *   accent). The lifted hue stays inside the deep sage Material 3
+ *   family — neither mint nor olive drift.
+ *
+ *   Tokens held constant across both blocks:
+ *     • `--color-primary` (#4a8c66)            brand anchor (lifted)
+ *     • `--color-primary-tint` (#4a8c66)       surface‑tint follows primary
+ *     • `--color-on-primary` (#e8ffe9)         mint text on lifted-sage button
+ *     • `--color-primary-container` (#b9f0c6)  pale container
+ *     • `--color-on-primary-container` (#2a5b3b) deep text on pale container
+ *     • `--color-inverse-primary` (#bef5ca)    light sage chip on dark surface
+ *
+ * The lone mode-aware token in the primary family is
+ * `--color-primary-soft` — opacity lifted 0.10 → 0.20 here so the
+ * hover halo (`.tonal-card:hover` ring, status-pill tint) stays
+ * above perceptual threshold on the near-black `#0b0f0c` dark
+ * page bg (10% deep sage on near-black mixes below ΔL 0.02 JND).
+ * Hue now `rgb(74 140 102 …)` tracks the primary lift.
+ *
+ * Secondary / tertiary / accent / error ramps still dark-tune per
+ * the Material 3 spec — they describe tonal layers around the page
+ * bg, not the brand anchor.
+ * ──────────────────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  --color-bg:                      #0b0f0c;
+  --color-surface:                 #151b16;
+  --color-surface-bright:          #262e28;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low:   #0f1511;
+  --color-surface-container:       #151b16;
+  --color-surface-container-high:  #1a211c;
+  --color-surface-container-highest: #202822;
+  --color-surface-variant:         #202822;
+
+  --color-text:                    #dfe8de;
+  --color-muted:                   #a4ada5;
+  --color-inverse-surface:         #f7faf4;
+  --color-inverse-on-surface:      #525652;
+
+  --color-outline:                 #6f7870;
+  --color-outline-variant:         #424a43;
+
+  --color-primary:                 #4a8c66;   /* brand parity + lift: now #4a8c66 (matches light) so dark contrast ~3:1 → ~4.8:1 */
+  --color-primary-tint:            #4a8c66;   /* = primary (lifted); tonal surface hint follows brand */
+  --color-on-primary:              #e8ffe9;   /* mint light text on deep sage button — matches light */
+  --color-primary-container:       #b9f0c6;       /* = light value; pale sage container tier above primary */
+  --color-on-primary-container:    #2a5b3b;       /* = light value; deep sage text on pale container */
+  --color-inverse-primary:         #bef5ca;       /* = light value; restores divergence from primary */
+
+  --color-secondary:               #d0c5b8;
+  --color-on-secondary:            #463f35;
+  --color-secondary-container:     #413a31;
+  --color-on-secondary-container:  #c8beb0;
+
+  --color-tertiary:                #ffe8c0;
+  --color-on-tertiary:             #6b5320;
+  --color-tertiary-container:      #fad998;
+  --color-on-tertiary-container:   #614b18;
+
+  --color-error:                   #fa746f;
+  --color-on-error:                #490006;
+  --color-error-container:         #871f21;
+  --color-on-error-container:      #ff9993;
+
+  --color-border:        rgb(223 232 222 / 0.07);
+  --color-border-strong: rgb(223 232 222 / 0.14);
+  --color-accent:        #b9f0c6;
+  --color-warning:       #fad998;
+  --color-primary-soft:  rgb(74 140 102 / 0.20);   /* lifted-sage tinted soft; hue tracks primary #4a8c66;
+                                                      opacity stays lifted (0.20 on dark) to clear perceptual
+                                                      JND on #0b0f0c page bg */
+
+  /* Terminal tokens (THEME-AWARE — inverted from @theme paper values).
+     The user explicit brief: "kalau dark mode terminalnya jadi gelap,
+     kalau light mode terminalnya jadi putih" — paper cream in light
+     mode, CRT dark in dark mode. The previous strategy duplicated the
+     cream palette into both blocks to broadcast a "themed-locked"
+     intent; the user has now asked for the panel to MIRROR the page
+     theme instead, so this block holds a real CRT-dark palette:
+     deep near-black bg, slightly-lighter chrome tier, off-white fg,
+     and saturated forest/mint/amber syntax tokens readable on dark. */
+  --color-terminal-bg:            #0E1210;
+  --color-terminal-chrome:        #1A1F1C;
+  --color-terminal-fg:            #EAE8E1;
+  --color-terminal-caption:       #9C9990;
+  --color-terminal-comment:       #6B7666;
+  --color-terminal-keyword:       #86EFAC;   /* round+5 swap: keyword now = lightest CRT mint tier (#86EFAC,
+                                                     ~11.6:1 on #0E1210 — passes AAA) — vocabulary highlight.
+                                                     Was #5EA877 before swap. */
+  --color-terminal-fn:            #5EA877;   /* round+5 swap: fn name now muted sage-mint (#5EA877,
+                                                     ~5.8:1 on #0E1210 — passes AA); was the keyword tier. */
+  --color-terminal-type:          #FBBF24;
+  --color-terminal-string:        #FC8181;
+  --color-terminal-tab-active:    #86EFAC;   /* round+5 sync: active tab tracks the new highlight tier. */
+  --color-terminal-border:        rgb(234 232 225 / 0.10);
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Reveal cascades + reduced-motion overrides.
+ * ──────────────────────────────────────────────────────────────────────── */
+@keyframes reveal-fade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes reveal-up    { from { opacity: 0; transform: translateY(16px); }
+                          to   { opacity: 1; transform: translateY(0);   } }
+@keyframes reveal-scale { from { opacity: 0; transform: scale(0.96); }
+                          to   { opacity: 1; transform: scale(1);     } }
+@keyframes pulse-emerald {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%      { opacity: 0.5; transform: scale(0.9); }
+}
+
+@layer utilities {
+  .reveal-fade,
+  .reveal-up,
+  .reveal-scale {
+    opacity: 0;
+    pointer-events: none;
   }
-  /* Tailwind utility form preferred (architecture.md §10.3); kept explicit
-     `-webkit-font-smoothing` to ensure crisp Geist/Inter rendering. */
+  .reveal-fade.is-revealed  { animation: reveal-fade  var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
+  .reveal-up.is-revealed    { animation: reveal-up    var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
+  .reveal-scale.is-revealed { animation: reveal-scale var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
+
+  [data-stagger] { opacity: 0; }
+  [data-stagger].is-revealed,
+  .reveal-up.is-revealed [data-stagger] {
+    animation: reveal-up var(--motion-medium) var(--motion-easing) forwards;
+  }
+  [data-stagger="0"].is-revealed { animation-delay: 0ms; }
+  [data-stagger="1"].is-revealed { animation-delay: 80ms; }
+  [data-stagger="2"].is-revealed { animation-delay: 160ms; }
+  [data-stagger="3"].is-revealed { animation-delay: 240ms; }
+  [data-stagger="4"].is-revealed { animation-delay: 320ms; }
+
+  .reveal-up.is-revealed [data-stagger="0"] { animation-delay: 120ms; }
+  .reveal-up.is-revealed [data-stagger="1"] { animation-delay: 200ms; }
+  .reveal-up.is-revealed [data-stagger="2"] { animation-delay: 280ms; }
+  .reveal-up.is-revealed [data-stagger="3"] { animation-delay: 360ms; }
+  .reveal-up.is-revealed [data-stagger="4"] { animation-delay: 440ms; }
+
+  [data-intro-complete="true"] .reveal-fade,
+  [data-intro-complete="true"] .reveal-up,
+  [data-intro-complete="true"] .reveal-scale,
+  [data-intro-complete="true"] [data-stagger] {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Reduced-motion: collapse cascades + status-dot pulse + nav underline
+ * hover to instant. See DESIGN §10.
+ * ──────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-fade,
+  .reveal-up,
+  .reveal-scale,
+  [data-stagger] { opacity: 1 !important; transform: none !important; pointer-events: auto !important; }
+  /* Decorative pulse — motion-sensitive users see a stationary, fully-
+     opaque dot. The pill's visual rhythm is preserved without churn. */
+  .status-dot { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .nav-link:hover::after { transform: scaleX(0); }
+  /* Hero dashboard 3D-tilted panel. The global rule kills
+     transition-duration but the rotateY/rotateX transform values
+     would still snap the panel into tilted state. Flatten here so
+     motion-sensitive users see the content without the perspective
+     skew. */
+  .perspective-panel { transform: none !important; }
+  /* Sticky counter at top of projects section. Backdrop blur reads as
+     a smooth shimmer when the section scrolls under it; reduce-motion
+     users see a flat opaque bar instead so the blur doesn't feel
+     kinetic. */
+  .sticky { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Base layer — html/body defaults.
+ * ──────────────────────────────────────────────────────────────────────── */
+@layer base {
+  html { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
   body {
     @apply bg-bg text-text font-sans antialiased;
     -webkit-font-smoothing: antialiased;
@@ -103,12 +493,431 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+/* ────────────────────────────────────────────────────────────────────────
+ * Component classes — Organic Professional visual language on a light
+ * base. Opt-in via class name in templates. Tinted glass uses
+ * surface-container-light against the cream bg so the pill chrome reads
+ * as a subtle elevation, not a heavy overlay.
+ * ──────────────────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Glass-panel — frosted chrome used by Navbar pill + Stack cards +
+     Footer status. Light base + faint outline. Backdrop blur softens
+     whatever sits behind it. */
+  .glass-panel {
+    background: color-mix(in oklab, var(--color-surface-container) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-outline-variant);
+  }
+
+  /* Grid background — 40×40 px line pattern. Light grid uses
+     surface-container (instead of outline-variant sage-grey) so the
+     lines bleed into the tonal surface tier and stay near-invisible
+     even at the opacity the calling site picks. Tested against cream
+     `#f7faf4` bg; the grid reads as a faint hint rather than a
+     blueprint scaffold. */
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--color-surface-container) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-surface-container) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Status dot — pulsing primary-color ball. Background = primary
+     (deep sage on light); shadow stays primary to extend the glow. */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 0 var(--color-primary);
+    animation: pulse-emerald 2.4s var(--motion-easing) infinite;
+  }
+
+  /* Nav link — underline telegraph using primary as the active color.
+     Translates to `--color-primary` regardless of theme. */
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    isolation: isolate;
+    padding-block: 4px;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background-color: var(--color-primary);
+    border-radius: var(--radius-xs);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition:
+      transform var(--motion-small) var(--motion-easing),
+      background-color var(--motion-small) var(--motion-easing);
+  }
+  .nav-link:hover::after { transform: scaleX(0.4); }
+  .nav-link[data-active="true"]::after { transform: scaleX(1); }
+  .nav-link[data-active="true"] {
+    color: var(--color-primary);
+  }
+
+  /* Status pill — primary text + surface-container-low tint + outline
+     border. The pulse dot sits to the left of the label. */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-low);
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Tonal-stack card — hover lifts + border primary. Light base sits
+     one tonal tier above bg; shadow stays subtle so the card reads as
+     "ambient elevation", not "drop shadow". Per YAML §"Components",
+     card radius is 16 px (`var(--radius-lg)`) — not 24 px which would
+     bloat it into a "container" tier. */
+  .tonal-card {
+    background: var(--color-surface-container);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.6) inset,
+      0 6px 24px -16px rgb(56 105 72 / 0.20);
+    transition:
+      border-color var(--motion-small) var(--motion-easing),
+      transform var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-medium) var(--motion-easing);
+  }
+  .tonal-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 1px var(--color-primary-soft),
+      0 24px 48px -28px rgb(56 105 72 / 0.30);
+  }
+
+  /* Tech tag — pill chip with primary-soft bg on light base. */
+  .tech-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-low);
+    color: var(--color-on-primary-container);
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Hero background image overlay. Per the designer brief ("opactity
+     yang sangat tipis" — a very faint presence), opacity sits at 10%
+     WITHOUT mix-blend-mode so the cream bg keeps its dominant tone
+     and the image registers as a paper-pressed texture instead of
+     being washed out by multiply. The radial mask bleeds the edges
+     back into bg so no harsh seam ever appears at viewport edges. */
+  .hero-bg-image {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.10;
+    -webkit-mask-image:
+      radial-gradient(ellipse at center,
+        rgb(0 0 0 / 1) 30%,
+        rgb(0 0 0 / 0.35) 60%,
+        transparent 92%);
+            mask-image:
+      radial-gradient(ellipse at center,
+        rgb(0 0 0 / 1) 30%,
+        rgb(0 0 0 / 0.35) 60%,
+        transparent 92%);
+    filter: blur(0.5px);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+   * Hero dashboard mockup — 3D-tilted glass shell that reproduces the
+   * portfolio_v2 panel from example.html. Two design notes:
+   *   • `perspective: 1400px` lifts the panel into a deep enough scene
+   *     that the slight Y/X tilt reads as a "device frame", not a
+   *     flat card. Anything shallower (≤600 px) skews like a sticker.
+   *   • The `rotateY(-10deg) rotateX(4deg)` is small enough that the
+   *     metric + code content stays legible; reduce-motion flattens
+   *     it (see the prefers-reduced-motion override below) so motion-
+   *     sensitive readers see the content without the perspective.
+   * The `transform-style: preserve-3d` propagates the perspective to
+   * any child that wants its own 3D treatment; current usages stay
+   * flat and inherit only the rotation.
+   * ───────────────────────────────────────────────────────────────── */
+  .perspective-panel {
+    transform: perspective(1400px) rotateY(-10deg) rotateX(4deg);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    transition:
+      transform var(--motion-medium) var(--motion-easing),
+      filter var(--motion-medium) var(--motion-easing);
+    /* Hang above the hero content layer (z-10) so the panel overhangs
+       and reads as a separate focal element rather than blending with
+       the headline. */
+    position: relative;
+  }
+  .perspective-panel:hover {
+    transform: perspective(1400px) rotateY(-8deg) rotateX(3deg) translateY(-6px);
+    filter: brightness(1.03);
+  }
+
+  /* Dashboard mockup frame. The mockup now MIRRORS the page theme:
+     cream paper panel in light mode, CRT-dark panel in dark mode.
+     See the `--color-terminal-*` blocks in `@theme` and
+     `:root[data-theme="dark"]` for the split palettes — the panel
+     inherits theme-appropriate values automatically via `useTheme`.
+     The triple shadow stack self-tunes:
+       (a) inset highlight uses terminal-fg (which flips with theme):
+           subtle dark bevel on cream, subtle light bevel on CRT;
+       (b) sage drop shadow stays constant (neutral cross-theme);
+       (c) rim outline uses terminal-fg at 8%: warm hairline on
+           cream, soft halo on CRT. Both ends of the spectrum stay
+           readable without re-tuning the box-shadow rule. */
+  .dashboard-mock {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--color-terminal-border);
+    background: var(--color-terminal-bg);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-terminal-fg) 6%, transparent) inset,
+      0 32px 64px -32px color-mix(in oklab, var(--color-terminal-fg) 12%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--color-terminal-fg) 8%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      transform var(--motion-medium) var(--motion-easing),
+      box-shadow var(--motion-medium) var(--motion-easing),
+      border-color var(--motion-small) var(--motion-easing);
+  }
+  .dashboard-mock:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, var(--color-terminal-fg) 8%, transparent) inset,
+      0 40px 80px -36px color-mix(in oklab, var(--color-terminal-keyword) 20%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--color-terminal-keyword) 15%, transparent);
+  }
+  .dashboard-mock__chrome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    /* 2px hairline so the chrome bar reads as a distinct row even at
+       low display brightness; the lifted `--color-terminal-chrome`
+       tier handles ΔL separation, the border reinforces it on devices
+       where the chrome tier might fade into the body tier. */
+    border-bottom: 2px solid var(--color-terminal-border);
+    background: var(--color-terminal-chrome);
+  }
+  .dashboard-mock__dots {
+    display: inline-flex;
+    gap: 8px;
+  }
+  .dashboard-mock__dots > span {
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    display: inline-block;
+  }
+  /* Dots stay color-mixed from the THEME's --color-error/primary so
+     they pick up page-tint energy when the panel sits on cream OR
+     deep-sage page bg. CAVEAT for yellow: `--color-warning` is
+     `#fad998` (cream-yellow) in light mode + `#fad998` in dark
+     mode — both wash against paper-cream. The yellow dot uses an
+     inline saturated amber (`#D97706` = amber-600) instead, which
+     reads on cream-paper AND on deep-sage without dissolving.
+     Red and green can stay theme-mixed because their primaries
+     (`--color-error` / `--color-primary`) carry enough saturation
+     to land on cream in light mode + on dark in dark mode. */
+  .dashboard-mock__dot--red    { background: color-mix(in oklab, var(--color-error) 70%, transparent); }
+  .dashboard-mock__dot--yellow { background: #D97706; }
+  .dashboard-mock__dot--green  { background: color-mix(in oklab, var(--color-primary) 70%, transparent); }
+  .dashboard-mock__caption {
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-terminal-caption);
+  }
+  .dashboard-mock__body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .dashboard-mock__metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .dashboard-mock__metric {
+    /* Metric bg = `--color-terminal-bg` (deeper than chrome-bar tier)
+       so the metric value reads as sat-in-a-tray, lifting visually
+       against the chrome bar. The border rim carries the chrome-tier
+       tone so the box still feels assigned to its row. */
+    background: var(--color-terminal-bg);
+    border: 1px solid var(--color-terminal-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition:
+      transform var(--motion-small) var(--motion-easing),
+      border-color var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-small) var(--motion-easing);
+    cursor: default;
+  }
+  .dashboard-mock__metric:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-terminal-keyword) 50%, var(--color-terminal-border));
+    box-shadow:
+      0 4px 16px -8px color-mix(in oklab, var(--color-terminal-keyword) 12%, transparent);
+  }
+  .dashboard-mock__metric-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-terminal-comment);
+  }
+  .dashboard-mock__metric-value {
+    font-family: var(--font-serif);
+    font-size: var(--text-headline-lg);
+    font-weight: 700;
+    color: var(--color-terminal-keyword);
+    line-height: 1;
+  }
+  .dashboard-mock__metric-value--default { color: var(--color-terminal-fg); }
+  .dashboard-mock__editor {
+    background: var(--color-terminal-bg);
+    color: var(--color-terminal-fg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-terminal-border);
+    padding: 18px 18px 22px;
+    transition:
+      border-color var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-small) var(--motion-easing);
+  }
+  .dashboard-mock__editor:hover {
+    border-color: color-mix(in oklab, var(--color-terminal-keyword) 40%, var(--color-terminal-border));
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--color-terminal-keyword) 8%, transparent);
+  }
+  .dashboard-mock__editor-tabs {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 12px;
+    opacity: 0.75;
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    color: var(--color-terminal-caption);
+  }
+  .dashboard-mock__editor-tab--active {
+    color: var(--color-terminal-tab-active);
+    opacity: 1;
+  }
+  .dashboard-mock__editor-body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.65;
+    color: color-mix(in oklab, var(--color-terminal-fg) 88%, transparent);
+    white-space: pre;
+  }
+  .dashboard-mock__editor-comment { color: var(--color-terminal-comment); font-style: italic; }
+  .dashboard-mock__editor-keyword { color: var(--color-terminal-keyword); }
+  .dashboard-mock__editor-fn      { color: var(--color-terminal-fn); }
+  .dashboard-mock__editor-type    { color: var(--color-terminal-type); }
+  .dashboard-mock__infra {
+    position: relative;
+    height: 80px;
+    opacity: 0.55;
+  }
+  /* Infra visual reuses the THEME's --color-primary (slightly tinted
+     to match terminal palette) so the nodes glow at the same energy
+     on cream OR deep-sage page backgrounds while still picking up
+     the page theme's primary tone (deep sage on light, mint on dark).
+     Bars + glow stay extruded from `--color-terminal-keyword` so the
+     inside is theme-fixed; the nodes carry the page-tint via primary. */
+  .dashboard-mock__infra-row {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+  }
+  .dashboard-mock__infra-bar {
+    flex: 1 1 auto;
+    height: 1px;
+    background: color-mix(in oklab, var(--color-terminal-keyword) 35%, transparent);
+    margin: 0 12px;
+  }
+  .dashboard-mock__infra-node {
+    width: 14px;
+    height: 14px;
+    background: var(--color-terminal-keyword);
+    border-radius: 4px;
+    box-shadow: 0 0 12px color-mix(in oklab, var(--color-terminal-fn) 60%, transparent);   /* round+6: glow halo swaps to muted fn tier
+                                                                                              (#3F7250 light, #5EA877 dark) so the infra visual reads
+                                                                                              calm Organic Professional, not neon CRT. The node bg
+                                                                                              keeps the keyword highlight tier (#4a8c66 / #86EFAC)
+                                                                                              so the architecture still pops without the loud ring. */
+    transition:
+      transform var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-small) var(--motion-easing);
+  }
+  .dashboard-mock__infra-node:hover {
+    transform: scale(1.35);
+    box-shadow: 0 0 20px color-mix(in oklab, var(--color-terminal-keyword) 50%, transparent);
+  }
+  .dashboard-mock__infra-node--ring {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-terminal-keyword);
+    background: transparent;
+    box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform var(--motion-small) var(--motion-easing),
+      border-color var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-small) var(--motion-easing);
+  }
+  .dashboard-mock__infra-node--ring:hover {
+    transform: scale(1.2);
+    border-color: var(--color-terminal-keyword);
+    box-shadow: 0 0 16px color-mix(in oklab, var(--color-terminal-keyword) 35%, transparent);
+  }
+  .dashboard-mock__infra-node--ring::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-terminal-keyword);
   }
 }
+
+

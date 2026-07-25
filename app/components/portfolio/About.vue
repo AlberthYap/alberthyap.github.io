@@ -1,19 +1,38 @@
 <script setup lang="ts">
+/**
+ * About — Editorial narrative section (Organic Professional).
+ *
+ * Same 5-beat storytelling arc as before (eyebrow kicker → lead → 3
+ * highlights → footnote) so the data-stagger contract (indices 0..5)
+ * is preserved for downstream tests.
+ *
+ * Visual treatment updated to use the Literata + Nunito Sans pairing:
+ * a mono uppercase kicker (cap height meets the design's small-label
+ * rhythm) sits above the body, then a sans lead flows underneath.
+ */
 import Heading from '~~/app/components/ui/Heading.vue'
 
 interface Props {
-  /** Name displayed above bio paragraph. */
-  name: string
-  /** Bio paragraph. */
+  /** Lead paragraph. */
   bio: string
-  /** Optional portrait image; falls back to a decorative placeholder tile. */
-  portrait?: { src: string; alt: string }
-  /** Bulleted highlight list under the bio. */
+  /** Full body document (from Nuxt Content) — rendered via ContentRenderer below the tagline. */
+  bodyDoc?: object | null
+  /** Portrait image — monogram fallback shown when absent. */
+  portrait?: { src: string; alt: string } | null
+  /** Mono caption above the lead. Defaults to "About". */
+  eyebrow?: string
+  /** Bulleted highlight list. */
   highlights?: readonly string[]
+  /** Closing line for the section. */
+  footnote?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
+  eyebrow: 'Now',
+  bodyDoc: null,
+  portrait: null,
   highlights: () => [],
+  footnote: '',
 })
 </script>
 
@@ -21,46 +40,68 @@ const props = withDefaults(defineProps<Props>(), {
   <section
     id="about"
     aria-labelledby="about-heading"
-    class="grid gap-10 md:grid-cols-[1fr_2fr] items-start"
+    class="flex flex-col gap-6 lg:grid lg:grid-cols-[220px_1fr] lg:gap-8 lg:items-start"
   >
-    <div class="flex flex-col gap-3">
-      <Heading id="about-heading" as="h2">About</Heading>
-      <div
-        v-if="props.portrait"
-        class="rounded-xl border border-border bg-surface aspect-square overflow-hidden"
-      >
-        <img
-          :src="props.portrait.src"
-          :alt="props.portrait.alt"
-          class="h-full w-full object-cover"
-          loading="lazy"
-        >
-      </div>
-      <div
-        v-else
-        class="rounded-xl border border-border bg-surface aspect-square flex items-center justify-center text-muted font-mono text-sm"
-        aria-hidden="true"
-      >
-        {{ props.name }}
+    <!-- Voice-control anchor. -->
+    <Heading id="about-heading" as="h2" class="sr-only">About</Heading>
+
+    <!-- Portrait tile — square rounded frame, monogram fallback when no image. -->
+    <div class="w-full max-w-[200px] sm:max-w-[240px] lg:max-w-none mx-auto lg:mx-0" data-stagger="0">
+      <div class="portrait-tile w-full">
+        <img v-if="portrait" :src="portrait.src" :alt="portrait.alt" class="w-full h-full object-cover" />
+        <span v-else class="initials">AY</span>
       </div>
     </div>
-    <div class="flex flex-col gap-5">
-      <p class="text-lg text-text leading-relaxed">
-        {{ props.bio }}
-      </p>
-      <ul
-        v-if="props.highlights.length"
-        class="flex flex-col gap-3"
+
+    <!-- Text column -->
+    <div class="flex flex-col gap-6">
+
+    <p
+      v-if="eyebrow"
+      data-stagger="0"
+      class="font-mono text-label-sm uppercase tracking-[0.05em] text-primary"
+    >
+      {{ eyebrow }}
+    </p>
+
+    <p
+      data-stagger="1"
+      class="text-text text-body-lg leading-[1.70]"
+    >
+      {{ bio }}
+    </p>
+
+    <div
+      v-if="bodyDoc"
+      data-stagger="1"
+      class="mt-6 text-text text-body-lg leading-[1.70] flex flex-col gap-lg [&_>p]:m-0"
+    >
+      <ContentRenderer :value="bodyDoc" />
+    </div>
+
+    <ul
+      v-if="highlights.length"
+      class="flex flex-col gap-3 pt-6"
+    >
+      <li
+        v-for="(item, idx) in highlights"
+        :key="item"
+        :data-stagger="2 + idx"
+        class="flex items-start gap-3 text-text"
       >
-        <li
-          v-for="item in props.highlights"
-          :key="item"
-          class="flex items-start gap-3 text-text"
-        >
-          <span aria-hidden="true" class="font-mono text-primary shrink-0">—</span>
-          <span>{{ item }}</span>
-        </li>
-      </ul>
+        <span aria-hidden="true" class="font-mono text-primary shrink-0">—</span>
+        <span>{{ item }}</span>
+      </li>
+    </ul>
+
+    <p
+      v-if="footnote"
+      data-stagger="5"
+      class="text-muted text-body-sm pt-4 mt-2 border-t border-border"
+    >
+      {{ footnote }}
+    </p>
+
     </div>
   </section>
 </template>

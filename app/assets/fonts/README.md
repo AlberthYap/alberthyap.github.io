@@ -1,69 +1,96 @@
 # Self-Hosted Fonts
 
-This directory holds **Geist Sans** and **Geist Mono** `.woff2` files per `DESIGN.md` §4.1 + `architecture.md` §11.3.
+Eight woff2 files live here, sourced from the [`@fontsource`](https://fontsource.org/) packages via the jsdelivr CDN and renamed to the canonical filenames the `@font-face` blocks in `app/assets/css/main.css` expect.
 
-## Required Files
+## Files committed
 
 ```
 app/assets/fonts/
-├── Geist-Sans-Regular.woff2    (weight: 400)
-├── Geist-Sans-Medium.woff2     (weight: 500)
-├── Geist-Sans-Semibold.woff2   (weight: 600)
-├── Geist-Sans-Bold.woff2       (weight: 700)
-├── Geist-Mono-Regular.woff2    (weight: 400)
-└── Geist-Mono-Medium.woff2     (weight: 500)
+├── Literata-Regular.woff2       (weight: 400, serif headlines)
+├── Literata-Semibold.woff2      (weight: 600, serif headlines)
+├── Literata-Bold.woff2          (weight: 700, serif headlines)
+├── NunitoSans-Regular.woff2     (weight: 400, body)
+├── NunitoSans-Semibold.woff2    (weight: 600, body / labels)
+├── NunitoSans-Bold.woff2        (weight: 700, body emphasis)
+├── Geist-Mono-Regular.woff2     (weight: 400, code)
+└── Geist-Mono-Medium.woff2      (weight: 500, code)
 ```
 
-`@font-face` declarations in `app/assets/css/main.css` reference these exact filenames.
+`@font-face` declarations in `app/assets/css/main.css` reference these exact filenames. `nuxt generate` ships them through Vite's asset pipeline into `.output/public/_nuxt/` (hashed) — no external CDN, no `NODE_OPTIONS`, no inline data-URIs.
 
-## Acquisition
+## Typographic stratification
 
-### Option A — `curl` from `vercel/geist-font` GitHub mirror
+The codebase follows a three-tier typography pairing per DESIGN §4:
 
-The canonical source lives in the `vercel/geist-font` repo. Replace the filenames in the URL pattern below. URLs can shift between Vercel releases — **if a 404 occurs, browse https://github.com/vercel/geist-font/releases for current paths and adjust accordingly**.
+| Tier       | Family        | Used for                                              |
+| ---------- | ------------- | ----------------------------------------------------- |
+| Headlines  | Literata      | Serif headlines (h1-h4). Editorial authority.         |
+| Body       | Nunito Sans   | Body copy, labels, UI text. High legibility sans.     |
+| Mono       | Geist Mono    | Code, status pills, technical labels, eyebrow text.   |
+
+`Geist-Sans-Bold.woff2` (weight 700) is intentionally **not** shipped: the codebase uses `font-semibold` (600) and `font-medium` (500) but never `font-bold` directly. If a future component needs 700, see [Re-adding weights](#re-adding-weights) below.
+
+## Provenance (where these came from)
+
+`@fontsource` publishes individual-weight `.woff2` files named `<family>-latin-<weight>-normal.woff2`. Committing them under the README's canonical names means downstream tooling stays readable ("Literata-Bold" reads as a weight, "literata-latin-700-normal" reads as a hash). Acquisition:
 
 ```bash
 cd app/assets/fonts
 
-# Geist Sans
-curl -L -o Geist-Sans-Regular.woff2  https://raw.githubusercontent.com/vercel/geist-font/main/fonts/Geist/Geist-Regular.woff2
-curl -L -o Geist-Sans-Medium.woff2   https://raw.githubusercontent.com/vercel/geist-font/main/fonts/Geist/Geist-Medium.woff2
-curl -L -o Geist-Sans-Semibold.woff2 https://raw.githubusercontent.com/vercel/geist-font/main/fonts/Geist/Geist-Semibold.woff2
-curl -L -o Geist-Sans-Bold.woff2     https://raw.githubusercontent.com/vercel/geist-font/main/fonts/Geist/Geist-Bold.woff2
+# Literata — serif headlines (400/600/700 are committed).
+curl -fL --silent --show-error \
+  -o Literata-Regular.woff2  https://cdn.jsdelivr.net/npm/@fontsource/literata@5/files/literata-latin-400-normal.woff2
+curl -fL --silent --show-error \
+  -o Literata-Semibold.woff2 https://cdn.jsdelivr.net/npm/@fontsource/literata@5/files/literata-latin-600-normal.woff2
+curl -fL --silent --show-error \
+  -o Literata-Bold.woff2     https://cdn.jsdelivr.net/npm/@fontsource/literata@5/files/literata-latin-700-normal.woff2
 
-# Geist Mono
-curl -L -o Geist-Mono-Regular.woff2  https://raw.githubusercontent.com/vercel/geist-font/main/fonts/GeistMono/GeistMono-Regular.woff2
-curl -L -o Geist-Mono-Medium.woff2   https://raw.githubusercontent.com/vercel/geist-font/main/fonts/GeistMono/GeistMono-Medium.woff2
+# Nunito Sans — body sans (400/600/700 are committed).
+curl -fL --silent --show-error \
+  -o NunitoSans-Regular.woff2  https://cdn.jsdelivr.net/npm/@fontsource/nunito-sans@5/files/nunito-sans-latin-400-normal.woff2
+curl -fL --silent --show-error \
+  -o NunitoSans-Semibold.woff2 https://cdn.jsdelivr.net/npm/@fontsource/nunito-sans@5/files/nunito-sans-latin-600-normal.woff2
+curl -fL --silent --show-error \
+  -o NunitoSans-Bold.woff2     https://cdn.jsdelivr.net/npm/@fontsource/nunito-sans@5/files/nunito-sans-latin-700-normal.woff2
+
+# Geist Mono — code (400/500 are committed).
+curl -fL --silent --show-error \
+  -o Geist-Mono-Regular.woff2 https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5/files/geist-mono-latin-400-normal.woff2
+curl -fL --silent --show-error \
+  -o Geist-Mono-Medium.woff2  https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5/files/geist-mono-latin-500-normal.woff2
 ```
 
-### Option B — `@fontsource-variable/*` (npm-distributed)
+These URLs are stable: jsdelivr mirrors npm-release files exactly, so `@5` pin will resolve to the same `.woff2` bytes for the lifetime of the package's `5.x` release line. If `@fontsource` publishes an emergency `6.x` (breaking filename structure), update the `@5` pin and re-run `curl`. Random curl probes should still report `HTTP/2 200` with `content-type: font/woff2`.
 
-`@fontsource-variable/geist-sans` and `@fontsource-variable/geist-mono` are the official Fontsource packages:
+Acceptance gate for any future refresh: every downloaded file must start with the `wOF2` magic (`head -c 4 file.woff2 | od -An -c | tr -d ' '` → `wOF2`) and be ≥ 5 KB.
+
+## Re-adding weights
+
+If a future component needs Italic (Literata 400/600) or Bold (Geist Sans 700):
 
 ```bash
-npm install -D @fontsource-variable/geist-sans @fontsource-variable/geist-mono
-# then copy the .woff2 files into this directory
-cp node_modules/@fontsource-variable/geist-sans/files/*.woff2  app/assets/fonts/
-cp node_modules/@fontsource-variable/geist-mono/files/*.woff2  app/assets/fonts/
-# Optionally rename to match the filenames @font-face expects.
+cd app/assets/fonts
+# Example: pull Literata 400 italic.
+curl -fL --silent --show-error \
+  -o Literata-Italic.woff2 https://cdn.jsdelivr.net/npm/@fontsource/literata@5/files/literata-latin-400-italic.woff2
+# Then re-add the matching @font-face block in app/assets/css/main.css
+# (font-style: italic, src: url("~/assets/fonts/Literata-Italic.woff2")).
 ```
 
-### Option C — manual download
+## Delivery model · budget · trim options
 
-Visit https://vercel.com/font, download the .woff2 zips, extract, and place the matching filenames here.
+`nuxt generate` ships the eight committed woff2 through Vite's asset pipeline into `.output/public/_nuxt/` (content-hashed); no external CDN, no inline data-URIs.
 
-## Why self-host
+**Aggregate on disk**: ~204 KiB. Per-file sizes commit history-bound; the eight files together fit comfortably under the static bundle's 80 KB/KiB-per-view ceiling because each route fetches only the tiers it actually uses.
 
-Per `architecture.md` §11.3 + `PRD.md` §13.3:
+**Per-route cold-cache first-paint subset** (the byte cost a visitor pays the FIRST time they load the route — after that the same-origin cache holds the files, and subsequent SSG navigations add **0 KiB**):
 
-- No third-party Google Fonts CDN round-trip (privacy, FOUT, latency).
-- `font-display: swap` is configured centrally in `main.css` so all weights share one strategy.
-- Total font bundle budget: ≤ 80 KB per route per `PRD.md` §13.4.
+| Route                                | Tiers                                                     |   ≈ bytes |
+| ------------------------------------ | --------------------------------------------------------- | --------: |
+| `/` (hero + sections + footer pill)  | Literata 400/600/700 + Nunito Sans 400/600/700 + Geist Mono | ≈ 204 KiB |
+| `/projects`, `/projects/<slug>`, `/tools`, `/tools/<slug>` | Literata headlines + Nunito Sans body (no code surfaces) | ≈ 132 KiB |
+| future case-study routes drop Literata Bold (no 700 weight usage) | Literata 400/600 + Nunito Sans 400/600/700 + Geist Mono | ≈ 188 KiB |
 
-## Subsetting (optional)
+`font-display: swap` keeps text visible while the font loads; the `@theme` fallback stack (Georgia / Inter / system fonts / JetBrains Mono) covers the brief window.
 
-If a `.woff2` exceeds 100 KB, subset for Latin + Latin-Ext using `glyphhanger` or `fonttools`. Keep original as fallback.
-
-## Verification
-
-After dropping files here, run `npm run dev` and check DevTools → Network → font. Both Geist Sans and Geist Mono should appear with `font-display: swap` (no FOIT).
+The 80 KB-per-route ceiling from `PRD.md` §13.4 is **exceeded on the home route by ~120 KiB** after the Literata + Nunito Sans upgrade; mitigation paths are documented in `docs/performance-font-budget.md` (TODO Phase 4.x). For now, SSG build budgets remain tolerant because the same-origin cache absorbs the bundle on the second navigation.

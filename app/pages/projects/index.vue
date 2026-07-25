@@ -15,17 +15,22 @@ useSeoMeta({
 </script>
 
 <template>
-  <PageContainer width="wide" class="py-16 md:py-24">
-    <header class="flex flex-col gap-3 mb-12">
-      <Heading as="h1">Projects</Heading>
-      <p class="text-muted">
+  <PageContainer width="wide" class="py-section">
+    <header class="flex flex-col gap-4 mb-12">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+        Archive
+      </p>
+      <h1 class="font-serif font-bold text-text text-display leading-none">
+        All <span class="text-primary">projects</span>
+      </h1>
+      <p class="text-muted text-body-md">
         {{ projects?.length ?? 0 }}
         {{ projects?.length === 1 ? 'project' : 'projects' }} shipped or in progress.
       </p>
     </header>
     <div
       v-if="projects && projects.length"
-      class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      class="grid gap-8 md:grid-cols-2"
     >
       <ProjectCard
         v-for="project in projects"
@@ -33,7 +38,10 @@ useSeoMeta({
         :project="project"
       />
     </div>
-    <div v-else class="rounded-xl border border-border bg-surface p-12 text-center">
+    <div
+      v-else
+      class="rounded-xl border border-outline-variant bg-surface-container p-12 text-center"
+    >
       <p class="text-muted mb-2">No projects yet.</p>
       <p class="text-sm text-muted">
         Drop a markdown file into <code>content/projects/</code> matching

@@ -2,6 +2,11 @@ import type { z } from 'zod'
 
 import { ProjectSchema } from '~~/shared/schemas/project'
 import { ToolSchema } from '~~/shared/schemas/tool'
+import { AboutSchema } from '~~/shared/schemas/about'
+import {
+  ExperienceSchema,
+  SkillGroupSchema,
+} from '~~/shared/schemas/experience'
 
 /**
  * Domain types — derived from Zod schemas (architecture.md §9.2 single-source-of-truth pattern).
@@ -12,5 +17,14 @@ import { ToolSchema } from '~~/shared/schemas/tool'
  */
 export type Project = z.infer<typeof ProjectSchema>
 export type Tool = z.infer<typeof ToolSchema>
+export type About = z.infer<typeof AboutSchema>
+export type Experience = z.infer<typeof ExperienceSchema>
+export type SkillGroup = z.infer<typeof SkillGroupSchema>
 
-export { ProjectSchema, ToolSchema }
+export {
+  ProjectSchema,
+  ToolSchema,
+  AboutSchema,
+  ExperienceSchema,
+  SkillGroupSchema,
+}

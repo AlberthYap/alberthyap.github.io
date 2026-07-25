@@ -1,10 +1,8 @@
 import { z } from 'zod'
 
 /**
- * Project (case study) frontmatter schema per `PRD.md` §9.3.
- * Single source of truth for: build-time validation (Nuxt Content),
- * runtime types (`z.infer` in `shared/types/`), and form/route validation
- * when needed.
+ * Project (case study) frontmatter schema — single source of truth
+ * for build-time validation, runtime types, and form/route validation.
  */
 export const ProjectSchema = z.object({
   title: z.string().min(1).max(80),
@@ -34,9 +32,3 @@ export const ProjectSchema = z.object({
   ).default([]),
   relatedProjects: z.array(z.string()).default([]),
 })
-
-// Bounds rationale: explicit `min`/`max` and regex constraints are layered on
-// the PRD §9.3 spec to catch typos and align with `DESIGN.md` §15 SEO conventions
-// (e.g. `description` capped near meta-description sweet-spot per SEO norms;
-// `slug` regex locks to kebab-case so URLs are stable). Tighten/relax as the
-// project grows — these are NOT spec-mandated.

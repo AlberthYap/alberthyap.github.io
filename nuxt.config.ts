@@ -13,8 +13,6 @@ export default defineNuxtConfig({
     '~/assets/css/main.css',
   ],
 
-  // Auto-import components from subfolders without path prefix
-  // (architecture.md §5.3) — keeps templates readable: <Button> instead of <UiButton>.
   components: [
     { path: '~/components/ui', pathPrefix: false },
     { path: '~/components/layout', pathPrefix: false },
@@ -22,15 +20,6 @@ export default defineNuxtConfig({
     { path: '~/components/tools', pathPrefix: false },
   ],
 
-  // Static Site Generation for GitHub Pages (PRD §19.2).
-  // Phase 3 update: `failOnError: true` was safe in Phase 0–2 (no internal links
-  // to dynamic slugs), but breaks Phase 3 builds once Navbar + ProjectCard emit
-  // NuxtLink to `/projects/<slug>` while content collection is still empty.
-  // Mitigation: `failOnError: false` lets the build complete while missing
-  // slugs render the 404 page. Pages still emit `throw createError({ statusCode: 404 })`
-  // so the runtime contract is preserved.
-  // TODO Phase 3.x: re-tighten to `failOnError: true` once a sample case study
-  // lands and `crawlLinks` discovers a real slug path.
   nitro: {
     prerender: {
       crawlLinks: true,
@@ -39,15 +28,53 @@ export default defineNuxtConfig({
     },
   },
 
+  // DESIGN.md v3.0 §13 — no-flash inline script.
+  // Resolves saved theme before paint so the first frame matches the
+  // user's preference. Default is `light` per the Organic Professional
+  // palette (light-first); the script only picks `dark` when the user
+  // has explicitly chosen it (localStorage) or the OS reports dark-scheme
+  // and the user has never opted out.
+  app: {
+    head: {
+      // Eagerly preload the 1.5 MB hero texture so it lands alongside
+      // the rest of the first-paint resources on slow networks. The
+      // console is logically classified as a 'fetchpriority=low'
+      // rather than 'high' tag because:
+      //   - Hero text is the LCP candidate, not the texture overlay;
+      //   - low priority keeps the font + JS budget unblocked;
+      //   - the texture is decorative — it can paint a few hundred ms
+      //     later than its sibling resources without hurting UX.
+      link: [
+        {
+          rel: 'preload',
+          as: 'image',
+          href: '/image.png',
+          fetchpriority: 'low',
+          // Gate the 1.5 MB preload to mid+ viewports. Below 640 px
+          // the hero composition softens and the texture is barely
+          // visible anyway, so the preloaded bytes are pure waste on
+          // mobile + small-tablet networks.
+          media: '(min-width: 640px)',
+          type: 'image/png',
+        },
+      ],
+      script: [
+        {
+          innerHTML:
+            "(function(){try{var p=localStorage.getItem('theme-pref');var r=p==='dark'||p==='light'?p:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',r);}catch(e){}})();",
+          tagPosition: 'head',
+          type: 'text/javascript',
+        },
+      ],
+    },
+  },
+
   vite: {
-    // Tailwind CSS 4 via first-party Vite plugin (architecture.md §10.1).
     plugins: [tailwindcss()],
   },
 
   typescript: {
     strict: true,
-    // Push stricter flags into Nuxt-generated tsconfig fragments so they
-    // actually guard app/shared/server source (architecture.md §9.1).
     tsConfig: {
       compilerOptions: {
         noUncheckedIndexedAccess: true,

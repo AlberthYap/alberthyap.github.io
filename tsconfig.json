@@ -3,6 +3,17 @@
   // Stricter TypeScript flags (`noUncheckedIndexedAccess`, etc.) are
   // configured via `typescript.tsConfig` in `nuxt.config.ts` so Nuxt
   // injects them into the generated project-reference fragments.
+  //
+  // `extends: "./.nuxt/tsconfig.json"` is required for tools that walk
+  // up the directory tree to find the active tsconfig (Vue's SFC
+  // compiler, oxc-minify, ESLint flat configs). Nuxt 4's solution-style
+  // `references` graph alone is not discoverable from those tools —
+  // they bail with "Tsconfig not found" on individual `.vue` files when
+  // the root config has no `include` of its own. Extending the
+  // Nuxt-generated base tsconfig (which has a comprehensive `include`
+  // list covering `app/**/*`) gives those tools the right project shape
+  // without disturbing Nuxt's stricter type-checking pipeline.
+  "extends": "./.nuxt/tsconfig.json",
   "files": [],
   "references": [
     { "path": "./.nuxt/tsconfig.app.json" },
