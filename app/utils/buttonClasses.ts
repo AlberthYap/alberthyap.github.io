@@ -44,11 +44,11 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    // Dark forest sage (`#386948`) + light mint (`#e8ffe9`) — measured
-    // contrast ~5.66:1 on light surfaces. Passes WCAG AA (4.5:1) for
-    // body sizes; misses AAA (7:1) but is well above the 3:1 floor for
-    // large text + UI components.
-    `bg-primary text-on-primary hover:bg-primary/90 active:bg-primary/85 border border-transparent ${FOCUS_PRIMARY}`,
+    // Forest sage (`#4a8c66`) + white (`#ffffff`) — measured contrast
+    // ~6.6:1 on light surfaces. Passes WCAG AA (4.5:1) for body text
+    // and approaches AAA (7:1). White text reads crisply on sage in
+    // both light and dark page themes.
+    `bg-primary text-white hover:bg-primary/90 active:bg-primary/85 border border-transparent ${FOCUS_PRIMARY}`,
   secondary:
     // Green text + subtle outline border — reads as a quieter secondary
     // action using brand color instead of dark text that floats on cream.

@@ -32,14 +32,14 @@ describe('LinkButton', () => {
     expect(wrapper.attributes('aria-label')).toBe('Send a message to the team')
   })
 
-  it('applies primary variant classes (bg-primary text-on-primary)', () => {
+  it('applies primary variant classes (bg-primary text-white)', () => {
     const wrapper = mount(LinkButton, {
       props: { to: '/', variant: 'primary' },
     })
     const classList = wrapper.classes().join(' ')
     expect(classList).toContain('bg-primary')
-    // Material 3 tonal palette: primary uses on-primary (dark sage) for AA contrast.
-    expect(classList).toContain('text-on-primary')
+    // White text on sage green for maximum readability across displays.
+    expect(classList).toContain('text-white')
   })
 
   it('applies secondary variant (green-tinted border, no bg)', () => {

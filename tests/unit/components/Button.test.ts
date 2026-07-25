@@ -49,8 +49,8 @@ describe('Button', () => {
     const wrapper = mount(Button, { slots: { default: 'Click' } })
     const classList = wrapper.classes().join(' ')
     expect(classList).toContain('bg-primary')
-    // Material 3 tonal palette: primary uses on-primary (dark sage) for AA contrast.
-    expect(classList).toContain('text-on-primary')
+    // White text on sage green for maximum readability across displays.
+    expect(classList).toContain('text-white')
   })
 
   it('applies ghost variant classes when specified', () => {

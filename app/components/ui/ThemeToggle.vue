@@ -160,7 +160,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
         role="menu"
         :aria-activedescendant="`theme-opt-${allOptions[activeIdx].value}`"
         aria-label="Theme selector"
-        class="absolute right-0 top-full mt-2 w-44 origin-top-right rounded-xl border border-outline-variant bg-surface-container shadow-lg backdrop-blur-md p-1.5 z-50"
+        class="absolute right-0 max-sm:left-0 max-sm:right-auto top-full mt-2 w-44 origin-top-right max-sm:origin-top-left rounded-xl border border-outline-variant bg-surface-container shadow-lg backdrop-blur-md p-1.5 z-50"
       >
         <template v-for="(opt, idx) in allOptions" :key="opt.value">
           <!-- Visual separator before the System (meta) option -->
