@@ -58,7 +58,7 @@ describe('Button', () => {
       props: { variant: 'ghost' },
       slots: { default: 'Click' },
     })
-    expect(wrapper.classes().join(' ')).toContain('text-text')
+    expect(wrapper.classes().join(' ')).toContain('text-muted')
     expect(wrapper.classes().join(' ')).not.toContain('bg-primary')
   })
 

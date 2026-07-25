@@ -50,11 +50,14 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     // large text + UI components.
     `bg-primary text-on-primary hover:bg-primary/90 active:bg-primary/85 border border-transparent ${FOCUS_PRIMARY}`,
   secondary:
-    // Transparent fill + outline border — reads as a quieter secondary
-    // action on the cream base. Hover lifts to primary text + border.
-    `bg-transparent text-text border border-outline-variant hover:border-primary hover:text-primary ${FOCUS_GHOST}`,
+    // Green text + subtle outline border — reads as a quieter secondary
+    // action using brand color instead of dark text that floats on cream.
+    // On hover the border intensifies to full primary.
+    `bg-transparent text-primary border border-primary/30 hover:border-primary hover:text-primary ${FOCUS_GHOST}`,
   ghost:
-    `bg-transparent text-text hover:bg-surface-container-high border border-transparent ${FOCUS_GHOST}`,
+    // Near-transparent with muted text — minimal footprint for inline
+    // actions that don't compete with the primary CTA.
+    `bg-transparent text-muted hover:text-primary hover:bg-surface-container-high border border-transparent ${FOCUS_GHOST}`,
 }
 
 export function buttonClasses(variant: ButtonVariant, size: ButtonSize): string {

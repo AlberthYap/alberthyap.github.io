@@ -42,12 +42,12 @@ describe('LinkButton', () => {
     expect(classList).toContain('text-on-primary')
   })
 
-  it('applies secondary variant (outline border, no bg)', () => {
+  it('applies secondary variant (green-tinted border, no bg)', () => {
     const wrapper = mount(LinkButton, {
       props: { to: '/', variant: 'secondary' },
     })
     const classList = wrapper.classes().join(' ')
-    expect(classList).toContain('border-outline-variant')
+    expect(classList).toContain('border-primary')
     expect(classList).toContain('bg-transparent')
   })
 
