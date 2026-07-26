@@ -137,20 +137,20 @@ useProvideActiveSection()
     />
 
     <div class="relative z-10">
-      <!-- Hero — name + headline slot + lead + status + CTAs. Right column
-           on lg carries the HeroDashboard mockup (handled internally). -->
-      <Hero
-        :name="about?.name ?? SITE_NAME"
-        :eyebrow="about?.eyebrow ?? SITE_NAME"
-        :lead="about?.tagline ?? SITE_LEAD"
-        status="Available for new work"
-        primary-to="/projects"
-        primary-label="View selected work"
-
-      >
-        Building calm,<br>
-        <span class="text-primary">accessible systems</span>
-      </Hero>
+      <!-- Hero — scroll-spy observed via data-section-id="hero". -->
+      <div data-section-id="hero">
+        <Hero
+          :name="about?.name ?? SITE_NAME"
+          :eyebrow="about?.eyebrow ?? SITE_NAME"
+          :lead="about?.tagline ?? SITE_LEAD"
+          status="Available for new work"
+          primary-to="/projects"
+          primary-label="View selected work"
+        >
+          Building calm,<br>
+          <span class="text-primary">accessible systems</span>
+        </Hero>
+      </div>
 
       <PageContainer width="default" class="flex flex-col gap-section pb-section">
         <!-- About ─────────────────────────────────────── -->
@@ -161,8 +161,8 @@ useProvideActiveSection()
         >
           <About
             v-if="about"
+            :name="about.name"
             :bio="about.tagline"
-            :eyebrow="about.eyebrow ?? 'Now'"
             :portrait="about?.portrait ?? null"
             :highlights="about.highlights"
             :body-doc="about"

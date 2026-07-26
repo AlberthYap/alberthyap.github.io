@@ -4,15 +4,11 @@ import { describe, expect, it } from 'vitest'
 import About from '~~/app/components/portfolio/About.vue'
 
 /**
- * About v4 — 5-beat storytelling arc (eyebrow → lead → highlights →
- * footnote). The page-level wrapper toggles `reveal-up.is-revealed` and
- * each beat here carries a `data-stagger="0..5"` index, which the CSS
- * in main.css translates into a sequenced cascade.
+ * About v5 — Editorial Calm layout.
  *
- * The visible section heading is replaced by an sr-only <h2> so the
- * document outline still has a stable anchor (used by
- * `aria-labelledby="about-heading"` on the section element as well as
- * any in-page anchor link).
+ * Content beats: name+tagline (stagger 0) → bodyDoc (stagger 1) →
+ * highlights (stagger 2, 3, 4) → footnote (stagger 5).
+ * No eyebrow, no decorative line, no tonal-card.
  */
 describe('About', () => {
   it('renders section with id="about" for in-page anchors', () => {
@@ -29,91 +25,85 @@ describe('About', () => {
     })
     const h2 = wrapper.find('h2#about-heading')
     expect(h2.exists()).toBe(true)
-    // Visible-headings are now the eyebrow caption; the structural heading
-    // is hidden but stays in the DOM.
     expect(h2.classes()).toContain('sr-only')
   })
 
-  it('renders the eyebrow caption when supplied', () => {
+  it('renders the name as a serif heading when supplied', () => {
     const wrapper = mount(About, {
-      props: { bio: 'Bio.', eyebrow: 'Currently' },
+      props: { bio: 'Bio.', name: 'Alberth Yaputra' },
     })
-    const eyebrow = wrapper.find('p.font-mono.uppercase')
-    expect(eyebrow.exists()).toBe(true)
-    expect(eyebrow.text()).toBe('Currently')
+    const heading = wrapper.find('h3.font-serif')
+    expect(heading.exists()).toBe(true)
+    expect(heading.text()).toBe('Alberth Yaputra')
   })
 
-  it('falls back to "Now" eyebrow when prop omitted', () => {
+  it('renders the tagline as a muted paragraph below the name', () => {
     const wrapper = mount(About, {
-      props: { bio: 'Bio.' },
+      props: { bio: 'Engineer — API design, automation.' },
     })
-    expect(wrapper.text()).toContain('Now')
+    const tagline = wrapper.find('p.text-muted.text-body-lg')
+    expect(tagline.exists()).toBe(true)
+    expect(tagline.text()).toBe('Engineer — API design, automation.')
   })
 
-  it('renders the bio paragraph as the lead paragraph', () => {
-    const wrapper = mount(About, {
-      props: { bio: 'Long-form bio sentence goes here.' },
-    })
-    const lead = wrapper.find('p.text-text.text-body-lg')
-    expect(lead.exists()).toBe(true)
-    expect(lead.text()).toBe('Long-form bio sentence goes here.')
-  })
-
-  it('cascades each highlight with its own data-stagger index', () => {
+  it('renders each highlight as a stat card with staggered data-stagger index', () => {
     const wrapper = mount(About, {
       props: {
         bio: 'Bio.',
         highlights: ['WCAG a11y', 'Static-first delivery', 'Performance budgets'],
       },
     })
-    const items = wrapper.findAll('ul > li')
-    expect(items).toHaveLength(3)
-    expect(items[0]?.attributes('data-stagger')).toBe('2')
-    expect(items[1]?.attributes('data-stagger')).toBe('3')
-    expect(items[2]?.attributes('data-stagger')).toBe('4')
+    const cards = wrapper.findAll('[data-stagger]')
+    const staggerCards = cards.filter((el) =>
+      ['2', '3', '4'].includes(el.attributes('data-stagger') ?? ''),
+    )
+    expect(staggerCards).toHaveLength(3)
+    expect(staggerCards[0]?.attributes('data-stagger')).toBe('2')
+    expect(staggerCards[1]?.attributes('data-stagger')).toBe('3')
+    expect(staggerCards[2]?.attributes('data-stagger')).toBe('4')
   })
 
-  it('renders the footnote at data-stagger="5" when supplied', () => {
+  it('renders the footnote CTA at data-stagger="5" with footnote text and "Let\'s build" prompt', () => {
     const wrapper = mount(About, {
       props: {
         bio: 'Bio.',
         footnote: 'Open to select frontend problems.',
       },
     })
-    const footnote = wrapper.find('p.text-muted.text-body-sm')
+    const footnote = wrapper.find('[data-stagger="5"]')
     expect(footnote.exists()).toBe(true)
-    expect(footnote.text()).toBe('Open to select frontend problems.')
-    expect(footnote.attributes('data-stagger')).toBe('5')
+    expect(footnote.text()).toContain('Open to select frontend problems.')
+    expect(footnote.text()).toContain("Let's build")
   })
 
   it('omits the footnote block when footnote prop is empty', () => {
     const wrapper = mount(About, {
       props: { bio: 'Bio.', footnote: '' },
     })
-    const footnote = wrapper.find('p.text-muted.text-body-sm')
+    const footnote = wrapper.find('[data-stagger="5"]')
     expect(footnote.exists()).toBe(false)
   })
 
-  it('does not render an empty highlights list', () => {
+  it('does not render highlight cards when highlights list is empty', () => {
     const wrapper = mount(About, {
       props: { bio: 'Bio.', highlights: [] },
     })
-    expect(wrapper.find('ul').exists()).toBe(false)
+    // No element should have stagger="2" (first highlight index)
+    expect(wrapper.find('[data-stagger="2"]').exists()).toBe(false)
   })
 
-  it('renders the full 5-beat arc end-to-end', () => {
+  it('renders the cascade arc end-to-end', () => {
     const wrapper = mount(About, {
       props: {
-        eyebrow: 'Now',
+        name: 'Test Name',
         bio: 'Lead paragraph.',
         highlights: ['Principle 1', 'Principle 2', 'Principle 3'],
         footnote: 'Closing line.',
       },
     })
-    // Six cascade beats total (eyebrow=0, lead=1, h1=2, h2=3, h3=4,
-    // footnote=5). Element count matches the design's "5-beat" promise
-    // (eyebrow + lead + 3 highlights + footnote = 6 sequenced items).
-    const seq = ['0', '1', '2', '3', '4', '5']
+    // Cascade beats: name+tagline=0, h1=2, h2=3, h3=4, footnote=5
+    // (bodyDoc stagger=1 only present when bodyDoc prop is provided)
+    const seq = ['0', '2', '3', '4', '5']
     for (const idx of seq) {
       expect(wrapper.find(`[data-stagger="${idx}"]`).exists()).toBe(true)
     }
