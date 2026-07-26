@@ -13,10 +13,16 @@ import { safeExternalUrl } from '~~/shared/schemas/_utils'
  * supplied content via `content/projects/*.md` could pass a
  * `javascript:` / `data:` / `vbscript:` payload through the schema
  * layer, it would land in a live `href` attribute and execute on
- * click — a classic XSS sink. Zod's `z.string().url()` already
- * restricts to http/https/ftp/mailto (it parses via the WHATWG URL
- * standard then rejects non-web protocols). This test pins that
- * behavior so a future schema relax can't silently regress it.
+ * click — a classic XSS sink.
+ *
+ * The original audit claimed Zod's `z.string().url()` was enough;
+ * it isn't — Zod's stock `.url()` happily parses `javascript:`,
+ * `data:`, `vbscript:`, `file:`, `blob:`, and several other
+ * schemes whose browser behavior is "execute as code". The
+ * hardened `safeExternalUrl` schema in `shared/schemas/_utils.ts`
+ * combines `.url()` with an explicit allowlist `.refine()`. This
+ * test pins that defense so a future schema relax can't silently
+ * regress it.
  */
 
 const PROJECT_BASE: Record<string, unknown> = {
@@ -58,6 +64,17 @@ const MALICIOUS_SCHEMES: ReadonlyArray<{ scheme: string, url: string }> = [
   { scheme: 'file:', url: 'file:///etc/passwd' },
   { scheme: 'jar:', url: 'jar:http://evil.com/x.jar!/README' },
   { scheme: 'blob:', url: 'blob:http://evil.com/abc' },
+  // Browser-internal navigations (expose source via view-source:,
+  // trigger extension protocol handlers, etc.).
+  { scheme: 'about:', url: 'about:blank' },
+  { scheme: 'chrome:', url: 'chrome://settings' },
+  { scheme: 'chrome-extension:', url: 'chrome-extension://abcd/index.html' },
+  // Mobile / OS deep links that bypass http-allowlist thinking.
+  { scheme: 'intent:', url: 'intent:#Intent;scheme=tel;end' },
+  // Custom URI handlers (cryptocurrency, torrents, etc.).
+  { scheme: 'bitcoin:', url: 'bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa' },
+  { scheme: 'magnet:', url: 'magnet:?xt=urn:btih:abc' },
+  { scheme: 'view-source:', url: 'view-source:https://example.com' },
 ]
 
 const BENIGN_SCHEMES: ReadonlyArray<{ scheme: string, url: string }> = [
@@ -65,6 +82,22 @@ const BENIGN_SCHEMES: ReadonlyArray<{ scheme: string, url: string }> = [
   { scheme: 'https:', url: 'https://example.com/repo' },
   { scheme: 'https:', url: 'https://github.com/AlberthYap/TensiTrack' },
   { scheme: 'mailto:', url: 'mailto:hi@example.com' },
+  // Query string + fragment — confirm refine parses ancillary parts
+  // without false-positive.
+  { scheme: 'https:', url: 'https://example.com/path?foo=bar&baz=qux#section' },
+]
+
+// Schemes that are NOT malicious per se but sit outside the
+// safe-by-default allowlist. `liveUrl` and `repoUrl` are web
+// affordances by definition. If the user ever legitimately needs
+// one of these (e.g. a phone-link `tel:`), edit SAFE_PROTOCOLS in
+// `shared/schemas/_utils.ts`.
+const OFF_ALLOWLIST: ReadonlyArray<{ scheme: string, url: string }> = [
+  { scheme: 'ftp:', url: 'ftp://files.example.com/old.tar.gz' },
+  { scheme: 'tel:', url: 'tel:+6281234567890' },
+  { scheme: 'sms:', url: 'sms:+6281234567890' },
+  { scheme: 'ssh:', url: 'ssh://git@example.com/repo.git' },
+  { scheme: 'git:', url: 'git://github.com/AlberthYap/TensiTrack.git' },
 ]
 
 describe('ProjectSchema URL injection defense', () => {
@@ -87,6 +120,17 @@ describe('ProjectSchema URL injection defense', () => {
     it(`accepts repoUrl = ${url}`, () => {
       const r = ProjectSchema.safeParse({ ...PROJECT_BASE, repoUrl: url })
       expect(r.success).toBe(true)
+    })
+  })
+
+  describe.each(OFF_ALLOWLIST)('rejects $scheme (off-allowlist but not exploitable — expand SAFE_PROTOCOLS if needed)', ({ url }) => {
+    it(`rejects liveUrl = ${url}`, () => {
+      const r = ProjectSchema.safeParse({ ...PROJECT_BASE, liveUrl: url })
+      expect(r.success).toBe(false)
+    })
+    it(`rejects repoUrl = ${url}`, () => {
+      const r = ProjectSchema.safeParse({ ...PROJECT_BASE, repoUrl: url })
+      expect(r.success).toBe(false)
     })
   })
 })
