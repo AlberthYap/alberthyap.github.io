@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { safeExternalUrl } from './_utils'
+
 /**
  * Project (case study) frontmatter schema — single source of truth
  * for build-time validation, runtime types, and form/route validation.
@@ -22,8 +24,8 @@ export const ProjectSchema = z.object({
   ),
   thumbnail: z.string(),
   images: z.array(z.string()).default([]),
-  liveUrl: z.string().url().nullable(),
-  repoUrl: z.string().url().nullable(),
+  liveUrl: safeExternalUrl.nullable(),
+  repoUrl: safeExternalUrl.nullable(),
   metrics: z.array(
     z.object({
       label: z.string(),
