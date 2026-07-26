@@ -122,4 +122,22 @@ describe('ExperienceSchema', () => {
       expect(result.data.technologies).toHaveLength(2)
     }
   })
+
+  it('accepts optional location and type metadata', () => {
+    const result = ExperienceSchema.safeParse({
+      ...baseExperience,
+      location: 'Jakarta, Indonesia',
+      type: 'Full-time',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.location).toBe('Jakarta, Indonesia')
+      expect(result.data.type).toBe('Full-time')
+    }
+  })
+
+  it('rejects type values outside the employment-type enum', () => {
+    const result = ExperienceSchema.safeParse({ ...baseExperience, type: 'Freelance-ish' })
+    expect(result.success).toBe(false)
+  })
 })

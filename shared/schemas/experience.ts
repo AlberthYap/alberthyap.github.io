@@ -19,6 +19,8 @@ export const ExperienceSchema = z.object({
     z.string().regex(/^\d{4}-\d{2}$/, 'YYYY-MM or "present"'),
   ]),
   summary: z.string().min(20).max(280),
+  location: z.string().optional(),
+  type: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance']).optional(),
   skills: z.array(SkillGroupSchema).default([]),
   achievements: z.array(z.string()).default([]),
   technologies: z.array(z.string()).default([]),
