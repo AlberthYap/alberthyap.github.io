@@ -11,6 +11,10 @@ achievements:
   - Built web applications for guest registration and baggage management systems
   - Configured electronic equipment ensuring smooth corporate event operations
   - Conducted preventive maintenance on computer systems reducing downtime
-technologies: [Web Development, System Maintenance, PHP, MySQL]
+skills:
+  - category: Backend
+    items: [PHP]
+  - category: Database
+    items: [MySQL]
 ---
 Configured and maintained electronic equipment for corporate events. Developed web-based applications to support guest registration and baggage management, improving operational processes.

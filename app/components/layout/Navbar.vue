@@ -20,7 +20,6 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import LinkButton from '~~/app/components/ui/LinkButton.vue'
 import ThemeToggle from '~~/app/components/ui/ThemeToggle.vue'
 
 import { NAV_LINKS, SITE_NAME } from '~~/shared/constants/site'
@@ -88,18 +87,10 @@ function closeMobile() {
         </NuxtLink>
       </nav>
 
-      <!-- Right cluster: theme toggle + primary CTA. Visible from md+; mobile gets a
+      <!-- Right cluster: theme toggle only. Visible from md+; mobile gets a
            hamburger that sits inside the pill. -->
-      <div class="hidden md:flex items-center gap-3">
+      <div class="hidden md:flex items-center">
         <ThemeToggle />
-        <LinkButton
-          to="#contact"
-          variant="primary"
-          size="sm"
-          class="rounded-full"
-        >
-          Get in touch
-        </LinkButton>
       </div>
 
       <button
@@ -136,17 +127,8 @@ function closeMobile() {
           {{ link.label }}
         </NuxtLink>
       </nav>
-      <div class="mt-4 flex items-center justify-between gap-3">
+      <div class="mt-4 flex items-center">
         <ThemeToggle />
-        <LinkButton
-          to="#contact"
-          variant="primary"
-          size="md"
-          class="rounded-full flex-1 justify-center"
-          @click="closeMobile"
-        >
-          Get in touch
-        </LinkButton>
       </div>
     </div>
   </header>

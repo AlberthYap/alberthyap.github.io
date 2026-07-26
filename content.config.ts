@@ -19,6 +19,8 @@ import { ExperienceSchema } from '../shared/schemas/experience'
  *   in `shared/types/`. One source of truth for build-time validation,
  *   TS types, and runtime form/route validation.
  */
+import { PersonalSkillsSchema } from '../shared/schemas/personal-skills'
+
 export default defineContentConfig({
   collections: {
     projects: defineCollection({
@@ -42,6 +44,12 @@ export default defineContentConfig({
       type: 'page',
       source: 'experience/**/*.md',
       schema: ExperienceSchema,
+    }),
+    // Personal skills — self-learned tech not tied to any company experience.
+    personalSkills: defineCollection({
+      type: 'data',
+      source: 'skills/personal-skills.yml',
+      schema: PersonalSkillsSchema,
     }),
   },
 })

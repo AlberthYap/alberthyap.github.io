@@ -50,15 +50,17 @@ interface Props {
   /** Primary CTA label. */
   primaryLabel: string
   /** Secondary CTA destination. */
-  secondaryTo: string
+  secondaryTo?: string
   /** Secondary CTA label. */
-  secondaryLabel: string
+  secondaryLabel?: string
 }
 
 withDefaults(defineProps<Props>(), {
   name: '',
   eyebrow: '',
   status: 'Available for new work',
+  secondaryTo: '',
+  secondaryLabel: '',
 })
 </script>
 
@@ -144,6 +146,7 @@ withDefaults(defineProps<Props>(), {
               {{ primaryLabel }}
             </LinkButton>
             <LinkButton
+              v-if="secondaryTo && secondaryLabel"
               :to="secondaryTo"
               variant="secondary"
               size="lg"

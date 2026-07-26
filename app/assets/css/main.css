@@ -592,6 +592,84 @@
     font-weight: 500;
   }
 
+  /* Portrait tile — square rounded frame for About photo.
+     Uses surface-container-low bg fallback + subtle outline-variant
+     border + ambient primary-tinted shadow. The inner img fills the
+     frame; the fallback `.initials` span shows bold monogram when
+     no photo is supplied. Hover lifts slightly and deepens the
+     shadow for a tactile affordance. */
+  .portrait-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-outline-variant);
+    overflow: hidden;
+    background:
+      radial-gradient(
+        ellipse at top right,
+        color-mix(in oklab, var(--color-primary) 15%, transparent) 0%,
+        transparent 60%
+      ),
+      linear-gradient(160deg, var(--color-surface-container), var(--color-surface-dim) 80%);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, rgb(255 255 255) 12%, transparent) inset,
+      0 24px 48px -24px color-mix(in oklab, var(--color-primary) 20%, transparent);
+    transition:
+      transform var(--motion-small) var(--motion-easing),
+      box-shadow var(--motion-small) var(--motion-easing),
+      border-color var(--motion-small) var(--motion-easing);
+  }
+  .portrait-tile:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--color-primary) 50%, var(--color-outline-variant));
+    box-shadow:
+      0 1px 0 color-mix(in oklab, rgb(255 255 255) 12%, transparent) inset,
+      0 32px 60px -28px color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+  .portrait-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--motion-small) var(--motion-easing);
+  }
+  .portrait-tile:hover img {
+    transform: scale(1.04);
+  }
+  .portrait-tile .initials {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: clamp(56px, 8vw, 96px);
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* Dark mode portrait — border and shadow self-tune via color-mix,
+       but we need to override the inset highlight to flip from white
+       to transparent (no white shine on dark bg) and lift the
+       surface gradient one tier for contrast. */
+  :root[data-theme="dark"] .portrait-tile {
+    background:
+      radial-gradient(
+        ellipse at top right,
+        color-mix(in oklab, var(--color-primary) 15%, transparent) 0%,
+        transparent 60%
+      ),
+      linear-gradient(160deg, var(--color-surface-container-high), var(--color-surface-container) 80%);
+    box-shadow:
+      0 24px 48px -24px color-mix(in oklab, var(--color-primary) 15%, transparent);
+  }
+  :root[data-theme="dark"] .portrait-tile:hover {
+    box-shadow:
+      0 32px 60px -28px color-mix(in oklab, var(--color-primary) 25%, transparent);
+  }
+
   /* Tonal-stack card — hover lifts + border primary. Light base sits
      one tonal tier above bg; shadow stays subtle so the card reads as
      "ambient elevation", not "drop shadow". Per YAML §"Components",
@@ -663,6 +741,37 @@
      on near-black surface-container-low (#0f1511). */
   :root[data-theme="dark"] .skill-chip {
     color: var(--color-on-primary);
+  }
+
+  /* Skill chip tooltip — appears above chip on hover, shows category.
+     Uses surface-container-highest bg + muted text so it feels like a
+     floating metadata label, not a primary action hint. The wrapper
+     provides the `position: relative` anchor; the tooltip is absolutely
+     positioned above the chip with `pointer-events: none` so it never
+     blocks hover on the chip itself. */
+  .skill-chip-wrapper {
+    position: relative;
+  }
+  .skill-chip-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-container-highest);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--motion-micro) var(--motion-easing);
+  }
+  .skill-chip-wrapper:hover .skill-chip-tooltip {
+    opacity: 1;
   }
 
   /* Hero background image overlay. Per the designer brief ("opactity

@@ -1,5 +1,8 @@
 ---
 name: Alberth Yaputra
+portrait:
+  src: /profile.webp
+  alt: Alberth Yaputra
 tagline: Fullstack Engineer — frontend-to-backend, API design, and automation systems.
 footnote: Open to opportunities — fullstack engineering, API architecture, and automation.
 highlights:

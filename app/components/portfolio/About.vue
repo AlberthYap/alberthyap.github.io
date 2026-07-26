@@ -37,7 +37,7 @@ withDefaults(defineProps<Props>(), {
   <section
     id="about"
     aria-labelledby="about-heading"
-    class="flex flex-col gap-10 md:grid md:grid-cols-[280px_1fr] md:gap-14 md:items-start"
+    class="flex flex-col gap-6 md:grid md:grid-cols-[280px_1fr] md:gap-14 md:items-center"
   >
     <Heading id="about-heading" as="h2" class="sr-only">About</Heading>
 

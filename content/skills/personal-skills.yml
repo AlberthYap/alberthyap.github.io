@@ -1,0 +1,9 @@
+skills:
+  - category: Frontend
+    items: [Vue.js, Nuxt, Next.js, Tailwind CSS, JavaScript]
+  - category: Database
+    items: [PostgreSQL, MongoDB, DB2]
+  - category: Data Engineering
+    items: [Apache Hadoop, Apache Hive, Apache Solr]
+  - category: Tooling
+    items: [Vitest]

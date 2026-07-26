@@ -1,46 +1,17 @@
 <script setup lang="ts">
 /**
  * Skills — Single column, category heading + chips with icons.
- * Uses Simple Icons (simple-icons npm) for authentic brand SVG paths.
+ * Uses shared techIcon() from ~/utils/techIcons.
  */
 import type { SkillGroup } from '~~/shared/types'
-import {
-  siReact, siTypescript, siVuedotjs, siNuxt, siPhp, siMysql,
-  siDjango, siFastapi, siPython, siGo, siDocker, siNginx,
-  siApache, siApachespark, siApacheairflow, siDart, siVitest,
-} from 'simple-icons'
+
+import { techIcon } from '~~/app/utils/techIcons'
 
 interface Props {
   groups: readonly SkillGroup[]
 }
 
 defineProps<Props>()
-
-/** Map of lowercase tech name → Simple Icons SVG path. */
-const iconMap: Record<string, string> = {
-  react: siReact.path,
-  typescript: siTypescript.path,
-  vue: siVuedotjs.path,
-  nuxt: siNuxt.path,
-  php: siPhp.path,
-  mysql: siMysql.path,
-  django: siDjango.path,
-  fastapi: siFastapi.path,
-  python: siPython.path,
-  golang: siGo.path,
-  go: siGo.path,
-  docker: siDocker.path,
-  nginx: siNginx.path,
-  apache: siApache.path,
-  'apache spark': siApachespark.path,
-  'apache airflow': siApacheairflow.path,
-  dart: siDart.path,
-  vitest: siVitest.path,
-}
-
-function techIcon(tech: string): string {
-  return iconMap[tech.toLowerCase()] ?? 'M8 5v14l11-7z'
-}
 </script>
 
 <template>
@@ -61,7 +32,7 @@ function techIcon(tech: string): string {
         data-stagger="1"
         class="font-sans text-body-sm text-muted reveal-up is-revealed"
       >
-        Technologies I work with across the stack.
+        Building scalable web systems — backend engineering, APIs, and automation.
       </p>
     </header>
 
@@ -79,8 +50,8 @@ function techIcon(tech: string): string {
         </h3>
 
         <ul class="flex flex-wrap gap-2">
-          <li v-for="item in group.items" :key="item">
-            <span class="skill-chip gap-1.5">
+          <li v-for="item in group.items" :key="item" class="skill-chip-wrapper">
+            <span class="skill-chip gap-1.5" :title="group.category">
               <svg
                 class="h-3.5 w-3.5 shrink-0 text-primary"
                 xmlns="http://www.w3.org/2000/svg"
@@ -92,6 +63,10 @@ function techIcon(tech: string): string {
               </svg>
               <span>{{ item }}</span>
             </span>
+            <span
+              aria-hidden="true"
+              class="skill-chip-tooltip"
+            >{{ group.category }}</span>
           </li>
         </ul>
       </div>

@@ -24,8 +24,9 @@ import { computed } from 'vue'
 
 import type { Experience } from '~~/shared/types'
 
-import Badge from '~~/app/components/ui/Badge.vue'
 import Heading from '~~/app/components/ui/Heading.vue'
+
+import { techIcon } from '~~/app/utils/techIcons'
 
 interface Props {
   /** Experience collection entries, sorted (newest first by the caller). */
@@ -133,18 +134,27 @@ const entries = computed<Entry[]>(() =>
             </li>
           </ul>
 
-          <!-- Technologies as badges -->
+          <!-- Technologies as skill chips (style matches Skills.vue) -->
           <div
             v-if="entry.experience.technologies.length"
             class="flex flex-wrap gap-1.5 mt-1"
           >
-            <Badge
+            <span
               v-for="(tech, tidx) in entry.experience.technologies"
               :key="`${entry.experience.slug}-tech-${tidx}`"
-              variant="tech"
+              class="skill-chip gap-1.5"
             >
+              <svg
+                class="h-3.5 w-3.5 shrink-0 text-primary"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path :d="techIcon(tech)" />
+              </svg>
               {{ tech }}
-            </Badge>
+            </span>
           </div>
         </div>
       </li>

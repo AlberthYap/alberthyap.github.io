@@ -14,11 +14,11 @@ achievements:
   - Monitored and maintained data pipelines ensuring optimal system performance
 skills:
   - category: Backend
-    items: [Python, Golang, Apache Spark, Apache Airflow]
+    items: [Python, Golang, Dart]
   - category: Frontend
-    items: [React, TypeScript]
-  - category: 'Tools & Platforms'
-    items: [Dart]
+    items: [React, JavaScript, TypeScript]
+  - category: Data Engineering
+    items: [Apache Spark, Apache Airflow, Apache Superset]
 technologies: [Python, Apache Spark, Apache Airflow, Golang, React, Dart, TypeScript]
 ---
 Developed automation scripts for data pipelines and server maintenance, reducing manual work by 60%. Built multiple data pipelines using Python, Apache Spark, and Apache Airflow for reliable enterprise data processing.

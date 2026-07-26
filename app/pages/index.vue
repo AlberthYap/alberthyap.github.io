@@ -36,10 +36,27 @@ function pad2(n: number): string {
 }
 
 /**
- * Reduce a list of experience entries to one `SkillGroup[]` keyed by category.
- * Items within a group deduplicate; alphabetical sort keeps output stable for SSG.
+ * Preferred display order for skill categories. Categories not in this
+ * list appear at the end in insertion order.
  */
-function aggregateSkills(experiences: readonly Experience[]): SkillGroup[] {
+const CATEGORY_ORDER = [
+  'Frontend',
+  'Backend',
+  'Data Engineering',
+  'Infrastructure',
+  'Database',
+]
+
+/**
+ * Merge experience-derived skills with personal/self-learned skills into
+ * one `SkillGroup[]` keyed by category. Personal skills are merged into
+ * the same categories so e.g. "Vue.js" adds alongside "React" under
+ * Frontend. Items deduplicate across both sources.
+ */
+function aggregateSkills(
+  experiences: readonly Experience[],
+  personal: SkillGroup[] = [],
+): SkillGroup[] {
   const groups = new Map<string, Set<string>>()
   for (const exp of experiences) {
     for (const sg of exp.skills) {
@@ -51,10 +68,25 @@ function aggregateSkills(experiences: readonly Experience[]): SkillGroup[] {
       for (const item of sg.items) bucket.add(item)
     }
   }
-  return Array.from(groups, ([category, items]) => ({
-    category,
-    items: Array.from(items).sort(),
-  }))
+  // Merge personal/self-learned skills into the same categories
+  for (const sg of personal) {
+    let bucket = groups.get(sg.category)
+    if (!bucket) {
+      bucket = new Set()
+      groups.set(sg.category, bucket)
+    }
+    for (const item of sg.items) bucket.add(item)
+  }
+  return Array.from(groups)
+    .sort((a, b) => {
+      const ai = CATEGORY_ORDER.indexOf(a[0])
+      const bi = CATEGORY_ORDER.indexOf(b[0])
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
+    })
+    .map(([category, items]) => ({
+      category,
+      items: Array.from(items).sort(),
+    }))
 }
 
 const { data: about } = await useAsyncData(
@@ -77,8 +109,13 @@ const { data: featuredProjects } = await useAsyncData(
       .all(),
 )
 
+const { data: personalSkillsData } = await useAsyncData(
+  'home-personal-skills',
+  () => queryCollection('personalSkills').first(),
+)
+
 const skillGroups = computed<SkillGroup[]>(() =>
-  aggregateSkills(experiences.value ?? []),
+  aggregateSkills(experiences.value ?? [], personalSkillsData.value?.skills ?? []),
 )
 
 /**
