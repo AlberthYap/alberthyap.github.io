@@ -11,6 +11,13 @@ achievements:
   - Enhanced application performance through comprehensive debugging, testing, and optimization
   - Followed software development best practices for clean, modular, and maintainable code
   - Provided ongoing support and updates for live applications ensuring optimal performance
+skills:
+  - category: Frontend
+    items: [React, TypeScript]
+  - category: Backend
+    items: [Django, FastAPI, MySQL, Nginx, Apache]
+  - category: 'Tools & Platforms'
+    items: [Docker]
 technologies: [React, Django, FastAPI, MySQL, Docker]
 ---
 Designed and developed fullstack web applications with Django backend and React frontend. Built RESTful APIs using FastAPI for seamless frontend-backend communication and managed relational databases for efficient data operations.

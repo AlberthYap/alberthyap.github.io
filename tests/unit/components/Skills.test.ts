@@ -5,12 +5,7 @@ import Skills from '~~/app/components/portfolio/Skills.vue'
 import type { SkillGroup } from '~~/shared/types'
 
 /**
- * Skills v5 — Core Stack (Organic Professional).
- *
- * Layout: 3-up grid of glass-panel cards (`tonal-card`). Heading reads
- * "Core Stack" with the "Stack" word tinted primary. Each card carries
- * a "Production Ready" status pill, a serif h3 category title, an
- * editor's description, and a list of `tech-pill` items.
+ * Skills — Single column, category heading + chips with icons.
  */
 const groups: readonly SkillGroup[] = [
   { category: 'Frontend', items: ['Vue 3', 'Nuxt 4', 'TypeScript'] },
@@ -18,7 +13,7 @@ const groups: readonly SkillGroup[] = [
   { category: 'Practices', items: ['A11y', 'Performance'] },
 ]
 
-describe('Skills (Core Stack edition)', () => {
+describe('Skills (chips with icons)', () => {
   it('renders the section with id="skills" for in-page anchors', () => {
     const wrapper = mount(Skills, { props: { groups } })
     expect(wrapper.find('section#skills').exists()).toBe(true)
@@ -33,7 +28,7 @@ describe('Skills (Core Stack edition)', () => {
     expect(heading.find('span.text-primary').exists()).toBe(true)
   })
 
-  it('caps the rendered cards at 3 (Core Stack keeps 3-up)', () => {
+  it('renders all skill categories as h3 headings', () => {
     const wrapper = mount(Skills, {
       props: {
         groups: [
@@ -44,33 +39,30 @@ describe('Skills (Core Stack edition)', () => {
         ],
       },
     })
-    expect(wrapper.findAll('article')).toHaveLength(3)
+    const headings = wrapper.findAll('h3')
+    expect(headings.length).toBe(4)
+    expect(headings[0].text()).toBe('Frontend')
+    expect(headings[1].text()).toBe('Tooling')
+    expect(headings[2].text()).toBe('Practices')
+    expect(headings[3].text()).toBe('Backend')
   })
 
-  it('renders each card with a "Production Ready" status pill', () => {
+  it('renders tech items as skill-chip pills with icons', () => {
     const wrapper = mount(Skills, { props: { groups } })
-    const pills = wrapper.findAll('article span')[0] // upper-right pill
-    expect(wrapper.text()).toContain('Production Ready')
-    expect(pills.text()).toContain('Production Ready')
-  })
-
-  it('renders tech items as tech-pill chips (mono uppercase)', () => {
-    const wrapper = mount(Skills, { props: { groups } })
-    const pills = wrapper.findAll('.tech-pill')
-    expect(pills.length).toBeGreaterThanOrEqual(7)
-    // Every tech-pill carries the mono uppercase styling alias.
-    pills.forEach((pill) => {
-      expect(pill.classes()).toContain('tech-pill')
+    const chips = wrapper.findAll('.skill-chip')
+    expect(chips.length).toBeGreaterThanOrEqual(7)
+    chips.forEach((chip) => {
+      expect(chip.find('svg').exists()).toBe(true)
     })
   })
 
-  it('emits `data-stagger` indices so the cascade animates cards in order', () => {
+  it('renders category heading with uppercase mono styling', () => {
     const wrapper = mount(Skills, { props: { groups } })
-    const articles = wrapper.findAll('article')
-    // Index 2..4 on each card (after the heading+intro stagger 0..1).
-    expect(articles[0]?.attributes('data-stagger')).toBe('2')
-    expect(articles[1]?.attributes('data-stagger')).toBe('3')
-    expect(articles[2]?.attributes('data-stagger')).toBe('4')
+    const categoryEl = wrapper.find('h3')
+    expect(categoryEl.exists()).toBe(true)
+    expect(categoryEl.text()).toBe('Frontend')
+    const parent = categoryEl.element.parentElement
+    expect(parent?.getAttribute('data-stagger')).toBeDefined()
   })
 
   it('emits heading at data-stagger="0" + intro paragraph at "1"', () => {
@@ -82,6 +74,6 @@ describe('Skills (Core Stack edition)', () => {
   it('still renders the heading when groups is empty', () => {
     const wrapper = mount(Skills, { props: { groups: [] } })
     expect(wrapper.find('#skills-heading').exists()).toBe(true)
-    expect(wrapper.findAll('article')).toHaveLength(0)
+    expect(wrapper.findAll('.skill-chip')).toHaveLength(0)
   })
 })

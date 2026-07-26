@@ -42,7 +42,6 @@ function pad2(n: number): string {
 function aggregateSkills(experiences: readonly Experience[]): SkillGroup[] {
   const groups = new Map<string, Set<string>>()
   for (const exp of experiences) {
-    // Collect from the legacy `skills` field (category + items).
     for (const sg of exp.skills) {
       let bucket = groups.get(sg.category)
       if (!bucket) {
@@ -50,17 +49,6 @@ function aggregateSkills(experiences: readonly Experience[]): SkillGroup[] {
         groups.set(sg.category, bucket)
       }
       for (const item of sg.items) bucket.add(item)
-    }
-    // Also collect from `technologies` (flat string array) — grouped
-    // under a single "Core" category so the Skills section stays
-    // populated even when `skills` is empty in content files.
-    if (exp.technologies.length > 0) {
-      let bucket = groups.get('Core')
-      if (!bucket) {
-        bucket = new Set()
-        groups.set('Core', bucket)
-      }
-      for (const tech of exp.technologies) bucket.add(tech)
     }
   }
   return Array.from(groups, ([category, items]) => ({
@@ -158,8 +146,7 @@ useProvideActiveSection()
         status="Available for new work"
         primary-to="/projects"
         primary-label="View selected work"
-        secondary-to="#contact"
-        secondary-label="Get in touch"
+
       >
         Building calm,<br>
         <span class="text-primary">accessible systems</span>

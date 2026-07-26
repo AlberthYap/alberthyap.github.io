@@ -596,14 +596,18 @@
      one tonal tier above bg; shadow stays subtle so the card reads as
      "ambient elevation", not "drop shadow". Per YAML §"Components",
      card radius is 16 px (`var(--radius-lg)`) — not 24 px which would
-     bloat it into a "container" tier. */
+     bloat it into a "container" tier.
+
+     Shadow uses `color-mix` with theme tokens so it self-tunes across
+     light and dark modes — light mode gets a subtle sage-green tint;
+     dark mode picks up the muted tone automatically. */
   .tonal-card {
     background: var(--color-surface-container);
     border: 1px solid var(--color-outline-variant);
     border-radius: var(--radius-lg);
     box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.6) inset,
-      0 6px 24px -16px rgb(56 105 72 / 0.20);
+      0 1px 0 color-mix(in oklab, rgb(255 255 255) 20%, transparent) inset,
+      0 8px 28px -20px color-mix(in oklab, var(--color-primary) 20%, transparent);
     transition:
       border-color var(--motion-small) var(--motion-easing),
       transform var(--motion-small) var(--motion-easing),
@@ -611,26 +615,54 @@
   }
   .tonal-card:hover {
     border-color: var(--color-primary);
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow:
       0 0 0 1px var(--color-primary-soft),
-      0 24px 48px -28px rgb(56 105 72 / 0.30);
+      0 24px 48px -28px color-mix(in oklab, var(--color-primary) 30%, transparent);
   }
 
-  /* Tech tag — pill chip with primary-soft bg on light base. */
-  .tech-pill {
+  /* Dark mode tonal-card — lift background one tier so cards stand
+     apart from the near-black page bg `#0b0f0c`. Shadow inset flips
+     from light-to-dark tint automatically via `--color-text` token.
+     The border gets a subtle primary tint so card edges are visible
+     even without hover, without being obtrusive. */
+  :root[data-theme="dark"] .tonal-card {
+    background: var(--color-surface-container-high);
+    border-color: color-mix(in oklab, var(--color-primary) 20%, var(--color-outline-variant));
+  }
+
+
+
+  /* Skill chip — compact pill with small icon for tech items (Opsi X).
+     Uses surface-container-low bg + outline-variant border, with primary-green
+     icon and text in dark mode overridden to bright mint for readability.
+     Inline-flex layout keeps icon + label centred within the pill. */
+  .skill-chip {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: var(--radius-full);
     border: 1px solid var(--color-outline-variant);
     background: var(--color-surface-container-low);
-    color: var(--color-on-primary-container);
+    color: var(--color-text);
     font-family: var(--font-mono);
     font-size: var(--text-label-sm);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-weight: 500;
+    transition:
+      border-color var(--motion-small) var(--motion-easing),
+      transform var(--motion-small) var(--motion-easing);
+  }
+  .skill-chip:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  /* Dark-mode skill chip — bright mint text so labels stay legible
+     on near-black surface-container-low (#0f1511). */
+  :root[data-theme="dark"] .skill-chip {
+    color: var(--color-on-primary);
   }
 
   /* Hero background image overlay. Per the designer brief ("opactity
