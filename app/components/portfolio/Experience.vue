@@ -72,9 +72,11 @@ const entries = computed<Entry[]>(() =>
     aria-labelledby="experience-heading"
     class="flex flex-col gap-10"
   >
-    <div class="flex items-end justify-between gap-4">
+    <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+        Career
+      </p>
       <Heading id="experience-heading" as="h2">Experience</Heading>
-      <p class="text-sm text-muted whitespace-nowrap">Building since 2021</p>
     </div>
 
     <ol class="relative pl-8 md:pl-10">

@@ -36,10 +36,13 @@ interface Props {
   project: Project
   /** Toggle the "Active" badge when status === 'shipped'. Default true. */
   showStatus?: boolean
+  /** Compact mode — cover image + title overlay only (home page gallery). */
+  compact?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showStatus: true,
+  compact: false,
 })
 
 /**
@@ -63,111 +66,150 @@ function statusLabel(): string {
     data-project-marker
     class="tonal-card group flex flex-col overflow-hidden reveal-up is-revealed"
   >
-    <!-- Cover image (Hero-style full-bleed). Wrapped in NuxtLink so the
-         visual primary affordance navigates to the project page. The
-         image carries a 16:9 aspect on all breakpoints (no horizontal
-         split — vertical only). Hover scales the inner image subtly.
-         A side-overlay gradient on sm ensures the cover still reads
-         as a content tile, not a blank region, when the image is light
-         against the cream bg. -->
-    <NuxtLink
-      :to="`/projects/${props.project.slug}`"
-      :aria-label="`Open ${props.project.title} case study`"
-      class="relative block aspect-video overflow-hidden bg-surface-container"
-    >
-      <img
-        v-if="props.project.thumbnail"
-        :src="props.project.thumbnail"
-        :alt="`${props.project.title} cover`"
-        loading="lazy"
-        class="w-full h-full object-cover aspect-video transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+    <!-- Content stack — compact (home gallery) or full (projects index) -->
+    <template v-if="compact">
+      <!-- Compact card: cover image (clickable → detail page) + title + URL (clickable → external) -->
+      <!-- Cover image → links to project detail page -->
+      <NuxtLink
+        :to="`/projects/${props.project.slug}`"
+        :aria-label="`Open ${props.project.title} case study`"
+        class="relative block aspect-video overflow-hidden bg-surface-container"
       >
-      <div
-        v-else
-        class="w-full h-full aspect-video bg-surface-container-high flex items-center justify-center font-serif text-headline-lg text-muted/40"
-        aria-hidden="true"
-      >
-        {{ props.project.title.slice(0, 2).toUpperCase() }}
-      </div>
-      <!-- Edge fade so a light image blends into the card bg via a
-           surface-container tone. Sits at z-10 above the image, so
-           hover transform still scales image, but the fade itself is
-           pinned to the wrapper. -->
-      <div
-        class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface-container/85 to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
-    </NuxtLink>
-
-    <!-- Content stack (title + status + description + metrics + tech + CTAs). -->
-    <div class="p-8 md:p-10 flex flex-col gap-6 grow">
-      <header class="flex items-center gap-4 flex-wrap">
-        <h3 class="font-serif text-headline-lg font-bold text-text leading-tight">
-          {{ props.project.title }}
-        </h3>
-        <span
-          v-if="props.showStatus"
-          class="font-mono text-label-sm uppercase tracking-widest text-primary bg-primary-soft border border-primary/30 rounded px-2 py-1"
+        <img
+          v-if="props.project.thumbnail"
+          :src="props.project.thumbnail"
+          :alt="`${props.project.title} cover`"
+          loading="lazy"
+          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         >
-          {{ statusLabel() }}
-        </span>
-      </header>
-
-      <p class="font-sans text-body-md text-muted leading-relaxed">
-        {{ props.project.description }}
-      </p>
-
-      <!-- Metrics strip (when populated) -->
-      <div
-        v-if="props.project.metrics.length"
-        class="grid grid-cols-2 gap-6 border-y border-outline-variant py-5"
-      >
         <div
-          v-for="m in props.project.metrics"
-          :key="m.label"
-          class="flex flex-col gap-1"
+          v-else
+          class="w-full h-full bg-surface-container-high flex items-center justify-center font-serif text-headline-lg text-muted/40"
+          aria-hidden="true"
         >
-          <span class="font-mono text-label-sm uppercase tracking-widest text-muted">
-            {{ m.label }}
+          {{ props.project.title.slice(0, 2).toUpperCase() }}
+        </div>
+      </NuxtLink>
+
+      <!-- Content below image: title + description + clickable URL -->
+      <div class="p-4 flex flex-col gap-1.5 grow">
+        <NuxtLink
+          :to="`/projects/${props.project.slug}`"
+          class="block"
+        >
+          <h3 class="font-serif text-headline-sm font-bold text-text leading-tight hover:text-primary transition-colors">
+            {{ props.project.title }}
+          </h3>
+        </NuxtLink>
+        <p class="font-sans text-body-sm text-muted leading-relaxed">
+          {{ props.project.description }}
+        </p>
+        <a
+          v-if="props.project.liveUrl || props.project.repoUrl"
+          :href="props.project.liveUrl || props.project.repoUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-mono text-label-sm text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary/60 transition-colors truncate mt-0.5 self-start"
+        >
+          {{ (props.project.liveUrl || props.project.repoUrl).replace(/^https?:\/\//, '').replace(/\/$/, '') }}
+        </a>
+      </div>
+    </template>
+
+    <template v-else>
+      <!-- Full mode: cover image (clickable) + content stack -->
+      <NuxtLink
+        :to="`/projects/${props.project.slug}`"
+        :aria-label="`Open ${props.project.title} case study`"
+        class="relative block aspect-video overflow-hidden bg-surface-container"
+      >
+        <img
+          v-if="props.project.thumbnail"
+          :src="props.project.thumbnail"
+          :alt="`${props.project.title} cover`"
+          loading="lazy"
+          class="w-full h-full object-cover aspect-video transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+        >
+        <div
+          v-else
+          class="w-full h-full aspect-video bg-surface-container-high flex items-center justify-center font-serif text-headline-lg text-muted/40"
+          aria-hidden="true"
+        >
+          {{ props.project.title.slice(0, 2).toUpperCase() }}
+        </div>
+        <div
+          class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface-container/85 to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+      </NuxtLink>
+
+      <div class="p-6 md:p-8 flex flex-col gap-5 grow">
+        <header class="flex items-center gap-3 flex-wrap">
+          <h3 class="font-serif text-headline-md font-bold text-text leading-tight">
+            {{ props.project.title }}
+          </h3>
+          <span
+            v-if="props.showStatus"
+            class="font-mono text-label-sm uppercase tracking-widest text-primary bg-primary-soft border border-primary/30 rounded px-2 py-1"
+          >
+            {{ statusLabel() }}
           </span>
-          <span class="font-sans text-body-md text-primary font-semibold">
-            {{ m.value }}
-          </span>
+        </header>
+
+        <p class="font-sans text-body-md text-muted leading-relaxed">
+          {{ props.project.description }}
+        </p>
+
+        <!-- Metrics strip -->
+        <div
+          v-if="props.project.metrics.length"
+          class="grid grid-cols-2 gap-6 border-y border-outline-variant py-4"
+        >
+          <div
+            v-for="m in props.project.metrics"
+            :key="m.label"
+            class="flex flex-col gap-1"
+          >
+            <span class="font-mono text-label-sm uppercase tracking-widest text-muted">
+              {{ m.label }}
+            </span>
+            <span class="font-sans text-body-md text-primary font-semibold">
+              {{ m.value }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Tech stack pills -->
+        <ul
+          v-if="props.project.technologies.length"
+          class="flex flex-wrap gap-2"
+        >
+          <li v-for="t in props.project.technologies" :key="t.name">
+            <span class="tech-pill">{{ t.name }}</span>
+          </li>
+        </ul>
+
+        <!-- CTA cluster -->
+        <div class="flex flex-wrap gap-3 pt-2 mt-auto">
+          <LinkButton
+            :to="`/projects/${props.project.slug}`"
+            variant="primary"
+            size="md"
+            class="rounded-lg"
+          >
+            View case study
+          </LinkButton>
+          <LinkButton
+            v-if="props.project.repoUrl"
+            :to="props.project.repoUrl"
+            variant="secondary"
+            size="md"
+            class="rounded-lg"
+          >
+            Source code
+          </LinkButton>
         </div>
       </div>
-
-      <!-- Tech stack pills -->
-      <ul
-        v-if="props.project.technologies.length"
-        class="flex flex-wrap gap-2"
-      >
-        <li v-for="t in props.project.technologies" :key="t.name">
-          <span class="tech-pill">{{ t.name }}</span>
-        </li>
-      </ul>
-
-      <!-- CTA cluster: real buttons (NuxtLink via LinkButton). mt-auto
-           pushes the cluster to the bottom of the card so cards of
-           uneven content height still align their CTAs. -->
-      <div class="flex flex-wrap gap-3 pt-2 mt-auto">
-        <LinkButton
-          :to="`/projects/${props.project.slug}`"
-          variant="primary"
-          size="md"
-          class="rounded-lg"
-        >
-          View case study
-        </LinkButton>
-        <LinkButton
-          v-if="props.project.repoUrl"
-          :to="props.project.repoUrl"
-          variant="secondary"
-          size="md"
-          class="rounded-lg"
-        >
-          Source code
-        </LinkButton>
-      </div>
-    </div>
+    </template>
   </article>
 </template>

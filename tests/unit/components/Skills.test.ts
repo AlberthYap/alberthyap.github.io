@@ -65,10 +65,11 @@ describe('Skills (chips with icons)', () => {
     expect(parent?.getAttribute('data-stagger')).toBeDefined()
   })
 
-  it('emits heading at data-stagger="0" + intro paragraph at "1"', () => {
+  it('emits heading wrapper at data-stagger="0"', () => {
     const wrapper = mount(Skills, { props: { groups } })
-    expect(wrapper.find('#skills-heading').attributes('data-stagger')).toBe('0')
-    expect(wrapper.find('p[data-stagger="1"]').exists()).toBe(true)
+    const headerWrapper = wrapper.find('[data-stagger="0"]')
+    expect(headerWrapper.exists()).toBe(true)
+    expect(headerWrapper.find('#skills-heading').exists()).toBe(true)
   })
 
   it('still renders the heading when groups is empty', () => {

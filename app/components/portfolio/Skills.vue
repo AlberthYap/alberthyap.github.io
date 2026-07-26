@@ -20,21 +20,17 @@ defineProps<Props>()
     aria-labelledby="skills-heading"
     class="flex flex-col gap-10"
   >
-    <header class="text-center flex flex-col gap-3 max-w-[640px] mx-auto">
+    <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+        Stack
+      </p>
       <h2
         id="skills-heading"
-        data-stagger="0"
-        class="font-serif font-bold text-text reveal-up is-revealed text-headline-xl"
+        class="font-headline font-bold text-text text-headline-xl leading-tight"
       >
         Core <span class="text-primary">Stack</span>
       </h2>
-      <p
-        data-stagger="1"
-        class="font-sans text-body-sm text-muted reveal-up is-revealed"
-      >
-        Building scalable web systems — backend engineering, APIs, and automation.
-      </p>
-    </header>
+    </div>
 
     <div class="flex flex-col gap-6">
       <div

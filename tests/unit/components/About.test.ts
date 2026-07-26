@@ -19,13 +19,15 @@ describe('About', () => {
     expect(section.exists()).toBe(true)
   })
 
-  it('keeps an sr-only <h2> for screen readers and document outline', () => {
+  it('renders a visible section header with mono label and serif title', () => {
     const wrapper = mount(About, {
       props: { bio: 'Bio.' },
     })
     const h2 = wrapper.find('h2#about-heading')
     expect(h2.exists()).toBe(true)
-    expect(h2.classes()).toContain('sr-only')
+    expect(h2.text()).toContain('About')
+    expect(h2.text()).toContain('Me')
+    expect(h2.classes()).not.toContain('sr-only')
   })
 
   it('renders the name as a serif heading when supplied', () => {

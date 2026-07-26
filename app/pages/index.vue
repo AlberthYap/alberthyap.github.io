@@ -10,10 +10,7 @@
  *   │ About        │ id="about"    │ Bio + bullets                    │
  *   │ Core Stack   │ id="skills"   │ Glass-panel 3-up card grid       │
  *   │ Experience   │ id="experience"│ Timeline of experience entries   │
- *   │ Projects     │ id="projects" │ Header carries sticky "01 / 03"   │
- *   │              │               │ counter (useProjectObserver);    │
- *   │              │               │ cards are vertical full-bleed    │
- *   │              │               │ covers.                          │
+ *   │ Projects     │ id="projects" │ Compact card grid — work showcase │
  *   └────────────────────────────────────────────────────────────────┘
  *
  * The page also mounts a `<div class="grid-bg">` fixed-positioned
@@ -26,14 +23,8 @@ import type { Experience, SkillGroup } from '~~/shared/types'
 
 import { useSectionReveal } from '~~/app/composables/useSectionReveal'
 import { useProvideActiveSection } from '~~/app/composables/useActiveSection'
-import { useProjectObserver } from '~~/app/composables/useProjectObserver'
 
 import { SITE_LEAD, SITE_NAME } from '~~/shared/constants/site'
-
-/** Pad an integer with a leading zero so the counter reads "01 / 03". */
-function pad2(n: number): string {
-  return n < 10 ? `0${n}` : String(n)
-}
 
 /**
  * Preferred display order for skill categories. Categories not in this
@@ -118,25 +109,6 @@ const skillGroups = computed<SkillGroup[]>(() =>
   aggregateSkills(experiences.value ?? [], personalSkillsData.value?.skills ?? []),
 )
 
-/**
- * Scroll-spy for the projects section — emits the 1-based card index
- * and total count whenever ≥50% of a `[data-project-marker]` enters
- * the viewport. Drives the sticky "01 / 03" counter on the section
- * header.
- *
- * The composable wires its own IntersectionObserver inside
- * `onMounted`; we only read `current` / `total` reactively here.
- */
-const projectsObserver = useProjectObserver('[data-project-marker]')
-
-/** Reactive "01 / 03" formatted string. Empty until first observation
- *  fires so the counter doesn't proudly show "00 / 00" at top-of-page. */
-const projectCounter = computed(() =>
-  projectsObserver.total.value > 0
-    ? `${pad2(projectsObserver.current.value)} / ${pad2(projectsObserver.total.value)}`
-    : '',
-)
-
 useSeoMeta({
   title: `${SITE_NAME} — Frontend Engineer`,
   description: about?.tagline ?? SITE_LEAD,
@@ -189,7 +161,7 @@ useProvideActiveSection()
         </Hero>
       </div>
 
-      <PageContainer width="default" class="flex flex-col gap-section pb-section">
+      <PageContainer width="default" class="flex flex-col gap-section pt-section pb-section">
         <!-- About ─────────────────────────────────────── -->
         <div
           data-section-id="about"
@@ -233,56 +205,31 @@ useProvideActiveSection()
           id="projects"
           data-section-id="projects"
           aria-labelledby="projects-heading"
-          class="flex flex-col gap-10 reveal-up"
+          class="flex flex-col gap-8 reveal-up"
           :class="{ 'is-revealed': portfolioRef }"
         >
-          <!-- Section header. lg+ carries a sticky counter pinned just
-               below the navbar pill at z-40 — sits below the navbar's
-               z-50 but above the section content. The counter is
-               `aria-live="polite"` so screen readers announce "01 / 03"
-               updates without barging into the current speech. The
-               mobile path keeps the counter (it's tonal, not
-               decorative) but the sticky position resolves to a flow
-               position because the navbar pill collapses on sm. We
-               reference `--spacing-navbar-height` so the offset tracks
-               any future navbar reflow rather than hard-coding 80 px.
-               The mobile path hides the counter to preserve breathing
-               room (each card already has its own per-card cascade). -->
-          <header
-            class="sticky top-[var(--spacing-navbar-height)] z-40 -mx-6 md:-mx-12 lg:-mx-16 px-6 md:px-12 lg:px-16 py-4 bg-bg/85 backdrop-blur-md supports-[backdrop-filter]:bg-bg/70 border-b border-outline-variant/60 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
-            data-stagger="0"
-          >
-            <div class="flex flex-col gap-2">
-              <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
-                Engineered Systems
-              </p>
-              <h2
-                id="projects-heading"
-                class="font-headline font-bold text-text text-headline-xl leading-tight"
-              >
-                Selected <span class="text-primary">work</span>
-              </h2>
-            </div>
-            <div
-              v-if="projectCounter"
-              aria-live="polite"
-              aria-label="Currently visible project"
-              class="font-mono text-label-md uppercase tracking-widest text-muted tabular-nums"
+          <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
+            <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+              Work
+            </p>
+            <h2
+              id="projects-heading"
+              class="font-headline font-bold text-text text-headline-xl leading-tight"
             >
-              {{ projectCounter }}
-            </div>
-          </header>
+              Selected <span class="text-primary">projects</span>
+            </h2>
+          </div>
 
           <div
             v-if="featuredProjects && featuredProjects.length"
-            class="flex flex-col gap-8"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
           >
             <div
               v-for="(project, idx) in featuredProjects"
               :key="project.slug"
               :data-stagger="Math.min(idx + 1, 4)"
             >
-              <ProjectCard :project="project" />
+              <ProjectCard :project="project" compact />
             </div>
           </div>
           <p v-else data-stagger="1" class="text-muted">

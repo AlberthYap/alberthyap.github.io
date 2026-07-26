@@ -737,6 +737,26 @@
     transform: translateY(-1px);
   }
 
+  /* Tech pill — compact tag chip used in project detail pages.
+     Mirrors Badge variant="tech" styling: soft primary bg, primary
+     text, primary-tinted border, rounded-full with small padding.
+     Inline-flex keeps multiple pills aligned in a flex-wrap row. */
+  .tech-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid color-mix(in oklab, var(--color-primary) 30%, var(--color-outline-variant));
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
   /* Dark-mode skill chip — bright mint text so labels stay legible
      on near-black surface-container-low (#0f1511). */
   :root[data-theme="dark"] .skill-chip {

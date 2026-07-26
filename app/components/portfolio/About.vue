@@ -7,8 +7,6 @@
  * highlight stat cards → footnote. No decorative lines, no eyebrow
  * — clean text hierarchy with tonal-cards reserved for highlights.
  */
-import Heading from '~~/app/components/ui/Heading.vue'
-
 interface Props {
   /** Full name displayed as the section heading. */
   name?: string
@@ -37,10 +35,21 @@ withDefaults(defineProps<Props>(), {
   <section
     id="about"
     aria-labelledby="about-heading"
-    class="flex flex-col gap-6 md:grid md:grid-cols-[280px_1fr] md:gap-14 md:items-center"
+    class="flex flex-col gap-8"
   >
-    <Heading id="about-heading" as="h2" class="sr-only">About</Heading>
+    <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+        About
+      </p>
+      <h2
+        id="about-heading"
+        class="font-headline font-bold text-text text-headline-xl leading-tight"
+      >
+        About <span class="text-primary">Me</span>
+      </h2>
+    </div>
 
+    <div class="flex flex-col gap-6 md:grid md:grid-cols-[280px_1fr] md:gap-14 md:items-center">
     <!-- Portrait — square rounded frame, left column on md+ -->
     <div
       class="w-full max-w-[200px] sm:max-w-[240px] md:max-w-none mx-auto md:mx-0"
@@ -120,6 +129,7 @@ withDefaults(defineProps<Props>(), {
           Let's build →
         </span>
       </p>
+    </div>
     </div>
   </section>
 </template>

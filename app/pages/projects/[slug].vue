@@ -37,67 +37,68 @@ useSeoMeta({
 </script>
 
 <template>
-  <article v-if="project" class="flex flex-col gap-8">
-    <PageContainer width="default" class="pt-12">
-      <NuxtLink
-        to="/projects"
-        class="text-sm text-muted hover:text-primary transition-colors"
-      >
-        ← Back to projects
-      </NuxtLink>
-    </PageContainer>
-
-    <PageContainer width="default">
-      <header class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-3 text-sm text-muted font-mono">
-          <span>{{ project.role }}</span>
-          <span aria-hidden="true">·</span>
-          <span>{{ project.client }}</span>
-          <span aria-hidden="true">·</span>
-          <span>{{ project.year }}</span>
-        </div>
-        <Heading as="h1">{{ project.title }}</Heading>
-        <p class="text-lg text-muted leading-relaxed max-w-prose">
-          {{ project.description }}
-        </p>
-        <ul v-if="project.tags.length" class="flex flex-wrap gap-2">
-          <li v-for="tag in project.tags" :key="tag">
-            <Badge variant="tech">{{ tag }}</Badge>
-          </li>
-        </ul>
-        <div v-if="project.liveUrl || project.repoUrl" class="flex flex-wrap gap-3 pt-2">
-          <LinkButton
-            v-if="project.liveUrl"
-            :to="project.liveUrl"
-            variant="primary"
-            size="md"
-          >
-            View live
-          </LinkButton>
-          <LinkButton
-            v-if="project.repoUrl"
-            :to="project.repoUrl"
-            variant="secondary"
-            size="md"
-          >
-            Source code
-          </LinkButton>
-        </div>
-      </header>
-    </PageContainer>
-
-    <PageContainer width="default">
+  <article v-if="project" class="pb-section">
+    <!-- Hero area: thumbnail full-bleed + title overlay -->
+    <div class="relative w-full aspect-[21/9] overflow-hidden bg-surface-container">
       <img
         v-if="project.thumbnail"
         :src="project.thumbnail"
-        :alt="`${project.title} cover image`"
-        class="w-full rounded-xl border border-border"
-        loading="lazy"
+        :alt="`${project.title} cover`"
+        class="w-full h-full object-cover"
       >
-    </PageContainer>
+      <div class="absolute inset-0 bg-gradient-to-t from-bg/90 via-bg/20 to-transparent" />
+      <div class="absolute bottom-0 left-0 right-0 p-6 md:p-12 lg:p-16">
+        <div class="max-w-[var(--spacing-container)] mx-auto px-6 md:px-12 lg:px-16">
+          <NuxtLink
+            to="/projects"
+            class="inline-block mb-4 text-sm text-muted hover:text-primary transition-colors font-mono"
+          >
+            ← Back to projects
+          </NuxtLink>
+          <div class="flex flex-wrap items-center gap-3 text-sm text-muted font-mono mb-3">
+            <span>{{ project.role }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ project.client }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ project.year }}</span>
+          </div>
+          <Heading as="h1">{{ project.title }}</Heading>
+          <p class="text-body-lg text-muted leading-relaxed max-w-prose mt-3">
+            {{ project.description }}
+          </p>
+          <div class="flex flex-wrap gap-3 mt-5">
+            <LinkButton
+              v-if="project.liveUrl"
+              :to="project.liveUrl"
+              variant="primary"
+              size="md"
+            >
+              View live
+            </LinkButton>
+            <LinkButton
+              v-if="project.repoUrl"
+              :to="project.repoUrl"
+              variant="secondary"
+              size="md"
+            >
+              Source code
+            </LinkButton>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <PageContainer width="narrow">
-      <div class="prose prose-invert prose-headings:text-text prose-p:text-text prose-a:text-primary prose-strong:text-text max-w-none">
+    <!-- Body content -->
+    <PageContainer width="narrow" class="mt-10 md:mt-16">
+      <!-- Tags -->
+      <ul v-if="project.tags.length" class="flex flex-wrap gap-2 mb-8">
+        <li v-for="tag in project.tags" :key="tag">
+          <span class="tech-pill">{{ tag }}</span>
+        </li>
+      </ul>
+
+      <!-- Content -->
+      <div class="prose prose-headings:text-text prose-p:text-text prose-a:text-primary prose-strong:text-text max-w-none">
         <ContentRenderer :value="project" />
       </div>
     </PageContainer>
