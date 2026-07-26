@@ -651,7 +651,7 @@
   }
 
   /* Dark mode portrait — border and shadow self-tune via color-mix,
-       but we need to override the inset highlight to flip from white
+     clearerride the inset highlight to flip from white
        to transparent (no white shine on dark bg) and lift the
        surface gradient one tier for contrast. */
   :root[data-theme="dark"] .portrait-tile {

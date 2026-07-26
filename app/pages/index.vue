@@ -157,7 +157,7 @@ useProvideActiveSection()
           primary-label="View selected work"
         >
           Building calm,<br>
-          <span class="text-primary">accessible systems</span>
+          <span class="text-primary">Scalable Systems</span>
         </Hero>
       </div>
 

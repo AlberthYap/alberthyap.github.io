@@ -56,13 +56,13 @@ describe('Hero (Organic Professional edition)', () => {
     const wrapper = mount(Hero, {
       props: baseProps,
       slots: {
-        default: 'Building calm, <br><span class="text-primary">accessible systems</span>',
+        default: 'Building calm, <br><span class="text-primary">Scalable Systems</span>'
       },
     })
     const headline = wrapper.find('h2.font-serif')
     expect(headline.exists()).toBe(true)
     expect(headline.text()).toContain('Building calm')
-    expect(headline.text()).toContain('accessible systems')
+    expect(headline.text()).toContain('Scalable Systems')
     expect(headline.find('span.text-primary').exists()).toBe(true)
   })
 

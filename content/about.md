@@ -3,7 +3,7 @@ name: Alberth Yaputra
 portrait:
   src: /profile.webp
   alt: Alberth Yaputra
-tagline: Fullstack Engineer — frontend-to-backend, API design, and automation systems.
+tagline: Fullstack Engineer specializing in high-performance web applications, API design, and enterprise data automation.
 footnote: Open to opportunities — fullstack engineering, API architecture, and automation.
 highlights:
   - Built fullstack applications across frontend and backend with React, Django, FastAPI, Go, and TypeScript.
@@ -11,7 +11,7 @@ highlights:
   - Engineered clean, maintainable codebases balancing performance, scalability, and user experience.
 ---
 
-Fullstack Engineer specializing in scalable web applications, API architecture, and automation systems. Experienced with JavaScript, TypeScript, Go, PHP, and Python — building reliable products from frontend interfaces to backend infrastructure.
+Experienced with JavaScript, TypeScript, Go, PHP, and Python — building reliable products from frontend interfaces to backend infrastructure.
 
 Designed RESTful APIs processing enterprise data through Apache Spark and Airflow automation frameworks. Reduced manual operational workflows by 60% and delivered real-time business intelligence dashboards serving cross-department stakeholders.
 
