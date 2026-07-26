@@ -4,15 +4,11 @@ import { defineComponent } from 'vue'
 
 import { useSectionReveal } from '~~/app/composables/useSectionReveal'
 
-/**
- * Tests for the per-section IntersectionObserver orchestrator.
- *
- * Vitest's default `happy-dom` environment has no real `IntersectionObserver`
- * — we stub one that fires `isIntersecting: true` synchronously per
- * observed element so the composable's `onMounted` setup can complete
- * without async races. A separate silent variant lets us prove the skip /
- * Escape paths work even when the IO never reports an intersection.
- */
+// `useSectionReveal` runs inside happy-dom, which has no real
+// IntersectionObserver. `FireOnObserveIO` fires `isIntersecting: true`
+// synchronously per observed element so onMounted can settle without
+// async races; `SilentIO` never fires so the skip/Escape paths can be
+// exercised without an intersection.
 class FireOnObserveIO {
   callback: IntersectionObserverCallback
   elements: Element[] = []

@@ -49,7 +49,6 @@ describe('Button', () => {
     const wrapper = mount(Button, { slots: { default: 'Click' } })
     const classList = wrapper.classes().join(' ')
     expect(classList).toContain('bg-primary')
-    // White text on sage green for maximum readability across displays.
     expect(classList).toContain('text-white')
   })
 

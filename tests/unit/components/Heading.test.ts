@@ -71,9 +71,6 @@ describe('Heading', () => {
       props: { as: 'h2', id: 'skills-heading' },
       slots: { default: 'Skills' },
     })
-    // The id must land on the actual heading tag, not be swallowed as a prop
-    // without rendering. Phase 3 Hero/About/Skills depend on this for their
-    // section-level aria-labelledby wiring per code-style.md §10.
     expect(wrapper.element.id).toBe('skills-heading')
   })
 })

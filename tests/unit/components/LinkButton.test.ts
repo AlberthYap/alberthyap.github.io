@@ -38,7 +38,6 @@ describe('LinkButton', () => {
     })
     const classList = wrapper.classes().join(' ')
     expect(classList).toContain('bg-primary')
-    // White text on sage green for maximum readability across displays.
     expect(classList).toContain('text-white')
   })
 
@@ -83,7 +82,6 @@ describe('LinkButton', () => {
   })
 
   it('does not require Vue Router context (works in plain markup)', () => {
-    // The NuxtLink stub handles string routes without a router instance.
     const wrapper = mount(LinkButton, {
       props: { to: '/projects/inventory' },
       slots: { default: 'Open' },

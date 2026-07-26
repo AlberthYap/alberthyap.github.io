@@ -39,11 +39,8 @@ const baseProject: Project = {
  */
 
 describe('ProjectCard (vertical full-bleed cover)', () => {
-  it('renders a tonal-card layout on the article root', () => {
+  it('renders an article root with the tonal-card class', () => {
     const wrapper = mount(ProjectCard, { props: { project: baseProject } })
-    // Root switched from <a> to <article> so the card can host
-    // nested interactive elements (NuxtLink on image, LinkButton for
-    // CTAs) without invalid-HTML warnings.
     expect(wrapper.find('article.tonal-card').exists()).toBe(true)
   })
 
@@ -51,31 +48,18 @@ describe('ProjectCard (vertical full-bleed cover)', () => {
     const wrapper = mount(ProjectCard, { props: { project: baseProject } })
     const coverLink = wrapper.find('a[href="/projects/inventory-dashboard"]')
     expect(coverLink.exists()).toBe(true)
-    // First anchor in DOM order is the image link — confirms the
-    // refactor preserved "image-navigates-to-project" affordance.
     expect(wrapper.find('a').attributes('href')).toBe('/projects/inventory-dashboard')
   })
 
-  it('renders the cover image with aspect-video (full-bleed 16:9)', () => {
+  it('renders the cover image with aspect-video, descriptive alt, and lazy-loading', () => {
     const wrapper = mount(ProjectCard, { props: { project: baseProject } })
     const cover = wrapper.find('.aspect-video')
     expect(cover.exists()).toBe(true)
-    // The cover wrapper is a NuxtLink with the aspect-video class
-    // directly applied, not via a child layer.
     expect(cover.element.tagName.toLowerCase()).toBe('a')
-  })
-
-  it('renders the cover image with descriptive alt text', () => {
-    const wrapper = mount(ProjectCard, { props: { project: baseProject } })
     const img = wrapper.find('.aspect-video img')
-    expect(img.exists()).toBe(true)
     expect(img.attributes('alt')).toBe(`${baseProject.title} cover`)
     expect(img.attributes('src')).toBe(baseProject.thumbnail)
-  })
-
-  it('marks the thumbnail as lazy-loaded', () => {
-    const wrapper = mount(ProjectCard, { props: { project: baseProject } })
-    expect(wrapper.find('.aspect-video img').attributes('loading')).toBe('lazy')
+    expect(img.attributes('loading')).toBe('lazy')
   })
 
   it('renders the project title and status badge when shipped', () => {

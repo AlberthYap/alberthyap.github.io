@@ -20,9 +20,6 @@ describe('Input', () => {
     })
     await wrapper.find('input').setValue('hello@example.com')
     const emitted = wrapper.emitted('update:modelValue')
-    expect(emitted).toBeTruthy()
-    // Guards against the duplicate-emit bug where manual `emit()` was added
-    // alongside `defineModel`.
     expect(emitted).toHaveLength(1)
     expect(emitted?.[0]).toEqual(['hello@example.com'])
   })

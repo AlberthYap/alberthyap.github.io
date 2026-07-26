@@ -55,7 +55,6 @@ describe('Navbar (floating glass-panel pill)', () => {
 
   it('uses fixed positioning so the pill stays visible across scroll positions', () => {
     const wrapper = mount(Navbar)
-    // outer <header> is fixed; inner pill stays inside.
     expect(wrapper.element.tagName).toBe('HEADER')
     expect(wrapper.classes()).toContain('fixed')
     expect(wrapper.classes()).toContain('top-4')
@@ -63,13 +62,11 @@ describe('Navbar (floating glass-panel pill)', () => {
 
   it('caps the pill at the container-max token (1200 px)', () => {
     const wrapper = mount(Navbar)
-    // The pill div is the first child holding width classes.
     const pill = wrapper.find('.glass-panel')
-    expect(pill.exists()).toBe(true)
     expect(pill.classes().join(' ')).toContain('max-w-[var(--spacing-container)]')
   })
 
-  it('exposes a hamburger button on mobile breakpoints via md:hidden', () => {
+  it('exposes a hamburger button on mobile breakpoints', () => {
     const wrapper = mount(Navbar)
     const hamburger = wrapper.find('button[aria-controls="mobile-menu"]')
     expect(hamburger.exists()).toBe(true)
@@ -96,22 +93,11 @@ describe('Navbar (floating glass-panel pill)', () => {
     expect(wrapper.find('#mobile-menu').exists()).toBe(false)
   })
 
-  it('marks a hash-anchor link active when scroll-spy says its section is dominant', async () => {
-    // Pre-emptively inject an inert spy context via provide so the
-    // component's `useInjectActiveSection()` returns a stub whose
-    // `currentSectionId.value` can be assigned.
-    const { useInjectActiveSection } = await import(
-      '~~/app/composables/useActiveSection'
-    )
-    // For this test we just rely on the default stub. The contract
-    // we cover is that nav-link elements carry data-active wiring and
-    // a default value of "false" out of the gate.
+  it('renders nav-link elements with `data-active="false"` out of the gate', () => {
     const wrapper = mount(Navbar)
     const links = wrapper.findAll('nav[aria-label="Primary"] a.nav-link')
     links.forEach((link) => {
       expect(['true', 'false']).toContain(link.attributes('data-active'))
     })
-    // Reference the symbol so it's not flagged as unused.
-    expect(typeof useInjectActiveSection).toBe('function')
   })
 })

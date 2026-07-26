@@ -8,23 +8,11 @@ import {
   useProvideActiveSection,
 } from '~~/app/composables/useActiveSection'
 
-/**
- * Tests for the per-section scroll-spy composable.
- *
- * `useActiveSection` attaches a single `IntersectionObserver` to every
- * `[data-section-id]` element with `rootMargin: '-40% 0px -55% 0px'`.
- *
- * Mocking strategy — `ManualIO` exposes `fire(isIntersecting, target)`
- * (and `callback(...)` for multi-entry batches) so individual tests can
- * drive the IO callback with whatever batch they want.
- *
- * Component pattern — same as `useSectionReveal.test.ts`:
- *   `template: '...'` + `setup() { return { ctx } }`
- * Vue's runtime compiler picks up the template; the returned object
- * exposes the composable's reactive state on `wrapper.vm.ctx`, so tests
- * can assert real state (`wrapper.vm.ctx.currentSectionId.value`)
- * rather than just absence-of-throw.
- */
+// `useActiveSection` attaches a single IntersectionObserver to every
+// `[data-section-id]` element. `ManualIO` is a per-instance stub:
+// `static last` tracks the most-recently-constructed instance so tests
+// can drive its callback. `fire(isIntersecting, target)` and direct
+// `callback(...)` calls let tests simulate single + batched entries.
 
 let savedIO: typeof globalThis.IntersectionObserver
 
@@ -41,19 +29,14 @@ beforeEach(() => {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })) as unknown as typeof window.matchMedia
-  // Reset class-static last-instance pointer. Without this the
-  // `zero-element` test below can see the LAST `new ManualIO(...)` from
-  // a previous test (whose `elements` reflect that prior mount, not the
-  // current one).
   ManualIO.last = null
 })
 
 afterEach(() => {
   // `attachTo: document.body` mounts components into the real DOM and
-  // vue-test-utils does NOT clear them between tests. Without this
-  // reset, stale data-section-id nodes from the previous test bleed
-  // into `document.querySelectorAll('[data-section-id]')` lookups in
-  // the composable's onMounted.
+  // vue-test-utils does NOT clear them between tests. Without this reset,
+  // stale `[data-section-id]` nodes bleed into the composable's
+  // `querySelectorAll` lookups during `onMounted`.
   document.body.innerHTML = ''
   globalThis.IntersectionObserver = savedIO
   ManualIO.last = null
@@ -92,9 +75,7 @@ function mountWithSections(sectionIds: readonly string[]) {
     defineComponent({
       template:
         `<div>` +
-        sectionIds
-          .map((id) => `<section data-section-id="${id}"></section>`)
-          .join('') +
+        sectionIds.map((id) => `<section data-section-id="${id}"></section>`).join('') +
         `</div>`,
       setup() {
         const ctx = useActiveSection()
@@ -127,9 +108,6 @@ describe('useActiveSection', () => {
     await wrapper.vm.$nextTick()
     const heroEl = document.querySelector('[data-section-id="hero"]')!
     const aboutEl = document.querySelector('[data-section-id="about"]')!
-    // Batch reports BOTH intersecting; per the composable contract the
-    // last intersecting entry wins — it's the section the reader just
-    // moved into.
     ManualIO.last!.callback(
       [
         { isIntersecting: true, target: heroEl },
@@ -148,22 +126,12 @@ describe('useActiveSection', () => {
     ManualIO.last!.fire(true, aboutEl)
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.ctx.currentSectionId.value).toBe('about')
-
-    // Reader scrolls into a gap; the IO batch comes back with no
-    // intersecting entries. The composable must NOT reset to null —
-    // sticky fallback keeps the previous id so the navbar highlight
-    // doesn't flicker.
     ManualIO.last!.fire(false, aboutEl)
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.ctx.currentSectionId.value).toBe('about')
   })
 
   it('handles a page with zero data-section-id elements without throwing', async () => {
-    // Empty page path — render a top-level <div> and verify the
-    // composable's no-element branch runs cleanly. We assert against
-    // the document state directly instead of poking at the IO mock's
-    // `elements` (which would race against the static `last` pointer
-    // when prior tests have populated it).
     document.body.innerHTML = ''
     expect(document.querySelectorAll('[data-section-id]').length).toBe(0)
 
@@ -180,10 +148,6 @@ describe('useActiveSection', () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.ctx.currentSectionId.value).toBeNull()
     expect(wrapper.vm.ctx.observed.value).toEqual([])
-    // No ManualIO instance was constructed for this page (early-return
-    // path in the composable), so `ManualIO.last` either stays null or
-    // points to whichever mock a prior test created. The composable's
-    // correctly-skipped observer wiring is what matters here.
   })
 
   it('disconnects the observer on unmount', async () => {
@@ -196,9 +160,6 @@ describe('useActiveSection', () => {
 })
 
 describe('useProvideActiveSection + useInjectActiveSection', () => {
-  // Captures live inside the `beforeEach` scope so each test starts
-  // from a clean slate — prevents the prior test from leaving stale
-  // values that would mask a future test's regression.
   let providedCtx: Ctx | null = null
   let injectedCtx: Ctx | null = null
   let SpyChild: ReturnType<typeof defineComponent>
@@ -236,14 +197,11 @@ describe('useProvideActiveSection + useInjectActiveSection', () => {
 
     expect(providedCtx).not.toBeNull()
     expect(injectedCtx).not.toBeNull()
-    // Identity check: the child's ctx IS the provider's ctx (same
-    // reactive Refs, not a clone). `toBe` uses Object.is — reference
-    // equality, not value equality.
+    // Identity check (`toBe` = Object.is): provider's refs are the
+    // same refs as the injected consumer's, not clones.
     expect(injectedCtx!.currentSectionId).toBe(providedCtx!.currentSectionId)
     expect(injectedCtx!.observed).toBe(providedCtx!.observed)
 
-    // Drive the IO from the same observer instance used in earlier
-    // describe blocks; both views update through the shared ref.
     const heroEl = document.querySelector('[data-section-id="hero"]')!
     ManualIO.last!.fire(true, heroEl)
     await wrapper.vm.$nextTick()
@@ -252,9 +210,6 @@ describe('useProvideActiveSection + useInjectActiveSection', () => {
   })
 
   it('useInjectActiveSection returns an inert stub when no provider mounted', () => {
-    // No `provide` ancestor — the inject falls through to an inert
-    // stub. Mount just the consumer (no SpyRoot); the inject receives
-    // the inert default.
     const wrapper = mount(
       defineComponent({
         template: '<div></div>',

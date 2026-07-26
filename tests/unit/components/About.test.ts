@@ -3,13 +3,8 @@ import { describe, expect, it } from 'vitest'
 
 import About from '~~/app/components/portfolio/About.vue'
 
-/**
- * About v5 — Editorial Calm layout.
- *
- * Content beats: name+tagline (stagger 0) → bodyDoc (stagger 1) →
- * highlights (stagger 2, 3, 4) → footnote (stagger 5).
- * No eyebrow, no decorative line, no tonal-card.
- */
+// Cascade beats per About.vue: name+tagline (0) → bodyDoc (1) →
+// highlights (2, 3, 4) → footnote (5). No decorative line, no eyebrow.
 describe('About', () => {
   it('renders section with id="about" for in-page anchors', () => {
     const wrapper = mount(About, {
@@ -103,10 +98,7 @@ describe('About', () => {
         footnote: 'Closing line.',
       },
     })
-    // Cascade beats: name+tagline=0, h1=2, h2=3, h3=4, footnote=5
-    // (bodyDoc stagger=1 only present when bodyDoc prop is provided)
-    const seq = ['0', '2', '3', '4', '5']
-    for (const idx of seq) {
+    for (const idx of ['0', '2', '3', '4', '5']) {
       expect(wrapper.find(`[data-stagger="${idx}"]`).exists()).toBe(true)
     }
   })

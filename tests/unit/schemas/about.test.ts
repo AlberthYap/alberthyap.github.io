@@ -14,7 +14,6 @@ describe('AboutSchema', () => {
       expect(result.data.name).toBe('Alberth Yaputra')
       expect(result.data.tagline).toBe('A short tagline.')
       expect(result.data.highlights).toEqual(['WCAG a11y', 'Static-first'])
-      // New defaults in Phase 4: eyebrow falls back to "Now".
       expect(result.data.eyebrow).toBe('Now')
       expect(result.data.footnote).toBeUndefined()
     }

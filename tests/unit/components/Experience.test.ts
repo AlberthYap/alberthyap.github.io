@@ -71,11 +71,9 @@ describe('Experience', () => {
     expect(wrapper.text()).toContain('reducing manual work by 60%')
   })
 
-  it('marks the current-role entry with the primary accent (ring on dot)', () => {
+  it('marks the current-role entry with the primary accent (one ringed dot)', () => {
     const wrapper = mount(Experience, { props: { experiences: entries } })
-    // The "present" entry uses bg-primary; the prior entry uses bg-muted.
-    const primaryDots = wrapper.findAll('span.bg-primary.ring-primary-soft')
-    expect(primaryDots).toHaveLength(1)
+    expect(wrapper.findAll('span.bg-primary.ring-primary-soft')).toHaveLength(1)
   })
 
   it('renders achievements as bullet points', () => {
