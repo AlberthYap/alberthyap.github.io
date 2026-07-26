@@ -2,30 +2,26 @@
 /**
  * ProjectCard — Vertical full-bleed cover card (Organic Professional).
  *
- * Pattern: a Hero-style cover image fills the top (full width,
- * `aspect-video`), and the content stack (title + status badge +
- * description + metrics + tech pills + CTAs) sits below under a
- * breathing `p-8 / md:p-10` block.
+ * Pattern: a cover image fills the top (`aspect-video`), and the content
+ * stack sits below. Two layouts via the `compact` prop:
+ *
+ *   - `compact` (home page gallery): cover + title + summary + URL pill
+ *   - full (`/projects` index): cover + status + description + metrics +
+ *     tech pills + CTAs
  *
  * a11y / interaction:
- *   • Root is `<article>`, NOT an `<a>` — nested interactive elements
- *     are invalid HTML and would also break keyboard navigation if the
- *     card doubled as a link + button.
- *   • Cover image is wrapped in a `<NuxtLink>` to the project page so
- *     the visual primary affordance navigates; it's the most intuitive
- *     "click to read" location.
- *   • "View case study" CTA mirrors the cover link to the project page
- *     (visible affordance for readers who prefer explicit buttons).
- *   • "Source code" CTA fires only when `repoUrl` is set; rendered as
- *     a real `<LinkButton>` so external hosts open via NuxtLink's
- *     external-link handling.
- *   • `[data-project-marker]` + `[data-project-slug]` attributes
- *     expose the card to `useProjectObserver` (sticky in-section
- *     header counter "01 / 03" cadence).
+ *   - Root is `<article>`, NOT an `<a>` so the cover, title, and CTAs
+ *     can each be their own focusable element (no invalid nesting).
+ *   - Cover image is a `<NuxtLink>` to the project page (primary visual
+ *     affordance for "click to read"). Title duplicates that link for
+ *     readers who scan by text. URL pill is an external `<a>`.
+ *   - External `liveUrl` / `repoUrl` always carry
+ *     `target="_blank" rel="noopener noreferrer"` (security baseline).
  *
- * Used in two contexts:
- *   • Featured projects grid (home page) — cards stack vertically.
- *   • `/projects` index — same vertical layout, narrower column grid.
+ * Status label maps `project.status` → human string (`shipped` →
+ * `Active · Production`; `in-progress` → `In Progress`; → `Archived`).
+ * Pass `showStatus={false}` on the home page so the gallery is just
+ * image + title + URL.
  */
 import type { Project } from '~~/shared/types'
 
@@ -62,8 +58,6 @@ function statusLabel(): string {
 
 <template>
   <article
-    :data-project-slug="props.project.slug"
-    data-project-marker
     class="tonal-card group flex flex-col overflow-hidden reveal-up is-revealed"
   >
     <!-- Content stack — compact (home gallery) or full (projects index) -->

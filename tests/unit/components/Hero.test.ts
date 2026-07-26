@@ -4,22 +4,16 @@ import { describe, expect, it } from 'vitest'
 import Hero from '~~/app/components/portfolio/Hero.vue'
 
 /**
- * Hero v6 — Organic Professional edition (with right-side dashboard).
+ * Hero — Organic Professional edition with right-side dashboard.
  *
- * Pattern from example.html:
- *   • Status pill with mono uppercase caption + pulsing dot.
- *   • Two-line full-serif headline (caller passes via default slot).
- *   • Lead paragraph + two CTAs + faint background image overlay.
- *   • NEW: 2-col grid on lg+ — left text column, right column mounts
- *     the `HeroDashboard` mockup (hidden below lg).
- *
- * What was DROPPED from v4.1:
- *   • `.portrait-tile` (no initials fallback test).
- *   • `.code-cursor` (no typewriter — useTypewriter test removed).
- *   • `.reveal-scale` (no portrait reveal).
- *   • `.hero-scroll-indicator` (no scroll chevron — sections live below).
- *
- * Remaining: per-section ID for scroll-spy + reveal-up cascades.
+ * Pieces tested:
+ * - Status pill: mono caption + decorative dot, defaults fallback.
+ * - Headline (h1, sr-only label) + visible serif heading slot.
+ * - Background image overlay (`aria-hidden`, decorative).
+ * - Two CTAs with `to` (NuxtLink) destinations.
+ * - 2-col grid on lg+ with `HeroDashboard` in the right column;
+ *   hidden below lg so mobile readers see only the text column.
+ * - Reveal-up cascades (`status pill`, headline, lead, CTA cluster).
  */
 
 describe('Hero (Organic Professional edition)', () => {

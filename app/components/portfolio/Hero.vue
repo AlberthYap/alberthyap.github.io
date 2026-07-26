@@ -1,35 +1,22 @@
 <script setup lang="ts">
 /**
- * Hero — Organic Professional edition (full-viewport, status-led).
+ * Hero — Organic Professional, full-viewport, status-led.
  *
- * Pattern from example.html:
- *   • Status pill ("Available for Contracts") with a pulsing
- *     primary-color dot + uppercase mono label.
- *   • Two-line full-serif headline: a base word + a <span class="text-primary">
- *     coloured second line. Tagline / lead carries a quieter tone.
- *   • Two CTAs: one primary fill, one glass-border secondary.
- *   • Brand wordmark can carry the brand line via slot.
+ * Two-column layout (text + dashboard mockup) on lg+; mobile readers
+ * see only the text column so the decorative chrome does not steal
+ * reading time. Drained state:
  *
- * Right side (NEW): `HeroDashboard` 3D-tilted glass-panel mockup
- * reproducing example.html's `portfolio_v2`. Mounted on lg+
- * via the `hidden lg:block` wrapper; mobile readers see only the
- * text column (no decorative chrome stealing reading time).
+ *   - Status pill (mono caption + decorative dot, default "Available
+ *     for new work")
+ *   - sr-only `<h1>` carrying name + eyebrow for AT document outline
+ *   - Visible `<h2>` headline from the default slot at clamp(36,7vw,72)
+ *     with optional primary-tinted span
+ *   - Lead paragraph + two CTAs (LinkButton)
+ *   - Right column: `HeroDashboard` panel (hidden <lg)
+ *   - Faint background image overlay (decoration, aria-hidden)
  *
- * Background: image.png as a faint, masked, blur-tinted overlay
- * (`opacity: 0.10`, radial mask + 0.5 px blur). Centered + masked so
- * the image bleeds off the edges — never competes with copy.
- *
- * What was DROPPED from v4.1:
- *   • `.portrait-tile` + initials fallback. The new design is
- *     text-led, not portrait-led; the example has no portrait.
- *   • `useTypewriter` on the lead. The Organic Professional language
- *     prioritises stillness; typewriter reads as techy/gimmicky.
- *   • `@openteq/scroll-indicator` chevron. Removed because the hero
- *     no longer follows the lead-with-stack anchor (sections live
- *     below). The `Core Stack` is the next visual surface.
- *
- * Section id `data-section-id="hero"` is preserved so scroll-spy and
- * the nav-link pin still light up when the user is on the hero.
+ * Per-section id `data-section-id="hero"` drives scroll-spy so the
+ * matching `nav-link` in the navbar gets `data-active="true"`.
  */
 import HeroDashboard from '~~/app/components/portfolio/HeroDashboard.vue'
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
@@ -157,17 +144,10 @@ withDefaults(defineProps<Props>(), {
           </div>
         </div>
 
-        <!-- RIGHT COLUMN — dashboard mockup (hidden <lg). The grid
-             template above uses lg:grid-cols-2 so the panel can never
-             widen past its column and force horizontal scroll. The
-             inline 900 ms animation-delay sits at the end of
-             Hero.vue's existing inline cascade (100 / 300 / 500 /
-             700 / 900 ms) for a consistent reveal cadence across the
-             hero. The wrapper itself carries both reveal-up and
-             is-revealed and animates as the cascade target;
-             HeroDashboard has no stagger attribute of its own and
-             therefore appears as part of the column's fade, not as
-             a self-animating panel. -->
+        <!-- Right column — dashboard mockup, hidden below lg. Inline
+             900 ms animation-delay is the last beat of the inline
+             cascade (100/300/500/700/900) so the panel lands after the
+             CTA cluster. -->
         <div class="hidden lg:block reveal-up is-revealed" style="animation-delay: 900ms">
           <HeroDashboard />
         </div>

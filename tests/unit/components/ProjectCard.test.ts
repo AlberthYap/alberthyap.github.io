@@ -25,28 +25,17 @@ const baseProject: Project = {
 }
 
 /**
- * ProjectCard v4 — Vertical full-bleed cover (Organic Professional).
+ * ProjectCard — Vertical full-bleed cover (Organic Professional).
  *
- * The card refactor turns the previous horizontal split into a
- * Hero-style top image with content stacked below. Two consequences
- * that tests need to know about:
- *
- *   • Root is `<article>`, NOT `<a>` — nested interactive elements
- *     were invalid. The `tonal-card` class now sits on the article
- *     element directly.
- *   • The image is wrapped in a NuxtLink (`<a>`); "View case study"
- *     is a real `<LinkButton>` (a separate `<a>`). Tests
- *     `wrapper.find('a')` only resolves the first anchor (image
- *     link); CTAs surface via `wrapper.text()`.
- *
- * Status badge: derived from `project.status` ('shipped' →
- * "Active · Production"; 'in-progress' → "In Progress"), replacing
- * the v2 "Featured" badge.
- *
- * Scroll-spy wiring: card carries `data-project-marker` +
- * `data-project-slug="<slug>"` so `useProjectObserver` (the page-
- * level sticky counter composable) can track which card is
- * currently dominant in the viewport.
+ * - Root is `<article>`, not `<a>`: the card hosts nested interactive
+ *   elements (cover NuxtLink, title NuxtLink, external URL `<a>`,
+ *   CTAs) without invalid HTML nesting.
+ * - `wrapper.find('a')` resolves the first anchor (cover link) in
+ *   DOM order; CTAs surface via `wrapper.text()`.
+ * - Status badge derives from `project.status` — `shipped` → "Active
+ *   · Production", `in-progress` → "In Progress", else "Archived".
+ *   Pass `showStatus={false}` on the home gallery so it's just
+ *   image + title + URL.
  */
 
 describe('ProjectCard (vertical full-bleed cover)', () => {
@@ -58,14 +47,7 @@ describe('ProjectCard (vertical full-bleed cover)', () => {
     expect(wrapper.find('article.tonal-card').exists()).toBe(true)
   })
 
-  it('exposes scroll-spy attributes for useProjectObserver', () => {
-    const wrapper = mount(ProjectCard, { props: { project: baseProject } })
-    const root = wrapper.find('[data-project-marker]')
-    expect(root.exists()).toBe(true)
-    expect(root.attributes('data-project-slug')).toBe(baseProject.slug)
-  })
-
-  it('mounts a NuxtLink wrapping the portrait image at the top', () => {
+  it('mounts a NuxtLink wrapping the cover image at the top', () => {
     const wrapper = mount(ProjectCard, { props: { project: baseProject } })
     const coverLink = wrapper.find('a[href="/projects/inventory-dashboard"]')
     expect(coverLink.exists()).toBe(true)
