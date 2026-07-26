@@ -34,7 +34,7 @@ describe('Hero (Organic Professional edition)', () => {
     const bg = wrapper.find('img.hero-bg-image')
     expect(bg.exists()).toBe(true)
     expect(bg.attributes('aria-hidden')).toBe('true')
-    expect(bg.attributes('src')).toBe('/image.png')
+    expect(bg.attributes('src')).toBe('/hero-bg.webp')
   })
 
   it('renders the status pill with caption + decorative dot', () => {

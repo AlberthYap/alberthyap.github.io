@@ -35,29 +35,27 @@ export default defineNuxtConfig({
   // has explicitly chosen it (localStorage) or the OS reports dark-scheme
   // and the user has never opted out.
   app: {
-    head: {
-      // Eagerly preload the 1.5 MB hero texture so it lands alongside
-      // the rest of the first-paint resources on slow networks. The
-      // console is logically classified as a 'fetchpriority=low'
-      // rather than 'high' tag because:
-      //   - Hero text is the LCP candidate, not the texture overlay;
-      //   - low priority keeps the font + JS budget unblocked;
-      //   - the texture is decorative — it can paint a few hundred ms
-      //     later than its sibling resources without hurting UX.
-      link: [
-        {
-          rel: 'preload',
-          as: 'image',
-          href: '/image.png',
-          fetchpriority: 'low',
-          // Gate the 1.5 MB preload to mid+ viewports. Below 640 px
-          // the hero composition softens and the texture is barely
-          // visible anyway, so the preloaded bytes are pure waste on
-          // mobile + small-tablet networks.
-          media: '(min-width: 640px)',
-          type: 'image/png',
-        },
-      ],
+    head: {        // Eagerly preload the 52 KB hero-bg.webp texture so it lands
+        // alongside the rest of the first-paint resources on slow
+        // networks. fetchpriority=low keeps the budget unblocked:
+        //   - Hero text is the LCP candidate, not the texture overlay;
+        //   - texture is decorative — it can paint a few hundred ms
+        //     later than its sibling resources without hurting UX.
+        // WebP brings the texture from 1.5 MB (PNG) to 52 KB (~30x).
+        link: [
+          {
+            rel: 'preload',
+            as: 'image',
+            href: '/hero-bg.webp',
+            fetchpriority: 'low',
+            // Gate the preload to mid+ viewports. Below 640 px the
+            // hero composition softens and the texture is barely
+            // visible anyway, so the preloaded bytes are pure waste
+            // on mobile + small-tablet networks.
+            media: '(min-width: 640px)',
+            type: 'image/webp',
+          },
+        ],
       script: [
         {
           innerHTML:

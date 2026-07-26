@@ -58,10 +58,10 @@ withDefaults(defineProps<Props>(), {
     aria-labelledby="hero-heading"
     class="relative min-h-screen flex items-center overflow-hidden"
   >
-    <!-- Faint background image overlay (image.png from public/). Masked
+    <!-- Faint background image overlay (hero-bg.webp from public/). Masked
          + low opacity so it reads as ambient texture, not content. -->
     <img
-      src="/image.png"
+      src="/hero-bg.webp"
       alt=""
       aria-hidden="true"
       class="hero-bg-image object-cover w-full h-full"
