@@ -103,7 +103,6 @@ withDefaults(defineProps<Props>(), {
           <!-- Headline — caller passes via default slot (e.g. "Building
                calm,<br><span class="text-primary">accessible systems</span>"). -->
           <h2
-            data-section-id="hero-heading"
             class="font-serif font-bold text-text leading-[1.05] tracking-tight reveal-up is-revealed text-[clamp(36px,7vw,72px)]"
             style="animation-delay: 300ms"
           >
