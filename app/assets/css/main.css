@@ -255,7 +255,12 @@
   --spacing-section: 120px;      /* py between narrative sections */
   --spacing-container: 1200px;   /* max content width */
   --spacing-navbar-height: 80px; /* floating glass-panel pill height
-                                    (top-4 padding + ~64px content).
+                                    (top-4 inset + py-3 pill padding + 40px
+                                    brand-mark content — pill is ~64px tall
+                                    total, sits ~16px below the viewport top,
+                                    so the navbar reaches y≈80px from the top
+                                    edge). Adjust when the brand mark sizing
+                                    or pill padding changes.
                                     Templates needing to anchor content
                                     below the navbar (sticky counters,
                                     jump-back links) reference this token

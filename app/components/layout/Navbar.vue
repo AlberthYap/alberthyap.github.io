@@ -63,12 +63,25 @@ function closeMobile() {
     <div
       class="glass-panel mx-auto flex w-full max-w-[var(--spacing-container)] items-center justify-between gap-4 rounded-full px-6 py-3 pointer-events-auto"
     >
+      <!-- Brand mark — generated AY monogram PNG (`public/ay-monogram.png`).
+           Source dimensions 1258×848 (~1.48:1 aspect); at h-[40px] the natural
+           width resolves to ~59 px (aspect-locked). Displayed as-is without
+           container chrome — the image carries its own visible boundary and
+           reads as a brand sticker against the glass-panel pill. The link's
+           `aria-label` carries the full brand name; the image is decorative
+           (`alt="")` so screen readers don't double-announce the marks. -->
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
-        class="font-serif text-headline-lg font-bold text-primary tracking-tight"
+        class="flex items-center shrink-0 group"
       >
-        {{ SITE_NAME }}
+        <img
+          src="/ay-monogram.png"
+          alt=""
+          class="h-[40px] w-auto
+                 transition-all duration-[var(--motion-small)] ease-[var(--motion-easing)]
+                 group-hover:scale-105 group-active:scale-95"
+        />
       </NuxtLink>
 
       <nav
@@ -87,25 +100,29 @@ function closeMobile() {
         </NuxtLink>
       </nav>
 
-      <!-- Right cluster: theme toggle only. Visible from md+; mobile gets a
-           hamburger that sits inside the pill. -->
-      <div class="hidden md:flex items-center">
+      <!-- Right cluster: theme toggle (always visible) + hamburger (mobile only).
+           Theme toggle is the primary light/dark control surface across every
+           breakpoint — reachable directly, no need to open the drawer. The
+           hamburger stays visible on mobile (md-) only, so the right cluster
+           is `[theme toggle, hamburger]` on mobile and `[theme toggle]` on md+. -->
+      <div class="flex items-center gap-3">
         <ThemeToggle />
+        <button
+          type="button"
+          class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          :aria-expanded="isMobileMenuOpen"
+          aria-controls="mobile-menu"
+          :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+          @click="isMobileMenuOpen = !isMobileMenuOpen"
+        >
+          <span aria-hidden="true">{{ isMobileMenuOpen ? '×' : '☰' }}</span>
+        </button>
       </div>
-
-      <button
-        type="button"
-        class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        :aria-expanded="isMobileMenuOpen"
-        aria-controls="mobile-menu"
-        :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
-        @click="isMobileMenuOpen = !isMobileMenuOpen"
-      >
-        <span aria-hidden="true">{{ isMobileMenuOpen ? '×' : '☰' }}</span>
-      </button>
     </div>
 
-    <!-- Mobile drawer — slides out below the pill at md-; full keyboard navigable. -->
+    <!-- Mobile drawer — slides out below the pill at md-. Nav links only;
+         the theme toggle lives in the main pill (always-visible right cluster)
+         and is not duplicated here. Full keyboard navigable. -->
     <div
       v-if="isMobileMenuOpen"
       id="mobile-menu"
@@ -127,9 +144,6 @@ function closeMobile() {
           {{ link.label }}
         </NuxtLink>
       </nav>
-      <div class="mt-4 flex items-center">
-        <ThemeToggle />
-      </div>
     </div>
   </header>
 </template>

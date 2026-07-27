@@ -160,15 +160,15 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
         role="menu"
         :aria-activedescendant="`theme-opt-${allOptions[activeIdx].value}`"
         aria-label="Theme selector"
-        class="absolute right-0 max-sm:left-0 max-sm:right-auto top-full mt-2 w-44 origin-top-right max-sm:origin-top-left rounded-xl border border-outline-variant bg-surface-container shadow-lg backdrop-blur-md p-1.5 z-50"
+        class="absolute right-0 max-sm:left-0 max-sm:right-auto top-full mt-2 w-44 max-sm:w-40 origin-top-right max-sm:origin-top-left rounded-xl border border-outline-variant bg-surface-container shadow-lg max-sm:shadow-md backdrop-blur-md max-sm:backdrop-blur-sm p-1.5 max-sm:p-1 z-50"
       >
         <template v-for="(opt, idx) in allOptions" :key="opt.value">
           <!-- Visual separator before the System (meta) option -->
-          <div
-            v-if="idx === 2"
-            class="my-1 mx-2 border-t border-outline-variant"
-            role="separator"
-          />
+        <div
+          v-if="idx === 2"
+          class="my-1 mx-2 max-sm:my-0.5 max-sm:mx-1.5 border-t border-outline-variant"
+          role="separator"
+        />
 
           <button
             :id="`theme-opt-${opt.value}`"
@@ -176,7 +176,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
             role="menuitem"
             :aria-label="opt.value === 'system' ? `Set theme to system (${systemResolved})` : `Set theme to ${opt.value}`"
             :aria-current="pref === opt.value ? 'true' : undefined"
-            class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-label-md text-text transition-colors duration-[var(--motion-micro)] ease-[var(--motion-easing)] hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            class="flex w-full items-center gap-3 max-sm:gap-2 rounded-lg px-3 py-2 max-sm:px-2.5 max-sm:py-1.5 text-label-md max-sm:text-label-sm text-text transition-colors duration-[var(--motion-micro)] ease-[var(--motion-easing)] hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             :class="{
               'bg-surface-container-high font-semibold': pref === opt.value,
               'bg-surface-container': allOptions[activeIdx].value === opt.value && pref !== opt.value,
@@ -187,8 +187,9 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
             <svg
               v-if="opt.icon === 'sun'"
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+            width="14"
+            height="14"
+            class="max-sm:w-3 max-sm:h-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -204,8 +205,9 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
             <svg
               v-else-if="opt.icon === 'monitor'"
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+            width="14"
+            height="14"
+            class="max-sm:w-3 max-sm:h-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -222,8 +224,9 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocumentPointerD
             <svg
               v-else
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+            width="14"
+            height="14"
+            class="max-sm:w-3 max-sm:h-3"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

@@ -29,12 +29,19 @@ describe('Navbar (floating glass-panel pill)', () => {
     useRouteMock.mockReturnValue({ path: '/' })
   })
 
-  it('renders the site name as a link to home (Literata serif brand mark)', () => {
+  it('renders the AY monogram image as a brand mark inside the home link', () => {
     const wrapper = mount(Navbar)
     const anchor = wrapper.find('a[href="/"]')
     expect(anchor.exists()).toBe(true)
-    expect(anchor.text().length).toBeGreaterThan(0)
-    expect(anchor.classes()).toContain('font-serif')
+    expect(anchor.attributes('aria-label')).toContain('Alberth Yaputra')
+    // Brand is the generated AY monogram PNG (`public/ay-monogram.png`,
+    // source 1258×848). `alt=""` keeps the link's aria-label as the
+    // single screen-reader announcement; the image is decorative.
+    const img = anchor.find('img[src="/ay-monogram.png"]')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('alt')).toBe('')
+    expect(img.classes().join(' ')).toMatch(/h-\[40px\]/)
+    expect(img.classes().join(' ')).toMatch(/w-auto/)
   })
 
   it('wraps the pill chrome in a `glass-panel` chrome', () => {
@@ -99,5 +106,20 @@ describe('Navbar (floating glass-panel pill)', () => {
     links.forEach((link) => {
       expect(['true', 'false']).toContain(link.attributes('data-active'))
     })
+  })
+
+  it('keeps the theme toggle in the main pill (not duplicated in the mobile drawer)', async () => {
+    const wrapper = mount(Navbar)
+    // Theme toggle lives in the right cluster of the always-visible pill —
+    // reachable from every breakpoint, including mobile (no need to open drawer).
+    const mainPill = wrapper.find('header > div.glass-panel')
+    expect(mainPill.find('[data-theme-picker]').exists()).toBe(true)
+    // Open the mobile drawer.
+    const hamburger = wrapper.find('button[aria-controls="mobile-menu"]')
+    await hamburger.trigger('click')
+    // Drawer exists — but it must NOT contain a duplicate theme toggle.
+    const drawer = wrapper.find('#mobile-menu')
+    expect(drawer.exists()).toBe(true)
+    expect(drawer.find('[data-theme-picker]').exists()).toBe(false)
   })
 })
