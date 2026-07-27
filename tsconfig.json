@@ -13,7 +13,20 @@
   // Nuxt-generated base tsconfig (which has a comprehensive `include`
   // list covering `app/**/*`) gives those tools the right project shape
   // without disturbing Nuxt's stricter type-checking pipeline.
+  //
+  // Explicit `include` (mirroring the Nuxt-generated patterns) lets
+  // walk-up resolvers find this tsconfig when processing individual
+  // `.vue` files imported from tests — `extends` alone doesn't
+  // propagate `include` to every resolver. `shared/**/*` covers the
+  // cross-cutting types imported via `~~/shared/...` from both app and
+  // tests. Tests are intentionally NOT included — they're type-checked
+  // by vitest separately and adding them at root would invite IDE /
+  // linter noise under Nuxt's strict flags.
   "extends": "./.nuxt/tsconfig.json",
+  "include": [
+    "app/**/*",
+    "shared/**/*"
+  ],
   "files": [],
   "references": [
     { "path": "./.nuxt/tsconfig.app.json" },

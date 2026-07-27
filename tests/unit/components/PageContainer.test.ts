@@ -1,7 +1,12 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import PageContainer from '~~/app/components/layout/PageContainer.vue'
+// Lazy import — top-level static `import` triggers the vue-tsc walk-up
+// tsconfig lookup before vitest is fully initialised. See root tsconfig
+// `include` for the primary fix; this is defense-in-depth.
+const { default: PageContainer } = await import(
+  '~~/app/components/layout/PageContainer.vue'
+)
 
 describe('PageContainer', () => {
   it('renders slot content', () => {

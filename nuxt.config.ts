@@ -55,6 +55,15 @@ export default defineNuxtConfig({
             media: '(min-width: 640px)',
             type: 'image/webp',
           },
+          // Brand mark is above-the-fold and visible on first paint;
+          // high fetchpriority lands the 12 KB WebP alongside hero content.
+          {
+            rel: 'preload',
+            as: 'image',
+            href: '/ay-monogram.webp',
+            type: 'image/webp',
+            fetchpriority: 'high',
+          },
         ],
       script: [
         {

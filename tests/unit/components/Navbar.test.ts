@@ -29,15 +29,19 @@ describe('Navbar (floating glass-panel pill)', () => {
     useRouteMock.mockReturnValue({ path: '/' })
   })
 
-  it('renders the AY monogram image as a brand mark inside the home link', () => {
+  it('renders the AY monogram via <picture>: WebP primary with PNG fallback', () => {
     const wrapper = mount(Navbar)
     const anchor = wrapper.find('a[href="/"]')
     expect(anchor.exists()).toBe(true)
     expect(anchor.attributes('aria-label')).toContain('Alberth Yaputra')
-    // Brand is the generated AY monogram PNG (`public/ay-monogram.png`,
-    // source 1258×848). `alt=""` keeps the link's aria-label as the
-    // single screen-reader announcement; the image is decorative.
-    const img = anchor.find('img[src="/ay-monogram.png"]')
+    // Brand via <picture>: WebP primary + PNG fallback. Decorative
+    // (alt=""); link's aria-label carries the full brand name.
+    const picture = anchor.find('picture')
+    expect(picture.exists()).toBe(true)
+    const source = picture.find('source[srcset="/ay-monogram.webp"]')
+    expect(source.exists()).toBe(true)
+    expect(source.attributes('type')).toBe('image/webp')
+    const img = picture.find('img[src="/ay-monogram.png"]')
     expect(img.exists()).toBe(true)
     expect(img.attributes('alt')).toBe('')
     expect(img.classes().join(' ')).toMatch(/h-\[40px\]/)
@@ -110,8 +114,7 @@ describe('Navbar (floating glass-panel pill)', () => {
 
   it('keeps the theme toggle in the main pill (not duplicated in the mobile drawer)', async () => {
     const wrapper = mount(Navbar)
-    // Theme toggle lives in the right cluster of the always-visible pill —
-    // reachable from every breakpoint, including mobile (no need to open drawer).
+    // Theme toggle is in the always-visible right cluster — not duplicated in the drawer.
     const mainPill = wrapper.find('header > div.glass-panel')
     expect(mainPill.find('[data-theme-picker]').exists()).toBe(true)
     // Open the mobile drawer.

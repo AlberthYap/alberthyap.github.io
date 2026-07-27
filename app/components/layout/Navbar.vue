@@ -63,25 +63,24 @@ function closeMobile() {
     <div
       class="glass-panel mx-auto flex w-full max-w-[var(--spacing-container)] items-center justify-between gap-4 rounded-full px-6 py-3 pointer-events-auto"
     >
-      <!-- Brand mark — generated AY monogram PNG (`public/ay-monogram.png`).
-           Source dimensions 1258×848 (~1.48:1 aspect); at h-[40px] the natural
-           width resolves to ~59 px (aspect-locked). Displayed as-is without
-           container chrome — the image carries its own visible boundary and
-           reads as a brand sticker against the glass-panel pill. The link's
-           `aria-label` carries the full brand name; the image is decorative
-           (`alt="")` so screen readers don't double-announce the marks. -->
+      <!-- Brand mark — AY monogram PNG/WebP via <picture>. Decorative
+           (`alt=""); parent link's aria-label carries the full name. -->
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
         class="flex items-center shrink-0 group"
       >
-        <img
-          src="/ay-monogram.png"
-          alt=""
-          class="h-[40px] w-auto
-                 transition-all duration-[var(--motion-small)] ease-[var(--motion-easing)]
-                 group-hover:scale-105 group-active:scale-95"
-        />
+        <picture>
+          <!-- WebP primary; <img> below is the PNG fallback for older browsers. -->
+          <source srcset="/ay-monogram.webp" type="image/webp" />
+          <img
+            src="/ay-monogram.png"
+            alt=""
+            class="h-[40px] w-auto
+                   transition-all duration-[var(--motion-small)] ease-[var(--motion-easing)]
+                   group-hover:scale-105 group-active:scale-95"
+          />
+        </picture>
       </NuxtLink>
 
       <nav
@@ -100,11 +99,7 @@ function closeMobile() {
         </NuxtLink>
       </nav>
 
-      <!-- Right cluster: theme toggle (always visible) + hamburger (mobile only).
-           Theme toggle is the primary light/dark control surface across every
-           breakpoint — reachable directly, no need to open the drawer. The
-           hamburger stays visible on mobile (md-) only, so the right cluster
-           is `[theme toggle, hamburger]` on mobile and `[theme toggle]` on md+. -->
+      <!-- Right cluster: theme toggle (always visible) + hamburger (mobile only). -->
       <div class="flex items-center gap-3">
         <ThemeToggle />
         <button
@@ -120,9 +115,7 @@ function closeMobile() {
       </div>
     </div>
 
-    <!-- Mobile drawer — slides out below the pill at md-. Nav links only;
-         the theme toggle lives in the main pill (always-visible right cluster)
-         and is not duplicated here. Full keyboard navigable. -->
+    <!-- Mobile drawer — slides out below the pill at md-; nav links only. -->
     <div
       v-if="isMobileMenuOpen"
       id="mobile-menu"
