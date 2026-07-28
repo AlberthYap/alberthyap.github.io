@@ -63,12 +63,15 @@ function closeMobile() {
     <div
       class="glass-panel mx-auto flex w-full max-w-[var(--spacing-container)] items-center justify-between gap-4 rounded-full px-6 py-3 pointer-events-auto"
     >
-      <!-- Brand mark — AY monogram PNG/WebP via <picture>. Decorative
-           (`alt=""); parent link's aria-label carries the full name. -->
+      <!-- Brand — AY monogram + visible wordmark. Monogram stays at every
+           viewport; the wordmark surfaces from `sm:` upward so the pill
+           on small phones stays minimal (monogram + theme + hamburger,
+           no crowding). Both pieces share the home link's aria-label,
+           so screen readers hear the full brand exactly once. -->
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
-        class="flex items-center shrink-0 group"
+        class="flex items-center gap-3 shrink-0 group"
       >
         <picture>
           <!-- WebP primary; <img> below is the PNG fallback for older browsers. -->
@@ -81,6 +84,12 @@ function closeMobile() {
                    group-hover:scale-105 group-active:scale-95"
           />
         </picture>
+        <span
+          class="hidden sm:block font-serif font-semibold text-body-md leading-none text-text tracking-tight whitespace-nowrap"
+          data-testid="brand-wordmark"
+        >
+          {{ SITE_NAME }}
+        </span>
       </NuxtLink>
 
       <nav

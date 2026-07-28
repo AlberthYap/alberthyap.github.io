@@ -66,9 +66,6 @@ const currentYear = new Date().getFullYear()
         class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 font-mono text-label-sm text-muted"
       >
         <p>© {{ currentYear }} {{ SITE_NAME }} — Built for the high-performance web.</p>
-        <div class="flex gap-8">
-          <span>v3.0 · Organic Professional · Light-first</span>
-        </div>
       </div>
     </div>
   </footer>

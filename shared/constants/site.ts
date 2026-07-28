@@ -46,11 +46,11 @@ export const NAV_LINKS = [
  */
 export const SITE_TECH_LINKS = [
   { label: 'Tools', to: '/tools' },
-  { label: 'GitHub', href: 'https://github.com/AlberthYaputra', external: true },
+  { label: 'GitHub', href: 'https://github.com/AlberthYap', external: true },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/alberth-yaputra', external: true },
 ] as const
 
 export const SOCIAL_LINKS = [
-  { label: 'GitHub', href: 'https://github.com/AlberthYaputra' },
+  { label: 'GitHub', href: 'https://github.com/AlberthYap' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/alberth-yaputra' },
 ] as const

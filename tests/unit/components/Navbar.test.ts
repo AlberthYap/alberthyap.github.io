@@ -11,7 +11,7 @@ vi.mock('vue-router', () => ({
 // Re-import lazily so the mock above takes effect.
 const { default: Navbar } = await import('~~/app/components/layout/Navbar.vue')
 
-import { NAV_LINKS } from '~~/shared/constants/site'
+import { NAV_LINKS, SITE_NAME } from '~~/shared/constants/site'
 
 /**
  * Navbar v3 — Floating glass-panel pill (Organic Professional).
@@ -51,6 +51,23 @@ describe('Navbar (floating glass-panel pill)', () => {
   it('wraps the pill chrome in a `glass-panel` chrome', () => {
     const wrapper = mount(Navbar)
     expect(wrapper.find('.glass-panel').exists()).toBe(true)
+  })
+
+  it('renders the visible brand wordmark alongside the monogram', () => {
+    const wrapper = mount(Navbar)
+    const wordmark = wrapper.find('[data-testid="brand-wordmark"]')
+    expect(wordmark.exists()).toBe(true)
+    // Wordmark binds to SITE_NAME (not a hardcoded copy) so the navbar
+    // and the rest of the codebase stay in lockstep if SITE_NAME is
+    // ever rebranded. font-serif + font-semibold anchor the brand
+    // voice; `leading-none` tightens the brand cluster to the 40 px
+    // monogram; `hidden sm:block` keeps the small-phone pill minimal.
+    expect(wordmark.text()).toBe(SITE_NAME)
+    expect(wordmark.classes().join(' ')).toMatch(/font-serif/)
+    expect(wordmark.classes().join(' ')).toMatch(/font-semibold/)
+    expect(wordmark.classes().join(' ')).toMatch(/leading-none/)
+    expect(wordmark.classes().join(' ')).toMatch(/hidden/)
+    expect(wordmark.classes().join(' ')).toMatch(/sm:block/)
   })
 
   it('renders every NAV_LINKS entry as a primary nav link', () => {

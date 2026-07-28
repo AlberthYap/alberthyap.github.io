@@ -46,5 +46,3 @@ export const safeExternalUrl = STRICT_URL.refine(
   },
   { message: 'URL scheme not in allowlist (http, https, mailto)' },
 )
-
-export type SafeUrl = z.infer<typeof safeExternalUrl>

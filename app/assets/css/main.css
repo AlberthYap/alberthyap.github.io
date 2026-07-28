@@ -288,6 +288,10 @@
   --motion-small:  180ms;
   --motion-medium: 280ms;
   --motion-large:  420ms;
+  /* Scroll glide duration. Aliases `--motion-medium` so designers
+     tune one knob. The actual scroll-to is JS-driven (useSmoothScroll)
+     — see app/plugins/scroll-behavior.client.ts. */
+  --motion-scroll: var(--motion-medium);
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -399,9 +403,22 @@
   --color-terminal-border:        rgb(234 232 225 / 0.10);
 }
 
-/* ────────────────────────────────────────────────────────────────────────
- * Reveal cascades + reduced-motion overrides.
- * ──────────────────────────────────────────────────────────────────────── */
+  /* Anchor scroll-margin — navbar clicks land below the chrome.
+     Only the named section ids participate so sticky counters and
+     jump-back links don't inherit the offset. */
+  [id="hero"],
+  [id="about"],
+  [id="skills"],
+  [id="experience"],
+  [id="projects"] {
+    scroll-margin-top: calc(
+      var(--spacing-navbar-height) + var(--spacing-md)
+    );
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * Reveal cascades + reduced-motion overrides.
+   * ──────────────────────────────────────────────────────────────────────── */
 @keyframes reveal-fade  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes reveal-up    { from { opacity: 0; transform: translateY(24px) scale(0.97); }
                           to   { opacity: 1; transform: translateY(0) scale(1);           } }
@@ -471,7 +488,8 @@
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    /* No `scroll-behavior` reset here — smooth scroll is JS-driven
+       and honours reduced-motion at runtime (see useSmoothScroll). */
   }
   .reveal-fade,
   .reveal-up,
@@ -492,13 +510,25 @@
      users see a flat opaque bar instead so the blur doesn't feel
      kinetic. */
   .sticky { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  /* Synth view-transition pseudo-elements aren't matched by the `*` wildcard above (they're
+     synthesised by the View Transitions API, not part of the normal element tree), so handle
+     them explicitly. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* ────────────────────────────────────────────────────────────────────────
  * Base layer — html/body defaults.
  * ──────────────────────────────────────────────────────────────────────── */
 @layer base {
-  html { color-scheme: light; }
+  html {
+    /* Token-driven via --motion-scroll in @theme; CSS scroll-behavior
+       ignores duration so we route through useSmoothScroll instead. */
+    color-scheme: light;
+  }
   html[data-theme="dark"] { color-scheme: dark; }
   body {
     @apply bg-bg text-text font-sans antialiased;
@@ -1106,3 +1136,17 @@
 }
 
 
+
+/* View transitions — theme toggle crossfade.
+   Synth pseudo-elements aren't reachable by the `*` wildcard above,
+   so an explicit `animation: none !important` override lives in the
+   reduced-motion @media block. Older Firefox without API support
+   falls back to an instant snap. */
+:root {
+  view-transition-name: root;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-medium);
+  animation-timing-function: var(--motion-easing);
+}

@@ -16,8 +16,6 @@ import {
  * and components (no second copy of the schema elsewhere in the codebase).
  */
 export type Project = z.infer<typeof ProjectSchema>
-export type Tool = z.infer<typeof ToolSchema>
-export type About = z.infer<typeof AboutSchema>
 export type Experience = z.infer<typeof ExperienceSchema>
 export type SkillGroup = z.infer<typeof SkillGroupSchema>
 

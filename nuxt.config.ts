@@ -68,7 +68,13 @@ export default defineNuxtConfig({
       script: [
         {
           innerHTML:
-            "(function(){try{var p=localStorage.getItem('theme-pref');var r=p==='dark'||p==='light'?p:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',r);}catch(e){}})();",
+            // No-flash before-paint resolver. Reads the stored pref and
+            // (if absent) defaults to 'light' — OS preference is no
+            // longer consulted at runtime per project policy
+            // (DESIGN.md "Organic Professional" is light-first and the
+            // user pinned the default to light). `matchMedia` call was
+            // dropped from the previous edition.
+            "(function(){try{var p=localStorage.getItem('theme-pref');document.documentElement.setAttribute('data-theme',p==='dark'||p==='light'?p:'light');}catch(e){}})();",
           tagPosition: 'head',
           type: 'text/javascript',
         },
