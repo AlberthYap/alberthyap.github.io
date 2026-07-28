@@ -2,20 +2,9 @@
 /**
  * Navbar — Floating glass-panel pill (Organic Professional design).
  *
- * Pattern from example.html: a centered `rounded-full` pill at the
- * top of the viewport, capped to ~95% width and a generous max-width
- * container (`container-max` = 1200 px). The pill stays fixed so it
- * always floats above grid + glow decorations.
- *
- * Compared to the old sticky-banner nav:
- *   • Brand stays left, links stay right, CTA becomes a primary pill.
- *   • All chrome shares one `.glass-panel` rather than per-link borders.
- *   • Mobile collapses to a hamburger that opens an inline drawer
- *     BELOW the pill (still scrollable, doesn't break the floating
- *     gesture).
- *
- * Scroll-spy is preserved via `useInjectActiveSection` so the matching
- * `data-section-id` link gets `data-active="true"` (nav-link pin).
+ * Kept fixed so the pill stays above grid + glow decorations on every
+ * scroll position. Scroll-spy wires `data-active="true"` on the matched
+ * `data-section-id` link via `useInjectActiveSection`.
  */
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -29,7 +18,6 @@ const route = useRoute()
 const activeSection = useInjectActiveSection()
 const isMobileMenuOpen = ref(false)
 
-/** Pull the section id out of a hash-anchor `to` like `/#about` → `about`. */
 function sectionIdFrom(to: string): string | null {
   const hashIdx = to.indexOf('#')
   if (hashIdx === -1) return null
@@ -37,10 +25,6 @@ function sectionIdFrom(to: string): string | null {
   return raw.length === 0 ? null : raw
 }
 
-/**
- * Active-state predicate. Lights up when the user is on `/` AND the
- * scroll-spy says this section's id is currently dominant.
- */
 function navLinkActive(to: string): boolean {
   if (route.path !== '/') return false
   const id = sectionIdFrom(to)
@@ -58,16 +42,14 @@ function closeMobile() {
 
 <template>
   <header class="fixed inset-x-0 top-4 z-50 px-4 pointer-events-none">
-    <!-- Pill nav — centered, 95% wide-ish, capped at container-max. pointer-events:auto
-         on the pill itself so the surrounding px-4 gutter doesn't capture clicks. -->
+    <!-- pointer-events:auto on the pill + parent's pointer-events-none so the
+         surrounding px-4 gutter doesn't capture clicks. -->
     <div
       class="glass-panel mx-auto flex w-full max-w-[var(--spacing-container)] items-center justify-between gap-4 rounded-full px-6 py-3 pointer-events-auto"
     >
-      <!-- Brand — AY monogram + visible wordmark. Monogram stays at every
-           viewport; the wordmark surfaces from `sm:` upward so the pill
-           on small phones stays minimal (monogram + theme + hamburger,
-           no crowding). Both pieces share the home link's aria-label,
-           so screen readers hear the full brand exactly once. -->
+      <!-- Monogram stays at every viewport; wordmark surfaces from `sm:` upward
+           so the pill on small phones stays minimal. Both pieces share the home
+           link's aria-label so screen readers hear the full brand exactly once. -->
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
@@ -108,7 +90,6 @@ function closeMobile() {
         </NuxtLink>
       </nav>
 
-      <!-- Right cluster: theme toggle (always visible) + hamburger (mobile only). -->
       <div class="flex items-center gap-3">
         <ThemeToggle />
         <button
@@ -124,7 +105,6 @@ function closeMobile() {
       </div>
     </div>
 
-    <!-- Mobile drawer — slides out below the pill at md-; nav links only. -->
     <div
       v-if="isMobileMenuOpen"
       id="mobile-menu"

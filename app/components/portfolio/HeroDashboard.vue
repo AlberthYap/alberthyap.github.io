@@ -2,39 +2,21 @@
 /**
  * HeroDashboard — 3D-tilted glass-panel mockup.
  *
- * Reproduces the `portfolio_v2` panel from example.html on the
- * right side of the hero. Extracted from Hero.vue so the parent stays
- * readable; the dashboard owns its own markup + styling shells.
+ * Extracted from Hero.vue so the parent stays readable; the dashboard
+ * owns its own markup + CSS shells.
  *
- * Visual stack (top → bottom):
- *   1. Chrome bar — three coloured dots + `portfolio_v2` caption.
- *   2. Metrics row — two cards: UPTIME (primary) and LATENCY (default).
- *   3. Code editor — dark inverse block with `engine.ts` highlighted
- *      tab and a TypeScript snippet demonstrating the engine contract.
- *   4. Infrastructure visual — two origin nodes (left + right
- *      endpoints) joined by a single edge ring at the centre,
- *      representing globally distributed edge delivery.
+ * a11y is layered: decorative dots aria-hidden since the chrome caption
+ * labels the panel; metrics/editor/infra each get role + aria-label so
+ * screen readers + keyboard nav don't read them as unlabeled sprites.
  *
- * a11y:
- *   • Decorative dots are aria-hidden (the chrome's `portfolio_v2`
- *     caption already labels the panel).
- *   • Metrics carry a `role="group"` + `aria-label` so screen readers
- *     announce "Build metrics, two items" before the values.
- *   • Editor carries `role="region"` + `aria-label="engine.ts source"`
- *     for keyboard navigation between editor/value regions.
- *   • Infrastructure visual carries `role="img"` + `aria-label`
- *     describing the graph; without this, the three nodes + bars read
- *     as unlabeled sprites.
- *
- * Reduced-motion: handled in CSS — `.perspective-panel` rotation
- * collapses to `transform: none` under `prefers-reduced-motion: reduce`.
+ * Reduced-motion lives in CSS — `.perspective-panel`'s rotation collapses
+ * to `transform: none` under `prefers-reduced-motion: reduce`.
  */
 </script>
 
 <template>
   <div class="perspective-panel">
     <div class="dashboard-mock">
-      <!-- Chrome bar: 3 mac-style dots + tab caption -->
       <div class="dashboard-mock__chrome">
         <span class="dashboard-mock__dots" aria-hidden="true">
           <span class="dashboard-mock__dot--red" />
@@ -43,10 +25,7 @@
         </span>
         <span class="dashboard-mock__caption">portfolio_v2</span>
       </div>
-
-      <!-- Body stack -->
       <div class="dashboard-mock__body">
-        <!-- Metrics row -->
         <div
           class="dashboard-mock__metrics"
           role="group"
@@ -64,30 +43,21 @@
           </div>
         </div>
 
-        <!-- Code editor — TypeScript snippet showcasing the engine
-             contract transform. `v-pre` on the <pre> element tells
-             Vue's SFC compiler to skip template processing for the
-             subtree (no mustache interpolation, no directive lookups).
-             Static class attributes on descendant spans still render. -->
+        <!-- v-pre on the <pre> tells Vue's SFC compiler to skip template processing
+             for the engine.ts snippet below (no mustache interpolation, no directive lookups). -->
         <div
           class="dashboard-mock__editor"
           role="region"
           aria-label="engine.ts source"
         >
-          <div
-            class="dashboard-mock__editor-tabs"
-            aria-hidden="true"
-          >
+          <div class="dashboard-mock__editor-tabs" aria-hidden="true">
             <span class="dashboard-mock__editor-tab dashboard-mock__editor-tab--active">
               engine.ts
             </span>
             <span class="dashboard-mock__editor-tab">main.ts</span>
             <span class="dashboard-mock__editor-tab">config.yml</span>
           </div>
-          <pre
-            v-pre
-            class="dashboard-mock__editor-body"
-          ><code><span class="dashboard-mock__editor-keyword">class</span> <span class="dashboard-mock__editor-fn">Engine</span> {
+          <pre v-pre class="dashboard-mock__editor-body"><code><span class="dashboard-mock__editor-keyword">class</span> <span class="dashboard-mock__editor-fn">Engine</span> {
   <span class="dashboard-mock__editor-keyword">async</span> <span class="dashboard-mock__editor-fn">optimize</span>(speed: <span class="dashboard-mock__editor-type">number</span>): <span class="dashboard-mock__editor-keyword">Promise</span>&lt;<span class="dashboard-mock__editor-type">void</span>&gt; {
     <span class="dashboard-mock__editor-comment">// Deploy to globally distributed edge nodes</span>
     <span class="dashboard-mock__editor-keyword">await</span> <span class="dashboard-mock__editor-keyword">this</span>.deployToEdge();
@@ -96,8 +66,6 @@
 }</code></pre>
         </div>
 
-        <!-- Infrastructure visual: two origin nodes (left + right
-             endpoints) joined by a single edge ring at the centre. -->
         <div
           class="dashboard-mock__infra"
           role="img"
