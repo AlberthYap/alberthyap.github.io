@@ -102,4 +102,27 @@ describe('About', () => {
       expect(wrapper.find(`[data-stagger="${idx}"]`).exists()).toBe(true)
     }
   })
+
+  // Body narrative switched from <ContentRenderer> + AST to `v-html` over a
+  // build-time-rendered string (see modules/home-snapshot.ts). These tests
+  // pin down both the rendered-HTML path and the empty-string default.
+  it('renders bodyHtml as v-html in the body narrative block', () => {
+    const wrapper = mount(About, {
+      props: {
+        bio: 'Bio.',
+        bodyHtml: '<p>First paragraph.</p><p>Second paragraph.</p>',
+      },
+    })
+    const body = wrapper.find('[data-stagger="1"]')
+    expect(body.exists()).toBe(true)
+    expect(body.html()).toContain('First paragraph.')
+    expect(body.html()).toContain('Second paragraph.')
+  })
+
+  it('omits the body narrative block when bodyHtml defaults to empty', () => {
+    const wrapper = mount(About, {
+      props: { bio: 'Bio.' },
+    })
+    expect(wrapper.find('[data-stagger="1"]').exists()).toBe(false)
+  })
 })

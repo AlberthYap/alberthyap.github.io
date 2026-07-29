@@ -12,8 +12,17 @@ interface Props {
   name?: string
   /** Short role tagline — appears directly below name. */
   bio: string
-  /** Markdown body rendered as plain paragraphs (no card/border). */
-  bodyDoc?: object | null
+  /**
+   * Pre-rendered HTML body for the narrative paragraphs.
+   *
+   * Comes from the build-time snapshot in `app/assets/generated/home-snapshot.json`
+   * (see `modules/home-snapshot.ts`) which runs `marked` over
+   * `content/about.md`'s body at setup and again on `build:before`.
+   * Empty string omits the body block. Trust boundary: this is author-
+   * authored source-of-truth content, not user input — `v-html` is safe
+   * because we do not inject external data into the markup.
+   */
+  bodyHtml?: string
   /** Portrait image (optional — shows initials fallback). */
   portrait?: { src: string; alt: string } | null
   /** Key highlights shown as bullet-point list with green dots. */
@@ -24,7 +33,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   name: '',
-  bodyDoc: null,
+  bodyHtml: '',
   portrait: null,
   highlights: () => [],
   footnote: '',
@@ -81,14 +90,18 @@ withDefaults(defineProps<Props>(), {
         </p>
       </div>
 
-      <!-- Body narrative — plain paragraphs, no card/border -->
+      <!--
+        Body narrative — HTML rendered via v-html from the build-time
+        snapshot. `[&_>p]:m-0` collapses the inner-paragraph margins so
+        the parent `gap-6` controls vertical spacing; matches the original
+        <ContentRenderer> cascade rhythm for the staggered reveal.
+      -->
       <div
-        v-if="bodyDoc"
+        v-if="bodyHtml"
         data-stagger="1"
         class="text-text text-body-md leading-[1.75] flex flex-col gap-6 [&_>p]:m-0"
-      >
-        <ContentRenderer :value="bodyDoc" />
-      </div>
+        v-html="bodyHtml"
+      />
 
       <!-- Highlight accent cards — tint background + body-md text size
            matches body paragraph above for visual continuity -->

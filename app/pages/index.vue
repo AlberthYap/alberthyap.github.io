@@ -16,15 +16,36 @@
  * The page also mounts a `<div class="grid-bg">` fixed-positioned
  * backdrop overlay (DESIGN §11) so all sections share a faint
  * grid texture without re-declaring it per section.
+ *
+ * ## Data source — JSON-static snapshot
+ *
+ * Reading order:
+ *   1. `modules/home-snapshot.ts` parses `content/{about.md,
+ *      experience/*.md, skills/personal-skills.yml, projects/*.md}` at
+ *      build time, Zod-validates each entry against the same schemas
+ *      `@nuxt/content` would normally apply, pre-renders `about.md`'s
+ *      markdown body to HTML, and writes a single
+ *      `app/assets/generated/home-snapshot.json`.
+ *   2. This page imports that JSON synchronously via ESM, casting the
+ *      structural JSON payload to `HomeSnapshot` for typed access.
+ *      The runtime SQLite engine used by `queryCollection()` is never
+ *      initialised on the home route, saving ~217 KB gzip of
+ *      `sqlite3*.js` + OPFS WASM chunks from the modulepreload chain.
+ *   3. `@nuxt/content` stays configured for `/projects/[slug]` and
+ *      `/tools/[slug]` (runtime nav), which still use the SQLite
+ *      path because their entries may not be prerendered.
  */
 import { computed } from 'vue'
 
-import type { Experience, SkillGroup } from '~~/shared/types'
+import type { Experience, Project, SkillGroup } from '~~/shared/types'
 
 import { useSectionReveal } from '~~/app/composables/useSectionReveal'
 import { useProvideActiveSection } from '~~/app/composables/useActiveSection'
 
 import { SITE_LEAD, SITE_NAME } from '~~/shared/constants/site'
+
+import type { HomeSnapshot } from '~~/modules/home-snapshot'
+import rawSnapshot from '~~/app/assets/generated/home-snapshot.json'
 
 /**
  * Preferred display order for skill categories. Categories not in this
@@ -36,7 +57,7 @@ const CATEGORY_ORDER = [
   'Data Engineering',
   'Infrastructure',
   'Database',
-]
+] as const
 
 /**
  * Merge experience-derived skills with personal/self-learned skills into
@@ -46,7 +67,7 @@ const CATEGORY_ORDER = [
  */
 function aggregateSkills(
   experiences: readonly Experience[],
-  personal: SkillGroup[] = [],
+  personal: readonly SkillGroup[] = [],
 ): SkillGroup[] {
   const groups = new Map<string, Set<string>>()
   for (const exp of experiences) {
@@ -70,8 +91,8 @@ function aggregateSkills(
   }
   return Array.from(groups)
     .sort((a, b) => {
-      const ai = CATEGORY_ORDER.indexOf(a[0])
-      const bi = CATEGORY_ORDER.indexOf(b[0])
+      const ai = CATEGORY_ORDER.indexOf(a[0] as (typeof CATEGORY_ORDER)[number])
+      const bi = CATEGORY_ORDER.indexOf(b[0] as (typeof CATEGORY_ORDER)[number])
       return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
     })
     .map(([category, items]) => ({
@@ -80,40 +101,28 @@ function aggregateSkills(
     }))
 }
 
-const { data: about } = await useAsyncData(
-  'home-about',
-  () => queryCollection('about').first(),
-)
+// Vite's JSON import widens to `Record<string, unknown>` (no type checking
+// at compile time, no Zod parse at runtime). The cast restores typed access
+// for downstream `about.*`, `experiences`, etc. The build-time Zod pass in
+// `modules/home-snapshot.ts` is the actual source of truth — if the JSON
+// file were hand-edited or the module skipped, this cast would silently
+// accept whatever shape is on disk.
+const homeSnapshot = rawSnapshot as unknown as HomeSnapshot
 
-const { data: experiences } = await useAsyncData(
-  'home-experiences',
-  () => queryCollection('experience').order('startDate', 'DESC').all(),
-)
-
-const { data: featuredProjects } = await useAsyncData(
-  'home-featured-projects',
-  () =>
-    queryCollection('projects')
-      .order('year', 'DESC')
-      .where('featured', '=', true)
-      .limit(3)
-      .all(),
-)
-
-const { data: personalSkillsData } = await useAsyncData(
-  'home-personal-skills',
-  () => queryCollection('personalSkills').first(),
-)
+const about = homeSnapshot.about
+const experiences = homeSnapshot.experiences
+const featuredProjects = homeSnapshot.featuredProjects
+const personalSkills = homeSnapshot.personalSkills.skills
 
 const skillGroups = computed<SkillGroup[]>(() =>
-  aggregateSkills(experiences.value ?? [], personalSkillsData.value?.skills ?? []),
+  aggregateSkills(experiences, personalSkills),
 )
 
 useSeoMeta({
   title: `${SITE_NAME} — Frontend Engineer`,
-  description: about?.tagline ?? SITE_LEAD,
+  description: about.tagline,
   ogTitle: `${SITE_NAME} — Frontend Engineer`,
-  ogDescription: about?.tagline ?? SITE_LEAD,
+  ogDescription: about.tagline,
   ogImage: '/og/default.png',
   twitterCard: 'summary_large_image',
 })
@@ -149,9 +158,9 @@ useProvideActiveSection()
       <!-- Hero — scroll-spy observed via data-section-id="hero". -->
       <div data-section-id="hero">
         <Hero
-          :name="about?.name ?? SITE_NAME"
-          :eyebrow="about?.eyebrow ?? SITE_NAME"
-          :lead="about?.tagline ?? SITE_LEAD"
+          :name="about.name"
+          :eyebrow="about.eyebrow"
+          :lead="about.tagline"
           status="Available for new work"
           primary-to="/projects"
           primary-label="View selected work"
@@ -168,13 +177,12 @@ useProvideActiveSection()
           class="reveal-up"
           :class="{ 'is-revealed': aboutRef }"
         >
-          <About
-            v-if="about"
+          <LazyAbout
             :name="about.name"
             :bio="about.tagline"
-            :portrait="about?.portrait ?? null"
+            :portrait="about.portrait ?? null"
             :highlights="about.highlights"
-            :body-doc="about"
+            :body-html="about.bodyHtml"
             :footnote="about.footnote ?? ''"
           />
         </div>
@@ -185,7 +193,7 @@ useProvideActiveSection()
           class="py-section reveal-up"
           :class="{ 'is-revealed': skillsRef }"
         >
-          <Skills :groups="skillGroups" />
+          <LazySkills :groups="skillGroups" />
         </div>
 
         <!-- Experience ───────────────────────────────── -->
@@ -194,8 +202,8 @@ useProvideActiveSection()
           class="reveal-up"
           :class="{ 'is-revealed': experienceRef }"
         >
-          <Experience
-            v-if="experiences && experiences.length"
+          <LazyExperience
+            v-if="experiences.length"
             :experiences="experiences"
           />
         </div>
@@ -221,7 +229,7 @@ useProvideActiveSection()
           </div>
 
           <div
-            v-if="featuredProjects && featuredProjects.length"
+            v-if="featuredProjects.length"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
           >
             <div
@@ -229,7 +237,7 @@ useProvideActiveSection()
               :key="project.slug"
               :data-stagger="Math.min(idx + 1, 4)"
             >
-              <ProjectCard :project="project" compact />
+              <LazyProjectCard :project="project" compact />
             </div>
           </div>
           <p v-else data-stagger="1" class="text-muted">

@@ -7,6 +7,10 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/content',
+    // Local module: pre-computes the home page's content payload as a single
+    // JSON asset at build time, replacing the runtime `@nuxt/content`
+    // SQLite query path for home. See modules/home-snapshot.ts.
+    './modules/home-snapshot',
   ],
 
   css: [

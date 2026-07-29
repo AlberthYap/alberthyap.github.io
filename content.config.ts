@@ -23,6 +23,13 @@ import { PersonalSkillsSchema } from '../shared/schemas/personal-skills'
 
 export default defineContentConfig({
   collections: {
+    // `clientDB: false` opts a collection out of the @nuxt/content
+    // runtime SQLite layer. Disabling prevents the runtime SQLite engine
+    // (OPFS WASM + worker) from initializing on first `queryCollection()`
+    // call — chunks still ship in build output, but runtime calls will
+    // throw if they ever land. `projects` and `tools` keep default because
+    // their `[slug]` routes may runtime-nav to non-prerendered entries;
+    // same applies for any future route adding a runtime `queryCollection`.
     projects: defineCollection({
       type: 'page', // Markdown + rendered body; case-study narratives
       source: 'projects/**/*.md',
@@ -33,23 +40,23 @@ export default defineContentConfig({
       source: 'tools/**/*.yml',
       schema: ToolSchema,
     }),
-    // Singleton About page (one file at `content/about.md`).
     about: defineCollection({
       type: 'page',
       source: 'about.md',
       schema: AboutSchema,
+      clientDB: false,
     }),
-    // Experience entries — markdown narratives + skill groups in frontmatter.
     experience: defineCollection({
       type: 'page',
       source: 'experience/**/*.md',
       schema: ExperienceSchema,
+      clientDB: false,
     }),
-    // Personal skills — self-learned tech not tied to any company experience.
     personalSkills: defineCollection({
       type: 'data',
       source: 'skills/personal-skills.yml',
       schema: PersonalSkillsSchema,
+      clientDB: false,
     }),
   },
 })

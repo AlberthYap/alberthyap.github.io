@@ -30,18 +30,11 @@ const NuxtLink = {
   template: '<a :href="href"><slot /></a>',
 }
 
-const ContentRenderer = {
-  name: 'ContentRenderer',
-  // Stub for @nuxt/content's <ContentRenderer> — vitest has no Nuxt
-  // runtime, so the unresolved tag logs a `[Vue warn] ContentRenderer`.
-  // Self-closing matches About.vue's usage (no slot children).
-  props: {
-    value: { type: [Object, null] as unknown as () => Record<string, unknown> | null, default: null },
-  },
-  template: '<div data-testid="content-renderer-stub" />',
-}
+// ContentRenderer stub removed: About.vue now renders the home content
+// body via `v-html` from a build-time-generated HTML string (see
+// `modules/home-snapshot.ts`). No Vue component under test imports
+// <ContentRenderer> anymore, so the stub is dead code.
 
 config.global.stubs = {
   NuxtLink,
-  ContentRenderer,
 }
