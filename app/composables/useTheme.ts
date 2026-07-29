@@ -1,34 +1,7 @@
 /**
- * Theme composable — explicit 2-state preference (light / dark) with
- * localStorage persistence.
- *
- * DESIGN.md v3.0 "Organic Professional" is LIGHT-first per the YAML
- * palette (background `#f7faf4`, primary `#386948`). After user
- * feedback ("default colornya light saja"), this default is hard-
- * coded — there is no longer any OS-preference lookup anywhere in
- * the runtime theme path. Dark mode still works (token overrides in
- * `:root[data-theme="dark"]` in main.css) for users who opt in via
- * ThemeToggle, but the default visual story is the airy / fresh
- * cream palette.
- *
- * History: an earlier edition exposed a third "system" mode that
- * auto-tracked `prefers-color-scheme` while the page was open. That
- * was removed ("untuk system gak usah deh") in favour of a direct
- * 2-option toggle: every click is an explicit, persisted choice, and
- * there is no live OS-pref listener. A legacy `'system'` storage
- * value is migrated forward to `'light'` on the next read so old
- * visitors don't get silently re-classified with a phantom mode.
- *
- * SSR safety: window/localStorage access is guarded by a
- * `typeof window === 'undefined'` check in `readStored` and
- * `writeStored`, and a `typeof document === 'undefined'` check in
- * `applyToDocument` — both sentinels guard the same SSR case (no
- * DOM at render time), so the composable is safe to call during
- * server render. Note: the no-flash inline script in
- * `nuxt.config.ts` is what actually paints the pre-hydration
- * `data-theme`; `useTheme`'s SSR placeholder (the `light` ref
- * default) is incidental and is replaced on hydration when
- * `onMounted` runs.
+ * Theme composable — 2-state preference (light / dark) with
+ * localStorage persistence. Default follows device preference
+ * via prefers-color-scheme on first visit.
  */
 import { onMounted, ref } from 'vue'
 
@@ -103,16 +76,12 @@ export function useTheme() {
   onMounted(() => {
     const stored = readStored()
     if (stored !== null) {
-      // Explicit pref already persisted — apply and stop.
       set(stored)
       return
     }
-    // First visit OR legacy `'system'` storage: default to `'light'`.
-    // The project is light-first per DESIGN.md and the user pinned
-    // the default to light; OS preference is no longer consulted at
-    // runtime. Persist the explicit value so future visits start with
-    // a real `'light'` or `'dark'`, not null/system.
-    set('light')
+    // First visit: follow device preference.
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    set(prefersDark ? 'dark' : 'light')
   })
 
   // `swap` is the user-initiated entry point; `set` is the underlying

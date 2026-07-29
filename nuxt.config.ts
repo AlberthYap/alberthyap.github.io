@@ -71,10 +71,9 @@ export default defineNuxtConfig({
       script: [
         {
           innerHTML:
-            // No-flash resolver. Reads stored pref; defaults to 'light'
-            // per DESIGN.md (light-first by policy). OS preference is
-            // not consulted — matchMedia was removed in a prior edit.
-            "(function(){try{var p=localStorage.getItem('theme-pref');document.documentElement.setAttribute('data-theme',p==='dark'||p==='light'?p:'light');}catch(e){}})();",
+            // No-flash resolver. Reads stored pref first; on first visit
+            // falls back to device preference via prefers-color-scheme.
+            "(function(){try{var p=localStorage.getItem('theme-pref');if(p==='dark'||p==='light'){document.documentElement.setAttribute('data-theme',p)}else{var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme',d?'dark':'light')}}catch(e){}})();",
           tagPosition: 'head',
           type: 'text/javascript',
         },

@@ -5,8 +5,6 @@ import { SITE_NAME } from '~~/shared/constants/site'
 
 const route = useRoute()
 
-// vue-router 5 types `params.slug` as `string | string[]`. Pick first segment
-// when the URL ever resolves an array (defensive — file-based routes keep this single).
 const slug = computed(() => {
   const raw = route.params.slug
   return Array.isArray(raw) ? raw[0] ?? '' : raw ?? ''
@@ -27,6 +25,18 @@ if (!project.value) {
   })
 }
 
+const statusLabel = computed(() => {
+  if (!project.value) return ''
+  if (project.value.status === 'shipped') return 'Shipped'
+  if (project.value.status === 'in-progress') return 'In Progress'
+  return 'Archived'
+})
+
+const galleryImages = computed(() => {
+  if (!project.value) return []
+  return project.value.images.filter(Boolean)
+})
+
 useSeoMeta({
   title: `${project.value.title} — ${SITE_NAME}`,
   description: project.value.description,
@@ -38,68 +48,182 @@ useSeoMeta({
 
 <template>
   <article v-if="project" class="pb-section">
-    <!-- Hero area: thumbnail full-bleed + title overlay -->
-    <div class="relative w-full aspect-[21/9] overflow-hidden bg-surface-container">
+    <PageContainer width="wide" class="pt-20 md:pt-28">
+      <!-- Back -->
+      <NuxtLink
+        to="/projects"
+        class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary-deep transition-colors font-mono mb-6"
+      >
+        <span aria-hidden="true">←</span> Back to projects
+      </NuxtLink>
+
+      <!-- Featured image — simple, no full-bleed hero -->
       <img
         v-if="project.thumbnail"
         :src="project.thumbnail"
         :alt="`${project.title} cover`"
-        class="w-full h-full object-cover"
+        class="w-full aspect-video object-cover rounded-xl bg-surface-container mb-10"
       >
-      <div class="absolute inset-0 bg-gradient-to-t from-bg/90 via-bg/20 to-transparent" />
-      <div class="absolute bottom-0 left-0 right-0 p-6 md:p-12 lg:p-16">
-        <div class="max-w-[var(--spacing-container)] mx-auto px-6 md:px-12 lg:px-16">
-          <NuxtLink
-            to="/projects"
-            class="inline-block mb-4 text-sm text-muted hover:text-primary-deep transition-colors font-mono"
+
+      <!-- Header -->
+      <header class="mb-14">
+        <div class="flex flex-wrap items-center gap-3 text-sm font-mono text-muted mb-5">
+          <span class="text-primary-deep font-semibold">{{ project.role }}</span>
+          <span aria-hidden="true" class="text-muted/30">·</span>
+          <span>{{ project.client }}</span>
+          <span aria-hidden="true" class="text-muted/30">·</span>
+          <span>{{ project.year }}</span>
+          <span
+            class="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider"
+            :class="project.status === 'shipped'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : project.status === 'in-progress'
+              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+              : 'bg-surface-container-high text-muted'"
           >
-            ← Back to projects
-          </NuxtLink>
-          <div class="flex flex-wrap items-center gap-3 text-sm text-muted font-mono mb-3">
-            <span>{{ project.role }}</span>
-            <span aria-hidden="true">·</span>
-            <span>{{ project.client }}</span>
-            <span aria-hidden="true">·</span>
-            <span>{{ project.year }}</span>
+            {{ statusLabel }}
+          </span>
+        </div>
+
+        <h1 class="font-serif font-bold text-text text-display md:text-[3.5rem] leading-[1.05] tracking-[-0.02em] max-w-4xl">
+          {{ project.title }}
+        </h1>
+
+        <p class="text-body-lg text-muted leading-relaxed max-w-3xl mt-5">
+          {{ project.description }}
+        </p>
+
+        <div class="flex flex-wrap gap-3 mt-6">
+          <LinkButton
+            v-if="project.liveUrl"
+            :to="project.liveUrl"
+            variant="primary"
+            size="md"
+            class="rounded-lg"
+          >
+            View live →
+          </LinkButton>
+          <LinkButton
+            v-if="project.repoUrl"
+            :to="project.repoUrl"
+            variant="secondary"
+            size="md"
+            class="rounded-lg"
+          >
+            Source code
+          </LinkButton>
+        </div>
+      </header>
+
+      <!-- Tags -->
+      <ul v-if="project.tags.length" class="flex flex-wrap gap-2 mb-12">
+        <li v-for="tag in project.tags" :key="tag">
+          <Badge>{{ tag }}</Badge>
+        </li>
+      </ul>
+
+      <!-- Two-column: body + sidebar -->
+      <div class="flex flex-col lg:flex-row gap-12 lg:gap-20">
+        <!-- Main content -->
+        <div class="flex-1 min-w-0">
+          <!-- Image gallery -->
+          <div
+            v-if="galleryImages.length"
+            class="mb-14"
+          >
+            <h2 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-5">
+              Gallery
+            </h2>
+            <div class="flex gap-4 overflow-x-auto pb-3 snap-x snap-proximity">
+              <div
+                v-for="(img, idx) in galleryImages"
+                :key="img"
+                class="shrink-0 w-[85vw] sm:w-[70vw] md:w-[55vw] aspect-video rounded-xl overflow-hidden bg-surface-container snap-center"
+              >
+                <img
+                  :src="img"
+                  :alt="`${project.title} screenshot ${idx + 1}`"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+            </div>
           </div>
-          <Heading as="h1">{{ project.title }}</Heading>
-          <p class="text-body-lg text-muted leading-relaxed max-w-prose mt-3">
-            {{ project.description }}
-          </p>
-          <div class="flex flex-wrap gap-3 mt-5">
+
+          <!-- Markdown body -->
+          <div class="prose prose-headings:text-text prose-p:text-text prose-p:leading-relaxed prose-a:text-primary-deep prose-strong:text-text prose-code:text-primary-deep prose-code:bg-surface-container-high prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-li:text-text max-w-none">
+            <ContentRenderer :value="project" />
+          </div>
+
+          <!-- Bottom CTAs -->
+          <div class="flex flex-wrap gap-3 mt-14 pt-10">
             <LinkButton
               v-if="project.liveUrl"
               :to="project.liveUrl"
               variant="primary"
               size="md"
+              class="rounded-lg"
             >
-              View live
+              View live →
             </LinkButton>
             <LinkButton
               v-if="project.repoUrl"
               :to="project.repoUrl"
               variant="secondary"
               size="md"
+              class="rounded-lg"
             >
               Source code
             </LinkButton>
+            <NuxtLink
+              to="/projects"
+              class="inline-flex items-center px-4 py-2 text-sm text-muted hover:text-text transition-colors font-mono"
+            >
+              ← All projects
+            </NuxtLink>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Body content -->
-    <PageContainer width="narrow" class="mt-10 md:mt-16">
-      <!-- Tags -->
-      <ul v-if="project.tags.length" class="flex flex-wrap gap-2 mb-8">
-        <li v-for="tag in project.tags" :key="tag">
-          <span class="tech-pill">{{ tag }}</span>
-        </li>
-      </ul>
+        <!-- Sidebar -->
+        <aside class="lg:w-72 shrink-0">
+          <div class="flex flex-col gap-10 lg:sticky lg:top-24">
+            <!-- Metrics -->
+            <div v-if="project.metrics.length">
+              <h3 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
+                Metrics
+              </h3>
+              <dl class="grid grid-cols-2 gap-y-5 gap-x-4">
+                <div
+                  v-for="m in project.metrics"
+                  :key="m.label"
+                >
+                  <dt class="font-mono text-xs uppercase tracking-wider text-muted mb-1">
+                    {{ m.label }}
+                  </dt>
+                  <dd class="font-serif text-headline-md font-bold text-text">
+                    {{ m.value }}
+                  </dd>
+                </div>
+              </dl>
+            </div>
 
-      <!-- Content -->
-      <div class="prose prose-headings:text-text prose-p:text-text prose-a:text-primary-deep prose-strong:text-text max-w-none">
-        <ContentRenderer :value="project" />
+            <!-- Tech stack -->
+            <div v-if="project.technologies.length">
+              <h3 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
+                Tech stack
+              </h3>
+              <ul class="flex flex-col gap-3">
+                <li
+                  v-for="t in project.technologies"
+                  :key="t.name"
+                  class="flex flex-col gap-0.5 pb-3 border-b border-outline-variant last:border-0 last:pb-0"
+                >
+                  <span class="font-mono text-sm font-semibold text-text">{{ t.name }}</span>
+                  <span class="text-xs text-muted leading-relaxed">{{ t.purpose }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
       </div>
     </PageContainer>
   </article>

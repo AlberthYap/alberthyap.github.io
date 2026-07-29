@@ -30,7 +30,7 @@ useSeoMeta({
     </header>
     <div
       v-if="projects && projects.length"
-      class="grid gap-8 md:grid-cols-2"
+      class="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
     >
       <ProjectCard
         v-for="project in projects"

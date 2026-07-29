@@ -110,13 +110,7 @@ useProvideActiveSection()
     class="relative min-h-screen"
     :data-intro-complete="reveal.allRevealed.value ? 'true' : 'false'"
   >
-    <!-- Grid backdrop overlay — fixed, ~15% opacity -->
-    <div
-      aria-hidden="true"
-      class="fixed inset-0 grid-bg opacity-[15%] pointer-events-none z-0"
-    />
-
-    <div class="relative z-10">
+    <div>
       <!-- Hero — scroll-spy observed via data-section-id="hero". -->
       <div data-section-id="hero">
         <Hero
