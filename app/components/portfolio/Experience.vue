@@ -73,7 +73,7 @@ const entries = computed<Entry[]>(() =>
     class="flex flex-col gap-10"
   >
     <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
-      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
         Career
       </p>
       <Heading id="experience-heading" as="h2">Experience</Heading>
@@ -147,7 +147,7 @@ const entries = computed<Entry[]>(() =>
               class="skill-chip gap-1.5"
             >
               <svg
-                class="h-3.5 w-3.5 shrink-0 text-primary"
+                class="h-3.5 w-3.5 shrink-0 text-primary-deep"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"

@@ -41,20 +41,20 @@ const currentYear = new Date().getFullYear()
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-muted hover:text-primary transition-colors duration-200"
+            class="text-muted hover:text-primary-deep transition-colors duration-200"
             :aria-label="link.label"
           >
             {{ link.label }}
           </a>
           <NuxtLink
             to="/projects"
-            class="text-muted hover:text-primary transition-colors duration-200"
+            class="text-muted hover:text-primary-deep transition-colors duration-200"
           >
             Projects
           </NuxtLink>
           <NuxtLink
             to="/tools"
-            class="text-muted hover:text-primary transition-colors duration-200"
+            class="text-muted hover:text-primary-deep transition-colors duration-200"
           >
             Tools
           </NuxtLink>

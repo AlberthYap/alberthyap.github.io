@@ -53,7 +53,7 @@ function closeMobile() {
       <NuxtLink
         to="/"
         :aria-label="`${SITE_NAME} — home`"
-        class="flex items-center gap-3 shrink-0 group"
+        class="flex items-center gap-3 shrink-0 group rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <picture>
           <!-- WebP primary; <img> below is the PNG fallback for older browsers. -->
@@ -61,6 +61,8 @@ function closeMobile() {
           <img
             src="/ay-monogram.png"
             alt=""
+            width="40"
+            height="40"
             class="h-[40px] w-auto
                    transition-all duration-[var(--motion-small)] ease-[var(--motion-easing)]
                    group-hover:scale-105 group-active:scale-95"
@@ -94,7 +96,7 @@ function closeMobile() {
         <ThemeToggle />
         <button
           type="button"
-          class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          class="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           :aria-expanded="isMobileMenuOpen"
           aria-controls="mobile-menu"
           :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"

@@ -28,20 +28,19 @@ export default defineNuxtConfig({
     },
   },
 
-  // DESIGN.md v3.0 §13 — no-flash inline script.
-  // Resolves saved theme before paint so the first frame matches the
-  // user's preference. Default is `light` per the Organic Professional
-  // palette (light-first); the script only picks `dark` when the user
-  // has explicitly chosen it (localStorage) or the OS reports dark-scheme
-  // and the user has never opted out.
+  // DESIGN.md §13 — no-flash inline script. Resolves saved theme before
+  // paint so first frame matches user preference. Default `light` per
+  // Organic Professional palette; the script picks `dark` only when
+  // explicitly stored in localStorage.
   app: {
-    head: {        // Eagerly preload the 52 KB hero-bg.webp texture so it lands
-        // alongside the rest of the first-paint resources on slow
-        // networks. fetchpriority=low keeps the budget unblocked:
-        //   - Hero text is the LCP candidate, not the texture overlay;
-        //   - texture is decorative — it can paint a few hundred ms
-        //     later than its sibling resources without hurting UX.
-        // WebP brings the texture from 1.5 MB (PNG) to 52 KB (~30x).
+    head: {
+      // `<html lang>` is required for screen readers to pick the right
+      // pronunciation profile and for the browser to offer translation
+      // for the page. The portfolio copy is English throughout.
+      htmlAttrs: { lang: 'en' },        // Eagerly preload the 52 KB hero-bg.webp texture. fetchpriority=low
+        // because hero text is the LCP candidate and the texture is
+        // decorative — it can paint late without hurting UX. WebP brings
+        // it from 1.5 MB PNG to 52 KB (~30×).
         link: [
           {
             rel: 'preload',
@@ -68,12 +67,9 @@ export default defineNuxtConfig({
       script: [
         {
           innerHTML:
-            // No-flash before-paint resolver. Reads the stored pref and
-            // (if absent) defaults to 'light' — OS preference is no
-            // longer consulted at runtime per project policy
-            // (DESIGN.md "Organic Professional" is light-first and the
-            // user pinned the default to light). `matchMedia` call was
-            // dropped from the previous edition.
+            // No-flash resolver. Reads stored pref; defaults to 'light'
+            // per DESIGN.md (light-first by policy). OS preference is
+            // not consulted — matchMedia was removed in a prior edit.
             "(function(){try{var p=localStorage.getItem('theme-pref');document.documentElement.setAttribute('data-theme',p==='dark'||p==='light'?p:'light');}catch(e){}})();",
           tagPosition: 'head',
           type: 'text/javascript',
@@ -84,6 +80,10 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    // NOTE: prose-component bundling intentionally NOT applied —
+    // `manualChunks` matching `/Prose/` breaks Nitro chunk-graph identity
+    // under Nuxt 4.5 + @nuxt/content 3.15. Revisit via nitro.rollupConfig
+    // if needed in the future.
   },
 
   typescript: {

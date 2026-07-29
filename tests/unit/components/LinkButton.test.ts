@@ -32,12 +32,12 @@ describe('LinkButton', () => {
     expect(wrapper.attributes('aria-label')).toBe('Send a message to the team')
   })
 
-  it('applies primary variant classes (bg-primary text-white)', () => {
+  it('applies primary variant classes (bg-button-primary text-white)', () => {
     const wrapper = mount(LinkButton, {
       props: { to: '/', variant: 'primary' },
     })
     const classList = wrapper.classes().join(' ')
-    expect(classList).toContain('bg-primary')
+    expect(classList).toContain('bg-button-primary')
     expect(classList).toContain('text-white')
   })
 

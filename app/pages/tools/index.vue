@@ -15,11 +15,11 @@ useSeoMeta({
 <template>
   <PageContainer width="wide" class="py-section">
     <header class="flex flex-col gap-4 mb-12">
-      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
         Utilities
       </p>
       <h1 class="font-serif font-bold text-text text-display leading-none">
-        Browser <span class="text-primary">tools</span>
+        Browser <span class="text-primary-deep">tools</span>
       </h1>
       <p class="text-muted text-body-md max-w-prose">
         Browser-based utilities. No data leaves your machine — everything runs locally.

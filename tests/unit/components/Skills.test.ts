@@ -25,7 +25,7 @@ describe('Skills (chips with icons)', () => {
     expect(heading.exists()).toBe(true)
     expect(heading.text()).toContain('Core')
     expect(heading.text()).toContain('Stack')
-    expect(heading.find('span.text-primary').exists()).toBe(true)
+    expect(heading.find('span.text-primary-deep').exists()).toBe(true)
   })
 
   it('renders all skill categories as h3 headings', () => {

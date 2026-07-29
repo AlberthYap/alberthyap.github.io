@@ -34,7 +34,7 @@ useSeoMeta({
 <template>
   <article v-if="tool" class="flex flex-col gap-8">
     <PageContainer width="default" class="pt-12">
-      <NuxtLink to="/tools" class="text-sm text-muted hover:text-primary">← Back to tools</NuxtLink>
+      <NuxtLink to="/tools" class="text-sm text-muted hover:text-primary-deep">← Back to tools</NuxtLink>
     </PageContainer>
 
     <PageContainer width="narrow">

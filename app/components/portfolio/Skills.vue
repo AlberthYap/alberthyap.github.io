@@ -21,14 +21,14 @@ defineProps<Props>()
     class="flex flex-col gap-10"
   >
     <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
-      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
         Stack
       </p>
       <h2
         id="skills-heading"
         class="font-headline font-bold text-text text-headline-xl leading-tight"
       >
-        Core <span class="text-primary">Stack</span>
+        Core <span class="text-primary-deep">Stack</span>
       </h2>
     </div>
 
@@ -40,7 +40,7 @@ defineProps<Props>()
         class="flex flex-col gap-3 reveal-up is-revealed"
       >
         <h3
-          class="font-mono text-label-sm uppercase tracking-widest text-primary font-semibold"
+          class="font-mono text-label-sm uppercase tracking-widest text-primary-deep font-semibold"
         >
           {{ group.category }}
         </h3>
@@ -49,7 +49,7 @@ defineProps<Props>()
           <li v-for="item in group.items" :key="item" class="skill-chip-wrapper">
             <span class="skill-chip gap-1.5" :title="group.category">
               <svg
-                class="h-3.5 w-3.5 shrink-0 text-primary"
+                class="h-3.5 w-3.5 shrink-0 text-primary-deep"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"

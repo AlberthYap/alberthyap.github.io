@@ -26,7 +26,7 @@ function toggle(): void {
     role="switch"
     :aria-label="pref === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
     :aria-checked="pref === 'dark' ? 'true' : 'false'"
-    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-[var(--motion-small)] ease-[var(--motion-easing)] motion-reduce:transition-none"
+    class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-[var(--motion-small)] ease-[var(--motion-easing)] motion-reduce:transition-none"
     @click="toggle"
   >
     <!-- Moon = "click → dark" (currently light) -->

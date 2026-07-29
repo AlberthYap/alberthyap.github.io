@@ -12,13 +12,9 @@
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
-// Focus ring is applied per-variant so the offset stays visible
-// against whichever surface the button sits on:
-//   • primary (filled sage bg)  → ring-offset-bg gives the dark gap that
-//                                   separates the sage fill from the ring.
-//   • secondary / ghost (transparent/translucent) → outline-only focus
-//                                   ring without offset so it stays
-//                                   legible against the page bg.
+// Focus ring is per-variant — primary uses ring-offset-bg to separate
+// the sage fill from the ring; secondary/ghost use outline-only (no
+// offset) to stay legible against the page bg.
 const FOCUS_PRIMARY = 'focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg'
 const FOCUS_GHOST = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'
 
@@ -44,19 +40,18 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    // Forest sage (`#4a8c66`) + white (`#ffffff`) — measured contrast
-    // ~6.6:1 on light surfaces. Passes WCAG AA (4.5:1) for body text
-    // and approaches AAA (7:1). White text reads crisply on sage in
-    // both light and dark page themes.
-    `bg-primary text-white hover:bg-primary/90 active:bg-primary/85 border border-transparent ${FOCUS_PRIMARY}`,
+    // Darker sage (--color-button-primary = #386948) + white ≈6.4:1 —
+    // passes AA normal (4.5:1), approaches AAA (7:1). Decoupled from
+    // --color-primary because lifted brand sage clears only AA Large
+    // against white, failing the button audit at 16px regular weight.
+    `bg-button-primary text-white hover:bg-button-primary/90 active:bg-button-primary/85 border border-transparent ${FOCUS_PRIMARY}`,
   secondary:
-    // Green text + subtle outline border — reads as a quieter secondary
-    // action using brand color instead of dark text that floats on cream.
-    // On hover the border intensifies to full primary.
+    // Green text + subtle outline — quieter secondary action using
+    // brand color. Hover intensifies the border to full primary.
     `bg-transparent text-primary border border-primary/30 hover:border-primary hover:text-primary ${FOCUS_GHOST}`,
   ghost:
-    // Near-transparent with muted text — minimal footprint for inline
-    // actions that don't compete with the primary CTA.
+    // Near-transparent + muted text — minimal footprint for inline
+    // actions not competing with the primary CTA.
     `bg-transparent text-muted hover:text-primary hover:bg-surface-container-high border border-transparent ${FOCUS_GHOST}`,
 }
 

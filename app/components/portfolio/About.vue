@@ -38,14 +38,14 @@ withDefaults(defineProps<Props>(), {
     class="flex flex-col gap-8"
   >
     <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
-      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
         About
       </p>
       <h2
         id="about-heading"
         class="font-headline font-bold text-text text-headline-xl leading-tight"
       >
-        About <span class="text-primary">Me</span>
+        About <span class="text-primary-deep">Me</span>
       </h2>
     </div>
 
@@ -125,7 +125,7 @@ withDefaults(defineProps<Props>(), {
         class="text-text text-body-md pt-6 mt-2 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
       >
         <span>{{ footnote }}</span>
-        <span class="text-primary text-body-sm font-mono tracking-[0.04em]">
+        <span class="text-primary-deep text-body-sm font-mono tracking-[0.04em]">
           Let's build →
         </span>
       </p>

@@ -51,7 +51,7 @@ useSeoMeta({
         <div class="max-w-[var(--spacing-container)] mx-auto px-6 md:px-12 lg:px-16">
           <NuxtLink
             to="/projects"
-            class="inline-block mb-4 text-sm text-muted hover:text-primary transition-colors font-mono"
+            class="inline-block mb-4 text-sm text-muted hover:text-primary-deep transition-colors font-mono"
           >
             ← Back to projects
           </NuxtLink>
@@ -98,7 +98,7 @@ useSeoMeta({
       </ul>
 
       <!-- Content -->
-      <div class="prose prose-headings:text-text prose-p:text-text prose-a:text-primary prose-strong:text-text max-w-none">
+      <div class="prose prose-headings:text-text prose-p:text-text prose-a:text-primary-deep prose-strong:text-text max-w-none">
         <ContentRenderer :value="project" />
       </div>
     </PageContainer>

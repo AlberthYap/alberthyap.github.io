@@ -157,7 +157,7 @@ useProvideActiveSection()
           primary-label="View selected work"
         >
           Building calm,<br>
-          <span class="text-primary">Scalable Systems</span>
+          <span class="text-primary-deep">Scalable Systems</span>
         </Hero>
       </div>
 
@@ -209,14 +209,14 @@ useProvideActiveSection()
           :class="{ 'is-revealed': portfolioRef }"
         >
           <div data-stagger="0" class="flex flex-col gap-2 text-center items-center">
-            <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+            <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
               Work
             </p>
             <h2
               id="projects-heading"
               class="font-headline font-bold text-text text-headline-xl leading-tight"
             >
-              Selected <span class="text-primary">projects</span>
+              Selected <span class="text-primary-deep">projects</span>
             </h2>
           </div>
 

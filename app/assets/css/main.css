@@ -20,82 +20,43 @@
  */
 @import "tailwindcss";
 
-/* ────────────────────────────────────────────────────────────────────────
- * Self-hosted woff2 fonts. Stays consistent with the project's no-CDN
- * philosophy so the static bundle ships the typography pair entirely
- * inline; no Google Fonts request.
- * ──────────────────────────────────────────────────────────────────────── */
+/* Self-hosted variable woff2 (DESIGN §4). The @fontsource-variable 5.x
+ * line ships one file per family covering the full wght axis (100–900);
+ * 8 static files collapse to 3 variable ones (107 KB vs 229 KB). The
+ * `woff2-variations` + `woff2` dual src keeps legacy parsers working,
+ * and `font-weight: 100 900` activates axis interpolation. Italic axes
+ * intentionally NOT shipped — browser oblique is the fallback. */
 @font-face {
   font-family: "Literata";
-  src: url("~/assets/fonts/Literata-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Literata";
-  src: url("~/assets/fonts/Literata-Semibold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Literata";
-  src: url("~/assets/fonts/Literata-Bold.woff2") format("woff2");
-  font-weight: 700;
+  src: url("~/assets/fonts/Literata-Variable.woff2") format("woff2-variations"),
+       url("~/assets/fonts/Literata-Variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Nunito Sans";
-  src: url("~/assets/fonts/NunitoSans-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nunito Sans";
-  src: url("~/assets/fonts/NunitoSans-Semibold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nunito Sans";
-  src: url("~/assets/fonts/NunitoSans-Bold.woff2") format("woff2");
-  font-weight: 700;
+  src: url("~/assets/fonts/NunitoSans-Variable.woff2") format("woff2-variations"),
+       url("~/assets/fonts/NunitoSans-Variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Geist Mono";
-  src: url("~/assets/fonts/Geist-Mono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Geist Mono";
-  src: url("~/assets/fonts/Geist-Mono-Medium.woff2") format("woff2");
-  font-weight: 500;
+  src: url("~/assets/fonts/GeistMono-Variable.woff2") format("woff2-variations"),
+       url("~/assets/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-/* ────────────────────────────────────────────────────────────────────────
- * @theme — DESIGN.md "Organic Professional" v3.0 tokens. LIGHT-first per
- * the YAML data (background `#f7faf4`, primary `#386948`, on-surface
- * `#2c342e`). The dark-mode override lives in `:root[data-theme="dark"]`
- * below this block.
- *
- * Naming follows Material 3 tonal vocabulary (surface / on-surface /
- * primary-container, etc.) so a Vue template's class names stay
- * semantic — `bg-bg text-text border-outline`, etc.
- *
- * Font tokens: `--font-*` auto-generates matching utilities; `--text-*`
- * tokens auto-generate `text-*` sizing utilities, with `--line-height`
- * and `--letter-spacing` suffixed forms for auto-pairing.
- * ──────────────────────────────────────────────────────────────────────── */
+/* @theme — DESIGN.md "Organic Professional" v3.0 tokens. LIGHT-first;
+ * the dark-mode override lives in `:root[data-theme="dark"]` below.
+ * Naming follows Material 3 tonal vocabulary (`bg-bg text-text`) so
+ * templates stay semantic. Font tokens auto-generate `font-*` utilities;
+ * type tokens auto-generate `text-*` with auto-paired line-height,
+ * letter-spacing, and font-weight variants. */
 @theme {
   /* Surfaces — light tonal layers from lowest (white) to highest (sage tint). */
   --color-bg:                      #f7faf4;        /* background = surface */
@@ -120,10 +81,16 @@
   --color-outline-variant:         #abb4ac;
 
   /* Primary — deep, muted forest sage (Material tonal anchor). */
-  --color-primary:                 #4a8c66;        /* moderate lift (#386948 → #4a8c66, 2026‑07 round+3):
-                                                          light contrast ~5.9:1 → ~3.8:1 (passes AA Large);
-                                                          dark contrast ~3:1 → ~4.8:1 (passes AA body) */
-  --color-primary-tint:            #4a8c66;        /* surface-tint follows primary lif
+  --color-primary:                 #4a8c66;        /* deep sage anchor. Light ~3.8:1 (AA Large accent),
+                                                          dark ~4.8:1 (AA body). */
+  --color-primary-tint:            #4a8c66;        /* surface-tint follows primary */
+  --color-button-primary:           #386948;        /* CTA-specific; deeper than --color-primary so white
+                                                          text hits AA-normal (~6.1:1). Decoupled so accents
+                                                          keep the lifted brand hue while CTAs stay compliant. */
+  --color-primary-deep:             #386948;        /* AA-normal text accent on cream bgs. Lifted primary
+                                                          clears only 3.83:1 — fails AA normal on body/small
+                                                          text. Use for: eyebrow labels, status pills, link
+                                                          hovers, 12–16px text-primary accent. */
   --color-on-primary:              #e8ffe9;        /* mint light */
   --color-primary-container:       #b9efc5;        /* pale sage container */
   --color-on-primary-container:    #2a5b3b;        /* deep sage text on container */
@@ -154,40 +121,20 @@
   --color-warning:       #fad998;                  /* = tertiary-container */
   --color-danger:        #a83836;                  /* = error */  --color-primary-soft:  rgb(74 140 102 / 0.10);   /* tint for hover bg on light; hue tracks lifted primary #4a8c66 */
 
-  /* ─────────────────────────────────────────────────────────────────
-   * Terminal/paper-flavoured tokens (theme-fixed). These describe the
-   * dashboard mockup's "paper manuscript" mood and are intentionally
-   * identical in @theme AND :root[data-theme="dark"] below — the
-   * dashboard reads as a self-contained light cream panel regardless
-   * of page theme, matching the cream/light aesthetic the user
-   * preferred over the previous CRT-dark shell.
-   *
-   * When the page theme is dark (deep sage) the cream panel stands
-   * out via sheer tonal contrast (cream-on-dark); when the page is
-   * light (cream) the panel reads via its slightly cooler/warmer
-   * cream tier and the soft sage drop shadow. Either way the panel
-   * never flips "mode" with the page — it's an inserted paper sheet.
-   *
-   * Color picks harmonise with the page tonal family: deep sage
-   * fg (#2c342e) reads matched against cream bg (#FFFFFF), warm grey
-   * caption (#6b6660) sits at body-text AA on the chrome band,
-   * forest sage keyword (#15803d) makes `impl` / `pub fn` / `self`
-   * legible without overpowering the manuscript mood.
-   * ───────────────────────────────────────────────────────────────── */
+  /* Dashboard mockup tokens — paper cream panel in light, CRT-dark in
+   * dark, triggered by `useTheme`. Cream-on-dark vs cream-on-cream
+   * tonal contrast keeps the panel readable without flipping mode with
+   * the page. Syntax picks harmonise with the page tonal family. */
   --color-terminal-bg:            #FFFFFF;
   --color-terminal-chrome:        #F0EDE6;
   --color-terminal-fg:            #2c342e;
-  --color-terminal-caption:       #6b6660;
-  --color-terminal-caption:       #7B7670;
+  --color-terminal-caption:       #6B6560;   /* 4.90:1 on chrome — just clears AA normal for 12px caption. */
   --color-terminal-comment:       #6B6660;
-  --color-terminal-keyword:       #4a8c66;   /* round+5 swap: keyword now = lifted primary (highlight tier);
-                                                     was #3F7250 (muted). fn/keyword hierarchy inverted so
-                                                     `pub`/`impl`/`fn`/`self` read as the structural cue. */
-  --color-terminal-fn:            #3F7250;   /* round+5 swap: fn name now muted; was previously
-                                                     the keyword tier (#4a8c66). */
+  --color-terminal-keyword:       #4a8c66;   /* highlight tier — `pub`/`impl`/`fn`/`self` structural cue. */
+  --color-terminal-fn:            #3F7250;
   --color-terminal-type:          #745C27;
   --color-terminal-string:        #B91C1C;
-  --color-terminal-tab-active:    #4a8c66;   /* round+5 sync: active tab tracks the new highlight tier. */
+  --color-terminal-tab-active:    #4a8c66;   /* active tab tracks the highlight tier. */
   --color-terminal-border:        rgb(44 52 46 / 0.12);
 
   /* Typography — DESIGN §4 "Organic Professional"
@@ -254,27 +201,13 @@
   --spacing-2xl: 48px;
   --spacing-section: 120px;      /* py between narrative sections */
   --spacing-container: 1200px;   /* max content width */
-  --spacing-navbar-height: 80px; /* floating glass-panel pill height
-                                    (top-4 inset + py-3 pill padding + 40px
-                                    brand-mark content — pill is ~64px tall
-                                    total, sits ~16px below the viewport top,
-                                    so the navbar reaches y≈80px from the top
-                                    edge). Adjust when the brand mark sizing
-                                    or pill padding changes.
-                                    Templates needing to anchor content
-                                    below the navbar (sticky counters,
-                                    jump-back links) reference this token
-                                    via Tailwind v4 arbitrary value
-                                    `top-[var(--spacing-navbar-height)]`
-                                    so they track navbar re-flows. */
+  --spacing-navbar-height: 80px; /* floating glass-panel pill bottom-edge.
+                                    Templates anchor content below the navbar
+                                    via `top-[var(--spacing-navbar-height)]`
+                                    so they track re-flows. */
 
-  /* Radius — DESIGN §7 "Rounded (level 2)" scale, mapped 1:1 to the
-     YAML `rounded` block. Class → token → px:
-       rounded-sm    → 0.25rem (4 px)
-       rounded       → 0.5rem  (8 px)  (DEFAULT — bare `--radius`)
-       rounded-md    → 0.75rem (12 px)
-       rounded-lg    → 1rem    (16 px)
-       rounded-xl    → 1.5rem  (24 px) */
+  /* Radius — DESIGN §7 "Rounded (level 2)" scale; bare `--radius` is
+     the DEFAULT (8 px). Sub-tokens: sm 4 / md 12 / lg 16 / xl 24 px. */
   --radius-sm:   4px;
   --radius:      8px;
   --radius-md:   12px;
@@ -288,47 +221,18 @@
   --motion-small:  180ms;
   --motion-medium: 280ms;
   --motion-large:  420ms;
-  /* Scroll glide duration. Aliases `--motion-medium` so designers
-     tune one knob. The actual scroll-to is JS-driven (useSmoothScroll)
-     — see app/plugins/scroll-behavior.client.ts. */
+  /* Scroll glide duration — JS-driven via useSmoothScroll. Aliases
+     `--motion-medium` so designers tune one knob. */
   --motion-scroll: var(--motion-medium);
 }
 
-/* ────────────────────────────────────────────────────────────────────────
- * Dark palette — applied when user toggles to dark via ThemeToggle, or
- * when the no-flash script resolves a stored `theme-pref="dark"` from
- * localStorage.
- *
- * PRIMARY-FAMILY PARITY (user override, 2026‑07): every token in the
- * primary tonal family mirrors the light block's value verbatim so
- * the brand reads identically regardless of theme.
- *
- *   Brand lifted (#386948 → #4a8c66, 2026‑07‑round+3) to pick up
- *   dark-mode presence: contrast with the near-black page bg jumps
- *   ~3:1 → ~4.8:1 (passes WCAG AA body text 4.5:1); light-mode
- *   softens to ~3.8:1 (passes AA Large Text only, still legible as
- *   accent). The lifted hue stays inside the deep sage Material 3
- *   family — neither mint nor olive drift.
- *
- *   Tokens held constant across both blocks:
- *     • `--color-primary` (#4a8c66)            brand anchor (lifted)
- *     • `--color-primary-tint` (#4a8c66)       surface‑tint follows primary
- *     • `--color-on-primary` (#e8ffe9)         mint text on lifted-sage button
- *     • `--color-primary-container` (#b9f0c6)  pale container
- *     • `--color-on-primary-container` (#2a5b3b) deep text on pale container
- *     • `--color-inverse-primary` (#bef5ca)    light sage chip on dark surface
- *
- * The lone mode-aware token in the primary family is
- * `--color-primary-soft` — opacity lifted 0.10 → 0.20 here so the
- * hover halo (`.tonal-card:hover` ring, status-pill tint) stays
- * above perceptual threshold on the near-black `#0b0f0c` dark
- * page bg (10% deep sage on near-black mixes below ΔL 0.02 JND).
- * Hue now `rgb(74 140 102 …)` tracks the primary lift.
- *
- * Secondary / tertiary / accent / error ramps still dark-tune per
- * the Material 3 spec — they describe tonal layers around the page
- * bg, not the brand anchor.
- * ──────────────────────────────────────────────────────────────────────── */
+/* Dark palette — fires when ThemeToggle sets `data-theme="dark"` or
+ * the no-flash script resolves a stored `theme-pref="dark"`. Primary
+ * family (`--color-primary/-tint/-on-primary/-container/-on-primary-
+ * container/-inverse-primary`) mirrors light verbatim for brand parity;
+ * only `--color-primary-soft` is mode-aware (opacity lifts 0.10→0.20
+ * so the halo clears JND on near-black). Secondary/tertiary/accent/
+ * error ramps still dark-tune per Material 3 spec. */
 :root[data-theme="dark"] {
   --color-bg:                      #0b0f0c;
   --color-surface:                 #151b16;
@@ -349,6 +253,8 @@
   --color-outline-variant:         #424a43;
 
   --color-primary:                 #4a8c66;   /* brand parity + lift: now #4a8c66 (matches light) so dark contrast ~3:1 → ~4.8:1 */
+  --color-primary-deep:            #4a8c66;   /* = lifted sage in dark mode. Light-mode deep (#386948)
+                                                  would fail AA-normal against near-black (~3:1). */
   --color-primary-tint:            #4a8c66;   /* = primary (lifted); tonal surface hint follows brand */
   --color-on-primary:              #e8ffe9;   /* mint light text on deep sage button — matches light */
   --color-primary-container:       #b9f0c6;       /* = light value; pale sage container tier above primary */
@@ -378,25 +284,17 @@
                                                       opacity stays lifted (0.20 on dark) to clear perceptual
                                                       JND on #0b0f0c page bg */
 
-  /* Terminal tokens (THEME-AWARE — inverted from @theme paper values).
-     The user explicit brief: "kalau dark mode terminalnya jadi gelap,
-     kalau light mode terminalnya jadi putih" — paper cream in light
-     mode, CRT dark in dark mode. The previous strategy duplicated the
-     cream palette into both blocks to broadcast a "themed-locked"
-     intent; the user has now asked for the panel to MIRROR the page
-     theme instead, so this block holds a real CRT-dark palette:
-     deep near-black bg, slightly-lighter chrome tier, off-white fg,
-     and saturated forest/mint/amber syntax tokens readable on dark. */
+  /* Terminal tokens — THEME-AWARE in dark mode (paper cream in light,
+     CRT-dark here). Panel mirrors the page theme: deep near-black bg,
+     slightly-lighter chrome tier, off-white fg, saturated forest/mint
+     syntax readable on dark. */
   --color-terminal-bg:            #0E1210;
   --color-terminal-chrome:        #1A1F1C;
   --color-terminal-fg:            #EAE8E1;
   --color-terminal-caption:       #9C9990;
-  --color-terminal-comment:       #6B7666;
-  --color-terminal-keyword:       #86EFAC;   /* round+5 swap: keyword now = lightest CRT mint tier (#86EFAC,
-                                                     ~11.6:1 on #0E1210 — passes AAA) — vocabulary highlight.
-                                                     Was #5EA877 before swap. */
-  --color-terminal-fn:            #5EA877;   /* round+5 swap: fn name now muted sage-mint (#5EA877,
-                                                     ~5.8:1 on #0E1210 — passes AA); was the keyword tier. */
+  --color-terminal-comment:       #7E8E7E;   /* 5.30:1 on terminal-bg — passes AA normal for 12px labels. */
+  --color-terminal-keyword:       #86EFAC;   /* lightest CRT mint tier, ~11.6:1 — passes AAA. Vocabulary highlight. */
+  --color-terminal-fn:            #5EA877;   /* muted sage-mint fn tier, ~5.8:1 — passes AA. */
   --color-terminal-type:          #FBBF24;
   --color-terminal-string:        #FC8181;
   --color-terminal-tab-active:    #86EFAC;   /* round+5 sync: active tab tracks the new highlight tier. */
@@ -445,9 +343,15 @@
     opacity: 0;
     pointer-events: none;
   }
-  .reveal-fade.is-revealed  { animation: reveal-fade  var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
-  .reveal-up.is-revealed    { animation: reveal-up    var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
-  .reveal-scale.is-revealed { animation: reveal-scale var(--motion-medium) var(--motion-easing) forwards; opacity: 1; }
+  /* `.is-revealed` MUST clear `pointer-events: none` set by the base
+     `.reveal-up/.scale/.fade` rule. Without this, hardcoded
+     `reveal-up is-revealed` containers (Hero CTAs at line 92) stay
+     non-clickable until `[data-intro-complete]` flips page-wide,
+     which only fires after every section has scrolled past the
+     IntersectionObserver — first-paint CTAs are effectively dead. */
+  .reveal-fade.is-revealed  { animation: reveal-fade  var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
+  .reveal-up.is-revealed    { animation: reveal-up    var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
+  .reveal-scale.is-revealed { animation: reveal-scale var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
 
   [data-stagger] { opacity: 0; }
   [data-stagger].is-revealed,
@@ -545,9 +449,8 @@
  * ──────────────────────────────────────────────────────────────────────── */
 @layer components {
 
-  /* Glass-panel — frosted chrome used by Navbar pill + Stack cards +
-     Footer status. Light base + faint outline. Backdrop blur softens
-     whatever sits behind it. */
+  /* Glass-panel — frosted chrome for Navbar + Stack + Footer. Light base,
+     faint outline, backdrop blur softens whatever sits behind. */
   .glass-panel {
     background: color-mix(in oklab, var(--color-surface-container) 80%, transparent);
     backdrop-filter: blur(12px);
@@ -555,12 +458,8 @@
     border: 1px solid var(--color-outline-variant);
   }
 
-  /* Grid background — 40×40 px line pattern. Light grid uses
-     surface-container (instead of outline-variant sage-grey) so the
-     lines bleed into the tonal surface tier and stay near-invisible
-     even at the opacity the calling site picks. Tested against cream
-     `#f7faf4` bg; the grid reads as a faint hint rather than a
-     blueprint scaffold. */
+  /* Grid background — 40×40 px lines on surface-container so they
+     bleed into the tonal tier and stay near-invisible on cream bg. */
   .grid-bg {
     background-image:
       linear-gradient(var(--color-surface-container) 1px, transparent 1px),
@@ -627,12 +526,10 @@
     font-weight: 500;
   }
 
-  /* Portrait tile — square rounded frame for About photo.
-     Uses surface-container-low bg fallback + subtle outline-variant
-     border + ambient primary-tinted shadow. The inner img fills the
-     frame; the fallback `.initials` span shows bold monogram when
-     no photo is supplied. Hover lifts slightly and deepens the
-     shadow for a tactile affordance. */
+  /* Portrait tile — frame for About photo. Surface fallback +
+     outline + ambient primary-tinted shadow. Inner img fills; the
+     `.initials` span shows monogram when no photo is supplied. Hover
+     lifts + deepens shadow. */
   .portrait-tile {
     position: relative;
     aspect-ratio: 1 / 1;
@@ -685,10 +582,8 @@
     user-select: none;
   }
 
-  /* Dark mode portrait — border and shadow self-tune via color-mix,
-     clearerride the inset highlight to flip from white
-       to transparent (no white shine on dark bg) and lift the
-       surface gradient one tier for contrast. */
+  /* Dark mode portrait — self-tune via color-mix; inset highlight
+     drops the warm-white shine on dark bg, gradient lifts one tier. */
   :root[data-theme="dark"] .portrait-tile {
     background:
       radial-gradient(
@@ -705,15 +600,10 @@
       0 32px 60px -28px color-mix(in oklab, var(--color-primary) 25%, transparent);
   }
 
-  /* Tonal-stack card — hover lifts + border primary. Light base sits
-     one tonal tier above bg; shadow stays subtle so the card reads as
-     "ambient elevation", not "drop shadow". Per YAML §"Components",
-     card radius is 16 px (`var(--radius-lg)`) — not 24 px which would
-     bloat it into a "container" tier.
-
-     Shadow uses `color-mix` with theme tokens so it self-tunes across
-     light and dark modes — light mode gets a subtle sage-green tint;
-     dark mode picks up the muted tone automatically. */
+  /* Tonal-stack card — ambient elevation, not drop shadow. Light base
+     sits one tier above bg; hover lifts + primary border. Radius is
+     `var(--radius-lg)` (16 px) — not `xl`, which would bloat into a
+     "container" tier. Shadow `color-mix`tunes to mode automatically. */
   .tonal-card {
     background: var(--color-surface-container);
     border: 1px solid var(--color-outline-variant);
@@ -734,11 +624,9 @@
       0 24px 48px -28px color-mix(in oklab, var(--color-primary) 30%, transparent);
   }
 
-  /* Dark mode tonal-card — lift background one tier so cards stand
-     apart from the near-black page bg `#0b0f0c`. Shadow inset flips
-     from light-to-dark tint automatically via `--color-text` token.
-     The border gets a subtle primary tint so card edges are visible
-     even without hover, without being obtrusive. */
+  /* Dark mode tonal-card — background lifts one tier so cards stand
+     apart from #0b0f0c bg. Shadow inset flips via --color-text auto.
+     Border gets a subtle primary tint so edges show without hover. */
   :root[data-theme="dark"] .tonal-card {
     background: var(--color-surface-container-high);
     border-color: color-mix(in oklab, var(--color-primary) 20%, var(--color-outline-variant));
@@ -746,10 +634,8 @@
 
 
 
-  /* Skill chip — compact pill with small icon for tech items (Opsi X).
-     Uses surface-container-low bg + outline-variant border, with primary-green
-     icon and text in dark mode overridden to bright mint for readability.
-     Inline-flex layout keeps icon + label centred within the pill. */
+  /* Skill chip — compact pill for tech items. Surface-container-low bg +
+     outline border; dark-mode text flips to bright mint for legibility. */
   .skill-chip {
     display: inline-flex;
     align-items: center;
@@ -772,10 +658,8 @@
     transform: translateY(-1px);
   }
 
-  /* Tech pill — compact tag chip used in project detail pages.
-     Mirrors Badge variant="tech" styling: soft primary bg, primary
-     text, primary-tinted border, rounded-full with small padding.
-     Inline-flex keeps multiple pills aligned in a flex-wrap row. */
+  /* Tech pill — project detail tag chip. Mirrors Badge variant="tech":
+     soft primary bg, primary-tinted border, rounded-full. */
   .tech-pill {
     display: inline-flex;
     align-items: center;
@@ -792,18 +676,15 @@
     white-space: nowrap;
   }
 
-  /* Dark-mode skill chip — bright mint text so labels stay legible
-     on near-black surface-container-low (#0f1511). */
+  /* Dark-mode skill chip — bright mint text for legibility on
+     near-black surface-container-low (#0f1511). */
   :root[data-theme="dark"] .skill-chip {
     color: var(--color-on-primary);
   }
 
-  /* Skill chip tooltip — appears above chip on hover, shows category.
-     Uses surface-container-highest bg + muted text so it feels like a
-     floating metadata label, not a primary action hint. The wrapper
-     provides the `position: relative` anchor; the tooltip is absolutely
-     positioned above the chip with `pointer-events: none` so it never
-     blocks hover on the chip itself. */
+  /* Skill chip tooltip — appears above chip on hover showing category.
+     Surface-container-highest bg + muted text reads as floating
+     metadata. Wrapper anchors; tooltip is `pointer-events: none`. */
   .skill-chip-wrapper {
     position: relative;
   }
@@ -829,12 +710,10 @@
     opacity: 1;
   }
 
-  /* Hero background image overlay. Per the designer brief ("opactity
-     yang sangat tipis" — a very faint presence), opacity sits at 10%
-     WITHOUT mix-blend-mode so the cream bg keeps its dominant tone
-     and the image registers as a paper-pressed texture instead of
-     being washed out by multiply. The radial mask bleeds the edges
-     back into bg so no harsh seam ever appears at viewport edges. */
+  /* Hero background image overlay. Per "very faint presence" brief,
+     opacity sits at 10% WITHOUT mix-blend-mode so the cream bg keeps
+     its tone and the image reads as paper-pressed texture. Radial
+     mask bleeds edges back into bg. */
   .hero-bg-image {
     position: absolute;
     inset: 0;
@@ -854,20 +733,13 @@
     filter: blur(0.5px);
   }
 
-  /* ─────────────────────────────────────────────────────────────────
-   * Hero dashboard mockup — 3D-tilted glass shell that reproduces the
-   * portfolio_v2 panel from example.html. Two design notes:
-   *   • `perspective: 1400px` lifts the panel into a deep enough scene
-   *     that the slight Y/X tilt reads as a "device frame", not a
-   *     flat card. Anything shallower (≤600 px) skews like a sticker.
-   *   • The `rotateY(-10deg) rotateX(4deg)` is small enough that the
-   *     metric + code content stays legible; reduce-motion flattens
-   *     it (see the prefers-reduced-motion override below) so motion-
-   *     sensitive readers see the content without the perspective.
-   * The `transform-style: preserve-3d` propagates the perspective to
-   * any child that wants its own 3D treatment; current usages stay
-   * flat and inherit only the rotation.
-   * ───────────────────────────────────────────────────────────────── */
+  /* Hero dashboard mockup — 3D-tilted glass shell. `perspective: 1400px`
+     is just deep enough that the slight tilt reads as device frame
+     (anything ≤600 px skews like a sticker); `rotateY(-10deg) rotateX(4deg)`
+     keeps content legible. `transform-style: preserve-3d` propagates
+     the perspective to any child that wants its own 3D treatment;
+     current usages stay flat and inherit only the rotation. Reduce-
+     motion flattens. */
   .perspective-panel {
     transform: perspective(1400px) rotateY(-10deg) rotateX(4deg);
     transform-style: preserve-3d;
@@ -885,18 +757,11 @@
     filter: brightness(1.03);
   }
 
-  /* Dashboard mockup frame. The mockup now MIRRORS the page theme:
-     cream paper panel in light mode, CRT-dark panel in dark mode.
-     See the `--color-terminal-*` blocks in `@theme` and
-     `:root[data-theme="dark"]` for the split palettes — the panel
-     inherits theme-appropriate values automatically via `useTheme`.
-     The triple shadow stack self-tunes:
-       (a) inset highlight uses terminal-fg (which flips with theme):
-           subtle dark bevel on cream, subtle light bevel on CRT;
-       (b) sage drop shadow stays constant (neutral cross-theme);
-       (c) rim outline uses terminal-fg at 8%: warm hairline on
-           cream, soft halo on CRT. Both ends of the spectrum stay
-           readable without re-tuning the box-shadow rule. */
+  /* Dashboard mockup frame — mirrors page theme (cream paper in light,
+     CRT-dark in dark; terminal-* values self-tune via `useTheme`).
+     Triple shadow stack: (a) inset highlight flips with theme (dark
+     bevel on cream, light on CRT), (b) sage drop shadow neutral cross-
+     theme, (c) terminal-fg 8% rim outline (warm hairline / soft halo). */
   .dashboard-mock {
     border-radius: var(--radius-xl);
     overflow: hidden;
@@ -925,10 +790,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 14px 22px;
-    /* 2px hairline so the chrome bar reads as a distinct row even at
-       low display brightness; the lifted `--color-terminal-chrome`
-       tier handles ΔL separation, the border reinforces it on devices
-       where the chrome tier might fade into the body tier. */
+    /* 2px hairline so the chrome bar reads as a distinct row at low
+       brightness; chrome tier handles ΔL separation, border reinforces. */
     border-bottom: 2px solid var(--color-terminal-border);
     background: var(--color-terminal-chrome);
   }
@@ -942,16 +805,10 @@
     border-radius: 9999px;
     display: inline-block;
   }
-  /* Dots stay color-mixed from the THEME's --color-error/primary so
-     they pick up page-tint energy when the panel sits on cream OR
-     deep-sage page bg. CAVEAT for yellow: `--color-warning` is
-     `#fad998` (cream-yellow) in light mode + `#fad998` in dark
-     mode — both wash against paper-cream. The yellow dot uses an
-     inline saturated amber (`#D97706` = amber-600) instead, which
-     reads on cream-paper AND on deep-sage without dissolving.
-     Red and green can stay theme-mixed because their primaries
-     (`--color-error` / `--color-primary`) carry enough saturation
-     to land on cream in light mode + on dark in dark mode. */
+  /* RGBY dots color-mix from theme tokens (--color-error/--color-primary)
+     to carry page-tint energy on cream vs deep-sage. Yellow uses inline
+     amber (#D97706) because `--color-warning` (#fad998) washes against
+     paper-cream in both themes. */
   .dashboard-mock__dot--red    { background: color-mix(in oklab, var(--color-error) 70%, transparent); }
   .dashboard-mock__dot--yellow { background: #D97706; }
   .dashboard-mock__dot--green  { background: color-mix(in oklab, var(--color-primary) 70%, transparent); }
@@ -1058,12 +915,9 @@
     height: 80px;
     opacity: 0.55;
   }
-  /* Infra visual reuses the THEME's --color-primary (slightly tinted
-     to match terminal palette) so the nodes glow at the same energy
-     on cream OR deep-sage page backgrounds while still picking up
-     the page theme's primary tone (deep sage on light, mint on dark).
-     Bars + glow stay extruded from `--color-terminal-keyword` so the
-     inside is theme-fixed; the nodes carry the page-tint via primary. */
+  /* Infra visual tints via --color-primary (page-tint: sage on light,
+     mint on dark). Bars + glow stay extruded from --color-terminal-keyword
+     (theme-fixed inside). */
   .dashboard-mock__infra-row {
     position: absolute;
     inset: 0;
@@ -1091,11 +945,9 @@
     height: 14px;
     background: var(--color-terminal-keyword);
     border-radius: 4px;
-    box-shadow: 0 0 12px color-mix(in oklab, var(--color-terminal-fn) 60%, transparent);   /* round+6: glow halo swaps to muted fn tier
-                                                                                              (#3F7250 light, #5EA877 dark) so the infra visual reads
-                                                                                              calm Organic Professional, not neon CRT. The node bg
-                                                                                              keeps the keyword highlight tier (#4a8c66 / #86EFAC)
-                                                                                              so the architecture still pops without the loud ring. */
+    box-shadow: 0 0 12px color-mix(in oklab, var(--color-terminal-fn) 60%, transparent);   /* glow halo from muted fn tier so the visual reads calm
+                                                                                              Organic Professional, not neon CRT. Node bg keeps the
+                                                                                              keyword highlight tier for hierarchy. */
     animation: glow-breathe 3.6s var(--motion-easing) infinite;
     transition:
       transform var(--motion-small) var(--motion-easing),

@@ -48,7 +48,7 @@ describe('Button', () => {
   it('applies primary variant classes by default', () => {
     const wrapper = mount(Button, { slots: { default: 'Click' } })
     const classList = wrapper.classes().join(' ')
-    expect(classList).toContain('bg-primary')
+    expect(classList).toContain('bg-button-primary')
     expect(classList).toContain('text-white')
   })
 
@@ -57,8 +57,9 @@ describe('Button', () => {
       props: { variant: 'ghost' },
       slots: { default: 'Click' },
     })
-    expect(wrapper.classes().join(' ')).toContain('text-muted')
-    expect(wrapper.classes().join(' ')).not.toContain('bg-primary')
+    const classList = wrapper.classes().join(' ')
+    expect(classList).toContain('text-muted')
+    expect(classList).not.toContain('bg-button-primary')
   })
 
   it('applies large size (48 px) per DESIGN.md §7.1 when size="lg"', () => {

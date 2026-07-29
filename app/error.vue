@@ -36,7 +36,7 @@ useSeoMeta({
 <template>
   <div>
     <Navbar />
-    <main class="flex-1">
+    <main id="main-content" class="flex-1 focus:outline-none" tabindex="-1">
       <PageContainer width="narrow" class="py-32 flex flex-col items-start gap-6">
         <Heading as="h1">{{ heading }}</Heading>
         <p class="text-lg text-muted">{{ detail }}</p>

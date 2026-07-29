@@ -91,7 +91,7 @@ function statusLabel(): string {
           :to="`/projects/${props.project.slug}`"
           class="block"
         >
-          <h3 class="font-serif text-headline-sm font-bold text-text leading-tight hover:text-primary transition-colors">
+          <h3 class="font-serif text-headline-sm font-bold text-text leading-tight hover:text-primary-deep transition-colors">
             {{ props.project.title }}
           </h3>
         </NuxtLink>
@@ -103,7 +103,7 @@ function statusLabel(): string {
           :href="props.project.liveUrl || props.project.repoUrl"
           target="_blank"
           rel="noopener noreferrer"
-          class="font-mono text-label-sm text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary/60 transition-colors truncate mt-0.5 self-start"
+          class="font-mono text-label-sm text-primary-deep hover:text-primary-deep/80 underline decoration-primary-deep/30 hover:decoration-primary-deep/60 transition-colors truncate mt-0.5 self-start"
         >
           {{ (props.project.liveUrl || props.project.repoUrl).replace(/^https?:\/\//, '').replace(/\/$/, '') }}
         </a>
@@ -144,7 +144,7 @@ function statusLabel(): string {
           </h3>
           <span
             v-if="props.showStatus"
-            class="font-mono text-label-sm uppercase tracking-widest text-primary bg-primary-soft border border-primary/30 rounded px-2 py-1"
+            class="font-mono text-label-sm uppercase tracking-widest text-primary-deep bg-primary-soft border border-primary-deep/30 rounded px-2 py-1"
           >
             {{ statusLabel() }}
           </span>
@@ -167,7 +167,7 @@ function statusLabel(): string {
             <span class="font-mono text-label-sm uppercase tracking-widest text-muted">
               {{ m.label }}
             </span>
-            <span class="font-sans text-body-md text-primary font-semibold">
+            <span class="font-sans text-body-md text-primary-deep font-semibold">
               {{ m.value }}
             </span>
           </div>

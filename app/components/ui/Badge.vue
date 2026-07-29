@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const variantClasses = {
   default: 'bg-surface text-muted border border-border',
-  tech: 'bg-primary-soft text-primary border border-primary/30',
+  tech: 'bg-primary-soft text-primary-deep border border-primary/30',
   'status-shipped': 'bg-accent/10 text-accent border border-accent/30',
   'status-archived': 'bg-surface text-muted/70 border border-border',
 } as const

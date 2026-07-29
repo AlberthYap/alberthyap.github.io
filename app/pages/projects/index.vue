@@ -17,11 +17,11 @@ useSeoMeta({
 <template>
   <PageContainer width="wide" class="py-section">
     <header class="flex flex-col gap-4 mb-12">
-      <p class="font-mono text-label-sm uppercase tracking-widest text-primary">
+      <p class="font-mono text-label-sm uppercase tracking-widest text-primary-deep">
         Archive
       </p>
       <h1 class="font-serif font-bold text-text text-display leading-none">
-        All <span class="text-primary">projects</span>
+        All <span class="text-primary-deep">projects</span>
       </h1>
       <p class="text-muted text-body-md">
         {{ projects?.length ?? 0 }}
