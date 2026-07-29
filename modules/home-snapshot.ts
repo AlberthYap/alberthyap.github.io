@@ -45,6 +45,7 @@
  * in `content.config.ts`). Only the home route is migrated here because the
  * other routes navigate to entries that may not be prerendered.
  */
+/// <reference types="node" />
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -76,8 +77,8 @@ const FEATURED_PROJECTS_LIMIT = 3
 async function listContentFiles(dir: string): Promise<string[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true })
   return entries
-    .filter((e) => e.isFile() && !e.name.startsWith('.'))
-    .map((e) => e.name)
+    .filter((e: { isFile(): boolean; name: string }) => e.isFile() && !e.name.startsWith('.'))
+    .map((e: { name: string }) => e.name)
 }
 
 async function parseMarkdown<T>(
@@ -89,14 +90,28 @@ async function parseMarkdown<T>(
   return schema.parse(fm.data)
 }
 
-/**
- * Stable sort comparator — primary key first, then `slug` as a deterministic
- * tie-breaker. V8's Array.sort has been stable as of Node 12, so adding the
- * tie-breaker is belt-and-braces; it also makes the comparator self-evident
- * for any future sort that doesn't rely on V8's stability guarantee.
- */
+/** Deterministic tie-breaker for same-key sort stability. */
 function bySlug<T extends { slug: string }>(a: T, b: T): number {
   return a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0
+}
+
+/** Warn on cross-file duplicate slugs (Zod validates per-file only). */
+function warnDuplicateSlugs<T extends { slug: string }>(
+  entries: readonly T[],
+  collection: string,
+): void {
+  const seen = new Map<string, number>()
+  for (const [i, entry] of entries.entries()) {
+    const prev = seen.get(entry.slug)
+    if (prev !== undefined) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[home-snapshot] duplicate slug "${entry.slug}" in ${collection} `
+        + `(entries ${prev + 1} and ${i + 1}) — sort may be non-deterministic`,
+      )
+    }
+    seen.set(entry.slug, i)
+  }
 }
 
 async function generateSnapshot(rootDir: string): Promise<HomeSnapshot> {
@@ -105,13 +120,9 @@ async function generateSnapshot(rootDir: string): Promise<HomeSnapshot> {
   // === ABOUT — markdown with body pre-rendered to HTML ===
   const aboutFm = matter(await fs.readFile(path.join(contentRoot, 'about.md'), 'utf8'))
   const aboutParsed = AboutSchema.parse(aboutFm.data)
-  // Pass `{ async: false, html: false }` so the safety contract is visible
-  // at the call site. `html: false` is also marked's default, declaring it
-  // here defends against future option overrides and signals intent to
-  // future readers.
+  // `async: false` signals synchronous parsing explicitly.
   const aboutBodyHtml = marked.parse(aboutFm.content, {
     async: false,
-    html: false,
   }) as string
 
   // === EXPERIENCE — markdown, frontmatter only on home ===
@@ -126,6 +137,10 @@ async function generateSnapshot(rootDir: string): Promise<HomeSnapshot> {
     if (a.startDate !== b.startDate) return a.startDate < b.startDate ? 1 : -1
     return bySlug(a, b)
   })
+  // Detect duplicate slugs — Zod validates per-file, not cross-file, so two
+  // experience entries could declare the same slug which breaks the tie-
+  // breaker and makes sort non-deterministic between builds.
+  warnDuplicateSlugs(experiences, 'experience')
 
   // === FEATURED PROJECTS — markdown, frontmatter only on home ===
   const projDir = path.join(contentRoot, 'projects')
@@ -133,6 +148,8 @@ async function generateSnapshot(rootDir: string): Promise<HomeSnapshot> {
   const allProjects = await Promise.all(
     projFiles.map((f) => parseMarkdown(path.join(projDir, f), ProjectSchema)),
   )
+  // Detect duplicate slugs early — same rationale as experiences above.
+  warnDuplicateSlugs(allProjects, 'projects')
   const featuredCandidates = allProjects.filter((p) => p.featured)
   // Surface truncation so a 4th `featured: true` doesn't go unnoticed —
   // silent drop on home tile count is the classic "frontmatter drift" foot-
@@ -182,15 +199,14 @@ export default defineNuxtModule({
       try {
         const snap = await generateSnapshot(nuxt.options.rootDir)
         await fs.mkdir(outDir, { recursive: true })
-        // No indent — Vite's JSON minifier handles the asset downstream,
-        // and dropping the indentation arg saves ~700 bytes on the wire
-        // for the snapshot source file Vite reads.
-        // No indent: the source file is read at build time by Vite and
-        // inlined into the JS bundle as a JS object literal. The on-disk
-        // byte savings is incidental; the real win is that the literal
-        // gets terser-minified downstream, and a compact source makes dev
-        // diffs smaller when entries are added or reordered.
-        await fs.writeFile(outFile, JSON.stringify(snap))
+        // No indent: Vite inlines the JSON as a JS object literal,
+        // minified further downstream. Compact source = smaller dev diffs.
+        //
+        // Atomic write via temp file + rename prevents Vite from reading
+        // a partially-written file during dev.
+        const tmpFile = path.join(outDir, `.home-snapshot.tmp`)
+        await fs.writeFile(tmpFile, JSON.stringify(snap))
+        await fs.rename(tmpFile, outFile)
         // eslint-disable-next-line no-console
         console.log(
           `[home-snapshot] wrote ${path.relative(nuxt.options.rootDir, outFile)} `
@@ -205,13 +221,7 @@ export default defineNuxtModule({
       }
     }
 
-    // Generate immediately so dev (`nuxt dev`) and build (`nuxt build`) both
-    // run with a fresh snapshot before any page tries to import the asset.
     await generate()
-
-    // Re-run before each production build to pick up content edits made
-    // out-of-band since `setup()` fired. Idempotent — overwrites the same
-    // file.
     nuxt.hook('build:before', generate)
   },
 })

@@ -23,6 +23,8 @@
  * Pass `showStatus={false}` on the home page so the gallery is just
  * image + title + URL.
  */
+import { computed } from 'vue'
+
 import type { Project } from '~~/shared/types'
 
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
@@ -54,6 +56,10 @@ function statusLabel(): string {
   if (props.project.status === 'in-progress') return 'In Progress'
   return 'Archived'
 }
+const displayUrl = computed<string>(() => {
+  const url = props.project.liveUrl || props.project.repoUrl
+  return url ? url.replace(/^https?:\/\//, '').replace(/\/$/, '') : ''
+})
 </script>
 
 <template>
@@ -100,12 +106,12 @@ function statusLabel(): string {
         </p>
         <a
           v-if="props.project.liveUrl || props.project.repoUrl"
-          :href="props.project.liveUrl || props.project.repoUrl"
+          :href="props.project.liveUrl || props.project.repoUrl || undefined"
           target="_blank"
           rel="noopener noreferrer"
           class="font-mono text-label-sm text-primary-deep hover:text-primary-deep/80 underline decoration-primary-deep/30 hover:decoration-primary-deep/60 transition-colors truncate mt-0.5 self-start"
         >
-          {{ (props.project.liveUrl || props.project.repoUrl).replace(/^https?:\/\//, '').replace(/\/$/, '') }}
+          {{ displayUrl }}
         </a>
       </div>
     </template>

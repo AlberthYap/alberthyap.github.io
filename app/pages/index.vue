@@ -1,39 +1,10 @@
 <script setup lang="ts">
 /**
- * Home page — orchestrates the per-section reveal and renders the
- * five narrative sections of the site (Organic Professional edition).
+ * Home page — five narrative sections with per-section reveal.
  *
- *   ┌────────────────────────────────────────────────────────────────┐
- *   │ Hero         │ id="hero"     │ Status-led editorial + 2-col    │
- *   │              │               │ layout with HeroDashboard on    │
- *   │              │               │ the right column on lg+.        │
- *   │ About        │ id="about"    │ Bio + bullets                    │
- *   │ Core Stack   │ id="skills"   │ Glass-panel 3-up card grid       │
- *   │ Experience   │ id="experience"│ Timeline of experience entries   │
- *   │ Projects     │ id="projects" │ Compact card grid — work showcase │
- *   └────────────────────────────────────────────────────────────────┘
- *
- * The page also mounts a `<div class="grid-bg">` fixed-positioned
- * backdrop overlay (DESIGN §11) so all sections share a faint
- * grid texture without re-declaring it per section.
- *
- * ## Data source — JSON-static snapshot
- *
- * Reading order:
- *   1. `modules/home-snapshot.ts` parses `content/{about.md,
- *      experience/*.md, skills/personal-skills.yml, projects/*.md}` at
- *      build time, Zod-validates each entry against the same schemas
- *      `@nuxt/content` would normally apply, pre-renders `about.md`'s
- *      markdown body to HTML, and writes a single
- *      `app/assets/generated/home-snapshot.json`.
- *   2. This page imports that JSON synchronously via ESM, casting the
- *      structural JSON payload to `HomeSnapshot` for typed access.
- *      The runtime SQLite engine used by `queryCollection()` is never
- *      initialised on the home route, saving ~217 KB gzip of
- *      `sqlite3*.js` + OPFS WASM chunks from the modulepreload chain.
- *   3. `@nuxt/content` stays configured for `/projects/[slug]` and
- *      `/tools/[slug]` (runtime nav), which still use the SQLite
- *      path because their entries may not be prerendered.
+ * Data comes from a build-time JSON snapshot (`modules/home-snapshot.ts`)
+ * instead of runtime `queryCollection()`, saving ~217 KB gzip of SQLite
+ * WASM from the home route's modulepreload chain.
  */
 import { computed } from 'vue'
 
@@ -101,12 +72,8 @@ function aggregateSkills(
     }))
 }
 
-// Vite's JSON import widens to `Record<string, unknown>` (no type checking
-// at compile time, no Zod parse at runtime). The cast restores typed access
-// for downstream `about.*`, `experiences`, etc. The build-time Zod pass in
-// `modules/home-snapshot.ts` is the actual source of truth — if the JSON
-// file were hand-edited or the module skipped, this cast would silently
-// accept whatever shape is on disk.
+// JSON imports widen to `Record<string, unknown>` at compile time.
+// Build-time Zod pass in `modules/home-snapshot.ts` is the source of truth.
 const homeSnapshot = rawSnapshot as unknown as HomeSnapshot
 
 const about = homeSnapshot.about
@@ -143,12 +110,7 @@ useProvideActiveSection()
     class="relative min-h-screen"
     :data-intro-complete="reveal.allRevealed.value ? 'true' : 'false'"
   >
-    <!-- Grid backdrop overlay — fixed, faint (~15%). The grid uses a
-         tonal surface-container hue (close to cream) so the lines
-         bleed into the bg tier rather than punching through. At 15%
-         opacity the lines land above the perceptual JND threshold on
-         most displays (ΔL ~3%) — present but not dominant, reads as
-         "softly engineered" rather than "blueprint scaffold". -->
+    <!-- Grid backdrop overlay — fixed, ~15% opacity -->
     <div
       aria-hidden="true"
       class="fixed inset-0 grid-bg opacity-[15%] pointer-events-none z-0"
