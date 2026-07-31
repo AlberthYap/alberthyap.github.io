@@ -5,8 +5,11 @@
  * `data-section-id="hero"` drives scroll-spy so the matching `nav-link`
  * gets `data-active="true"`.
  */
+import { ref } from 'vue'
+
 import HeroDashboard from '~~/app/components/portfolio/HeroDashboard.vue'
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
+import { useParallax } from '~~/app/composables/useParallax'
 
 interface Props {
   name?: string
@@ -28,6 +31,9 @@ withDefaults(defineProps<Props>(), {
   secondaryTo: '',
   secondaryLabel: '',
 })
+
+const heroBgRef = ref<HTMLElement | null>(null)
+useParallax(heroBgRef, 0.35)
 </script>
 
 <template>
@@ -39,12 +45,14 @@ withDefaults(defineProps<Props>(), {
   >
     <!-- Masked + low opacity so the bg reads as ambient texture rather than content. -->
     <img
+      ref="heroBgRef"
       src="/hero-bg.webp"
       alt=""
       aria-hidden="true"
       class="hero-bg-image object-cover w-full h-full"
       fetchpriority="low"
       decoding="async"
+      loading="lazy"
     >
 
     <!-- Combines name + eyebrow so ATs read "Name — Role" and the document outline

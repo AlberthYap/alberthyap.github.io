@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
 import { buttonClasses } from '~/utils/buttonClasses'
+import { useMagneticButton } from '~~/app/composables/useMagneticButton'
 
 interface Props {
   /** Destination route for the underlying NuxtLink. */
@@ -21,10 +22,15 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const classes = computed(() => buttonClasses(props.variant, props.size))
+
+// Magnetic hover — subtle cursor-attraction on the link element.
+const linkRef = ref<HTMLElement | null>(null)
+useMagneticButton(linkRef, 0.25, 80)
 </script>
 
 <template>
   <NuxtLink
+    ref="linkRef"
     :to="props.to"
     :aria-label="props.ariaLabel"
     :class="classes"

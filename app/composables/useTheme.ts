@@ -20,7 +20,10 @@ function readStored(): ThemePref | null {
     // deliberately returned as `null` here so the migration path
     // below promotes it to an explicit 2-state value.
     return v === 'dark' || v === 'light' ? v : null
-  } catch {
+  } catch (error) {
+    if (import.meta.dev) {
+      console.warn('[useTheme] localStorage read failed:', error)
+    }
     return null
   }
 }

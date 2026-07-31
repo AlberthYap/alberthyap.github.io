@@ -128,7 +128,7 @@
   --color-terminal-bg:            #FFFFFF;
   --color-terminal-chrome:        #F0EDE6;
   --color-terminal-fg:            #2c342e;
-  --color-terminal-caption:       #6B6560;   /* 4.90:1 on chrome — just clears AA normal for 12px caption. */
+  --color-terminal-caption:       #5A554F;   /* ~5.5:1 on chrome — safer margin above AA normal for 12px caption. */
   --color-terminal-comment:       #6B6660;
   --color-terminal-keyword:       #4a8c66;   /* highlight tier — `pub`/`impl`/`fn`/`self` structural cue. */
   --color-terminal-fn:            #3F7250;
@@ -319,12 +319,20 @@
    * ──────────────────────────────────────────────────────────────────────── */
 @keyframes reveal-fade  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes reveal-up    { from { opacity: 0; transform: translateY(24px) scale(0.97); }
-                          to   { opacity: 1; transform: translateY(0) scale(1);           } }
+                          to   { opacity: 1; /* transform set via regular CSS so JS inline styles can override after animation ends */ } }
 @keyframes reveal-scale { from { opacity: 0; transform: scale(0.96); }
-                          to   { opacity: 1; transform: scale(1);     } }
-@keyframes pulse-emerald {
-  0%, 100% { opacity: 1;   transform: scale(1);   }
-  50%      { opacity: 0.5; transform: scale(0.9); }
+                          to   { opacity: 1; /* transform set via regular CSS */ } }
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 70%, transparent);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 8px color-mix(in oklab, var(--color-primary) 0%, transparent);
+  }
 }
 @keyframes glow-breathe {
   0%, 100% { box-shadow: 0 0 8px  color-mix(in oklab, var(--color-terminal-keyword) 30%, transparent); }
@@ -350,25 +358,30 @@
      which only fires after every section has scrolled past the
      IntersectionObserver — first-paint CTAs are effectively dead. */
   .reveal-fade.is-revealed  { animation: reveal-fade  var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
-  .reveal-up.is-revealed    { animation: reveal-up    var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
-  .reveal-scale.is-revealed { animation: reveal-scale var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; }
+  .reveal-up.is-revealed    { animation: reveal-up    var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+  .reveal-scale.is-revealed { animation: reveal-scale var(--motion-medium) var(--motion-easing) forwards; opacity: 1; pointer-events: auto; transform: scale(1); }
 
   [data-stagger] { opacity: 0; }
   [data-stagger].is-revealed,
   .reveal-up.is-revealed [data-stagger] {
     animation: reveal-up var(--motion-medium) var(--motion-easing) forwards;
   }
+  /* After animation ends, regular CSS sets the resting transform so JS
+     inline styles (3D tilt, etc.) can override without fighting animation fill. */
+  [data-stagger].is-revealed {
+    transform: translateY(0) scale(1);
+  }
   [data-stagger="0"].is-revealed { animation-delay: 0ms; }
-  [data-stagger="1"].is-revealed { animation-delay: 80ms; }
-  [data-stagger="2"].is-revealed { animation-delay: 160ms; }
-  [data-stagger="3"].is-revealed { animation-delay: 240ms; }
-  [data-stagger="4"].is-revealed { animation-delay: 320ms; }
+  [data-stagger="1"].is-revealed { animation-delay: 100ms; }
+  [data-stagger="2"].is-revealed { animation-delay: 220ms; }
+  [data-stagger="3"].is-revealed { animation-delay: 360ms; }
+  [data-stagger="4"].is-revealed { animation-delay: 520ms; }
 
   .reveal-up.is-revealed [data-stagger="0"] { animation-delay: 120ms; }
-  .reveal-up.is-revealed [data-stagger="1"] { animation-delay: 200ms; }
-  .reveal-up.is-revealed [data-stagger="2"] { animation-delay: 280ms; }
-  .reveal-up.is-revealed [data-stagger="3"] { animation-delay: 360ms; }
-  .reveal-up.is-revealed [data-stagger="4"] { animation-delay: 440ms; }
+  .reveal-up.is-revealed [data-stagger="1"] { animation-delay: 220ms; }
+  .reveal-up.is-revealed [data-stagger="2"] { animation-delay: 340ms; }
+  .reveal-up.is-revealed [data-stagger="3"] { animation-delay: 480ms; }
+  .reveal-up.is-revealed [data-stagger="4"] { animation-delay: 640ms; }
 
   [data-intro-complete="true"] .reveal-fade,
   [data-intro-complete="true"] .reveal-up,
@@ -475,7 +488,7 @@
     border-radius: 9999px;
     background: var(--color-primary);
     box-shadow: 0 0 0 0 var(--color-primary);
-    animation: pulse-emerald 2.4s var(--motion-easing) infinite;
+    animation: pulse-glow 2.4s var(--motion-easing) infinite;
   }
 
   /* Nav link — underline telegraph using primary as the active color.
@@ -603,11 +616,14 @@
   /* Tonal-stack card — ambient elevation, not drop shadow. Light base
      sits one tier above bg; hover lifts + primary border. Radius is
      `var(--radius-lg)` (16 px) — not `xl`, which would bloat into a
-     "container" tier. Shadow `color-mix`tunes to mode automatically. */
+     "container" tier. Shadow `color-mix`tunes to mode automatically.
+     `position: relative` is required for the 3D-tilt spotlight pseudo. */
   .tonal-card {
+    position: relative;
     background: var(--color-surface-container);
     border: 1px solid var(--color-outline-variant);
     border-radius: var(--radius-lg);
+    transform-style: preserve-3d;
     box-shadow:
       0 1px 0 color-mix(in oklab, rgb(255 255 255) 20%, transparent) inset,
       0 8px 28px -20px color-mix(in oklab, var(--color-primary) 20%, transparent);
@@ -616,9 +632,32 @@
       transform var(--motion-small) var(--motion-easing),
       box-shadow var(--motion-medium) var(--motion-easing);
   }
+  /* 3D-tilt spotlight — radial glow that follows the cursor.
+     `.tonal-card` must have `position: relative` for this to anchor.
+     Custom properties `--mouse-x`/`--mouse-y` are set by JS via
+     `useCardTilt`. */
+  .tonal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      color-mix(in oklab, var(--color-primary) 15%, transparent) 0%,
+      transparent 50%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .tonal-card:hover::before {
+    opacity: 1;
+  }
   .tonal-card:hover {
+    /* transform handled by useCardTilt composable (3D tilt); keep only
+       border-color + box-shadow for the hover-lift visual. */
     border-color: var(--color-primary);
-    transform: translateY(-3px);
     box-shadow:
       0 0 0 1px var(--color-primary-soft),
       0 24px 48px -28px color-mix(in oklab, var(--color-primary) 30%, transparent);
@@ -989,11 +1028,13 @@
 
 
 
-/* View transitions — theme toggle crossfade.
-   Synth pseudo-elements aren't reachable by the `*` wildcard above,
-   so an explicit `animation: none !important` override lives in the
-   reduced-motion @media block. Older Firefox without API support
-   falls back to an instant snap. */
+/* ────────────────────────────────────────────────────────────────────────
+ * View transitions — theme toggle crossfade.
+ * Synth pseudo-elements aren't reachable by the `*` wildcard above,
+ * so an explicit `animation: none !important` override lives in the
+ * reduced-motion @media block. Older Firefox without API support
+ * falls back to an instant snap.
+ * ──────────────────────────────────────────────────────────────────────── */
 :root {
   view-transition-name: root;
 }
@@ -1001,4 +1042,22 @@
 ::view-transition-new(root) {
   animation-duration: var(--motion-medium);
   animation-timing-function: var(--motion-easing);
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Page transitions — NuxtPage out-in crossfade + slide.
+ * ──────────────────────────────────────────────────────────────────────── */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }

@@ -33,9 +33,15 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
  *   finished fade.
  */
 
+/** Threshold fraction — 15% of the section must be visible before reveal fires. */
+const REVEAL_THRESHOLD = 0.15
+/** Top margin offset — matches navbar height so sections trigger after the
+ *  floating pill passes over the anchor. */
+const REVEAL_ROOT_MARGIN_TOP = 80
+
 const IO_OPTIONS: IntersectionObserverInit = {
-  threshold: 0.15,
-  rootMargin: '-80px 0px',
+  threshold: REVEAL_THRESHOLD,
+  rootMargin: `-${REVEAL_ROOT_MARGIN_TOP}px 0px`,
 }
 
 export function useSectionReveal() {

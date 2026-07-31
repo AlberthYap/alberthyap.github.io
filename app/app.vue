@@ -40,6 +40,11 @@ useHead({
     Skip to main content
   </a>
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage
+      :transition="{
+        name: 'page',
+        mode: 'out-in',
+      }"
+    />
   </NuxtLayout>
 </template>

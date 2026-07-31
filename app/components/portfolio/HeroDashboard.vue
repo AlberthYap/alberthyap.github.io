@@ -1,17 +1,36 @@
 <script setup lang="ts">
 /**
- * HeroDashboard — 3D-tilted glass-panel mockup.
+ * HeroDashboard — 3D-tilted glass-panel mockup with animated metrics.
  *
  * Extracted from Hero.vue so the parent stays readable; the dashboard
  * owns its own markup + CSS shells.
  *
  * a11y is layered: decorative dots aria-hidden since the chrome caption
- * labels the panel; metrics/editor/infra each get role + aria-label so
- * screen readers + keyboard nav don't read them as unlabeled sprites.
+ * labels the panel; metrics get `role="status"` + `aria-live` so screen
+ * readers announce value changes; editor/infra each get role + aria-label.
  *
  * Reduced-motion lives in CSS — `.perspective-panel`'s rotation collapses
  * to `transform: none` under `prefers-reduced-motion: reduce`.
  */
+import { onBeforeUnmount, onMounted } from 'vue'
+import { useCountUp } from '~~/app/composables/useCountUp'
+
+const uptimeCount = useCountUp(99.99, 1800, 2)
+const latencyCount = useCountUp(12, 1400, 0)
+
+let uptimeTimer: ReturnType<typeof setTimeout> | null = null
+let latencyTimer: ReturnType<typeof setTimeout> | null = null
+
+onMounted(() => {
+  // Stagger count-up after the reveal cascade (900 ms panel delay + buffer).
+  uptimeTimer = setTimeout(() => uptimeCount.animate(), 1000)
+  latencyTimer = setTimeout(() => latencyCount.animate(), 1200)
+})
+
+onBeforeUnmount(() => {
+  if (uptimeTimer !== null) clearTimeout(uptimeTimer)
+  if (latencyTimer !== null) clearTimeout(latencyTimer)
+})
 </script>
 
 <template>
@@ -31,14 +50,24 @@
           role="group"
           aria-label="Build metrics"
         >
-          <div class="dashboard-mock__metric">
+          <div
+            class="dashboard-mock__metric"
+            role="status"
+            aria-live="polite"
+            :aria-label="`Uptime: ${uptimeCount.count.value} percent`"
+          >
             <span class="dashboard-mock__metric-label">Uptime</span>
-            <span class="dashboard-mock__metric-value">99.99%</span>
+            <span class="dashboard-mock__metric-value">{{ uptimeCount.count.value }}%</span>
           </div>
-          <div class="dashboard-mock__metric">
+          <div
+            class="dashboard-mock__metric"
+            role="status"
+            aria-live="polite"
+            :aria-label="`Latency: ${latencyCount.count.value} milliseconds`"
+          >
             <span class="dashboard-mock__metric-label">Latency</span>
             <span class="dashboard-mock__metric-value dashboard-mock__metric-value--default">
-              12ms
+              {{ latencyCount.count.value }}ms
             </span>
           </div>
         </div>

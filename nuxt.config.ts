@@ -30,6 +30,24 @@ export default defineNuxtConfig({
       failOnError: false,
       routes: ['/', '/projects', '/tools', '/404'],
     },
+    routeRules: {
+      '/**': {
+        headers: {
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https:",
+            "font-src 'self' data:",
+            "connect-src 'self'",
+          ].join('; '),
+          'X-Frame-Options': 'DENY',
+          'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+        },
+      },
+    },
   },
 
   // DESIGN.md §13 — no-flash inline script. Resolves saved theme before

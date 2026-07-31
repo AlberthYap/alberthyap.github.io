@@ -23,11 +23,12 @@
  * Pass `showStatus={false}` on the home page so the gallery is just
  * image + title + URL.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { Project } from '~~/shared/types'
 
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
+import { useCardTilt } from '~~/app/composables/useCardTilt'
 
 interface Props {
   /** Source project record from Nuxt Content collection. */
@@ -42,6 +43,10 @@ const props = withDefaults(defineProps<Props>(), {
   showStatus: true,
   compact: false,
 })
+
+// 3D tilt + spotlight on the tonal-card wrapper.
+const cardRef = ref<HTMLElement | null>(null)
+useCardTilt(cardRef)
 
 /**
  * Format a status badge label.
@@ -64,6 +69,7 @@ const displayUrl = computed<string>(() => {
 
 <template>
   <article
+    ref="cardRef"
     class="tonal-card group flex flex-col overflow-hidden reveal-up is-revealed"
   >
     <!-- Content stack — compact (home gallery) or full (projects index) -->

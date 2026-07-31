@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+import { useCardTilt } from '~~/app/composables/useCardTilt'
 
 interface Props {
   /** When set, the card renders as an `<a>` and becomes interactive. External `http(s)` URLs get safe link attrs. */
@@ -31,11 +33,16 @@ const baseClasses = computed(() => [
 ])
 
 const interactiveClasses = 'transition-[transform,border-color] duration-[var(--motion-medium)] ease-[var(--motion-easing)] hover:border-primary/40 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg cursor-pointer'
+
+// 3D tilt + spotlight on interactive cards.
+const cardRef = ref<HTMLElement | null>(null)
+useCardTilt(cardRef)
 </script>
 
 <template>
   <a
     v-if="props.href && props.href.length > 0"
+    ref="cardRef"
     :href="props.href"
     v-bind="externalAttrs"
     :class="[baseClasses, interactiveClasses]"

@@ -1,5 +1,16 @@
+import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// Mock useCountUp so metrics render at their final values immediately.
+vi.mock('~~/app/composables/useCountUp', () => ({
+  useCountUp: (target: number, _duration?: number, _decimals?: number) => ({
+    count: ref(target),
+    animate: vi.fn(),
+    reset: vi.fn(),
+    isAnimating: ref(false),
+  }),
+}))
 
 import HeroDashboard from '~~/app/components/portfolio/HeroDashboard.vue'// HeroDashboard — 3D-tilted glass-panel mockup matching example.html's
 // `portfolio_v2` panel. Stack: chrome bar (3 dots + caption), metrics

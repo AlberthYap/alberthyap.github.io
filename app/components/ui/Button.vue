@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { buttonClasses } from '~/utils/buttonClasses'
+import { useMagneticButton } from '~~/app/composables/useMagneticButton'
 
 interface Props {
   /** Visual variant. */
@@ -33,10 +34,15 @@ const classes = computed(() => buttonClasses(props.variant, props.size))
 function onClick(event: MouseEvent) {
   emit('click', event)
 }
+
+// Magnetic hover — subtle cursor-attraction on the button element.
+const btnRef = ref<HTMLElement | null>(null)
+useMagneticButton(btnRef, 0.25, 80)
 </script>
 
 <template>
   <button
+    ref="btnRef"
     :type="props.type"
     :disabled="props.disabled"
     :aria-label="props.ariaLabel"
