@@ -1,0 +1,16 @@
+slug: text-diff
+title: Text Diff
+category: developer
+description: Compare two texts side by side with a clean line-level diff. Paste before and after, spot exactly what changed, then copy the unified diff.
+icon: "≍"
+featured: false
+keywords:
+  - diff
+  - compare
+  - text
+  - developer
+  - before-after
+  - changes
+seo:
+  title: Text Diff — Free Browser Tool
+  description: Compare two texts side by side with a clean line-level diff. Paste before and after, spot exactly what changed, then copy the unified diff.

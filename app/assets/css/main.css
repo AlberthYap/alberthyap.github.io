@@ -20,6 +20,23 @@
  */
 @import "tailwindcss";
 
+/* @source — explicitly tell Tailwind v4 which source files to scan for
+ * utility classes. The `@tailwindcss/vite` plugin's default heuristics
+ * miss content-collection-driven Nuxt pages (e.g., `app/pages/tools/
+ * [slug].vue`) because the route is generated from `@nuxt/content`,
+ * not from a literal import chain. Without this directive, utility
+ * classes used in dynamic page templates never enter the emitted CSS
+ * chunk, so `flex`, `flex-wrap`, `gap-*` etc. cascade-fall back to
+ * default block display — visible symptom: items stack vertically
+ * (`text/items go DOWN`) instead of wrapping horizontally.
+ *
+ * Path is relative to this file (`app/assets/css/main.css` → project
+ * root = `../../`).
+ */
+@source "../../**/*.{vue,ts,tsx,js,jsx}";
+@source "../../content/**/*.md";
+@source "../../content/**/*.yml";
+
 /* Self-hosted variable woff2 (DESIGN §4). The @fontsource-variable 5.x
  * line ships one file per family covering the full wght axis (100–900);
  * 8 static files collapse to 3 variable ones (107 KB vs 229 KB). The
@@ -205,6 +222,33 @@
                                     Templates anchor content below the navbar
                                     via `top-[var(--spacing-navbar-height)]`
                                     so they track re-flows. */
+
+  /* Container scale — Tailwind v4 auto-emits `max-w-{size}` from these.
+     Defining them explicitly prevents a build-time variable-resolution
+     bug where the project's custom `--spacing-2xl: 48px` was being
+     substituted into `.max-w-2xl{max-width:var(--spacing-2xl)}` and
+     collapsing prose columns to a 48px floor (the symptoms seen on
+     /tools/delimiter). Values match Tailwind v4 defaults verbatim
+     (16–80 rem ladder) so behaviour is identical to a vanilla install
+     — we only make the resolution deterministic.
+
+     Paired surgical stopgap: the description `<p>` with
+     `data-testid="hero-description"` in `app/pages/tools/[slug].vue`
+     uses `max-w-[42rem]` until the next full dev restart, when var()
+     resolution reliably picks up these @theme tokens. */
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs:  20rem;
+  --container-sm:  24rem;
+  --container-md:  28rem;
+  --container-lg:  32rem;
+  --container-xl:  36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
 
   /* Radius — DESIGN §7 "Rounded (level 2)" scale; bare `--radius` is
      the DEFAULT (8 px). Sub-tokens: sm 4 / md 12 / lg 16 / xl 24 px. */

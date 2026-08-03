@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { SITE_NAME } from '~~/shared/constants/site'
-
 const route = useRoute()
 
 const slug = computed(() => {
@@ -12,7 +10,7 @@ const slug = computed(() => {
 
 const { data: tool } = await useAsyncData(
   `tool-${slug.value}`,
-  () => queryCollection('tools').path(`/tools/${slug.value}`).first(),
+  () => queryCollection('tools').where('slug', '=', slug.value).first(),
 )
 
 if (!tool.value) {
@@ -23,12 +21,26 @@ if (!tool.value) {
   })
 }
 
+// Related tools — sibling entries from the tools collection (max 4).
+// Compact strip below the workspace, before the footer, per brief §10.
+const { data: allTools } = await useAsyncData(
+  `related-tools-${slug.value}`,
+  () => queryCollection('tools').order('title', 'ASC').all(),
+)
+const relatedTools = computed(() =>
+  (allTools.value ?? []).filter((t) => t.slug !== slug.value).slice(0, 4),
+)
+
 const categoryLabel = computed(() => {
   if (!tool.value) return ''
   if (tool.value.category === 'developer') return 'Developer'
   if (tool.value.category === 'productivity') return 'Productivity'
   return 'Design'
 })
+
+// Compact hero trust badges — replaces the old "Open the workspace" CTA.
+// The workspace is already below; a button that scrolls to it adds noise.
+const FEATURE_BADGES = ['Runs locally', 'No uploads', 'Instant conversion']
 
 useSeoMeta({
   title: tool.value.seo.title,
@@ -39,167 +51,123 @@ useSeoMeta({
 </script>
 
 <template>
-  <article v-if="tool" class="pb-section">
-    <!-- Hero — icon + title, minimal -->
-    <div class="relative w-full bg-surface-container-high">
-      <PageContainer width="wide" class="pt-16 pb-12 md:pt-24 md:pb-16">
+  <article v-if="tool" class="tool-detail-page pb-6 md:pb-8">
+    <!-- Hero — compact. `tool-hero` anchors e2e per-viewport metrics
+         (`.tool-hero h1` width). Reduced padding so the tool itself
+         rises toward the top (brief §2). -->
+    <div class="relative w-full bg-surface-container-high tool-hero">
+      <PageContainer width="wide" class="pt-[calc(var(--spacing-navbar-height)+var(--spacing-lg))] pb-8 md:pt-[calc(var(--spacing-navbar-height)+var(--spacing-xl))] md:pb-10">
         <NuxtLink
           to="/tools"
-          class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary-deep transition-colors font-mono mb-8"
+          class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary-deep transition-colors font-mono mb-4"
         >
           <span aria-hidden="true">←</span> Back to tools
         </NuxtLink>
 
-        <div class="flex items-start gap-6">
-          <!-- Icon -->
-          <div class="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-surface flex items-center justify-center text-2xl md:text-3xl shadow-sm">
-            {{ tool.icon }}
+        <div class="flex flex-col gap-3 max-w-[40rem]">
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-primary-soft text-primary-deep text-sm font-bold leading-none"
+              aria-hidden="true"
+            >
+              {{ tool.icon }}
+            </span>
+            <Badge variant="default">{{ categoryLabel }}</Badge>
+            <span
+              v-if="tool.featured"
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary-soft text-primary-deep"
+            >
+              Featured
+            </span>
           </div>
 
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-wrap items-center gap-3">
-              <Badge variant="default">{{ categoryLabel }}</Badge>
+          <h1 class="font-serif font-bold text-text text-headline-lg md:text-display leading-[1.05] tracking-[-0.02em]">
+            {{ tool.title }}
+          </h1>
+
+          <p
+            class="text-body-md text-muted leading-relaxed max-w-[36rem] tool-hero__description"
+            data-testid="hero-description"
+          >
+            {{ tool.description }}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-1">
+            <span
+              v-for="badge in FEATURE_BADGES"
+              :key="badge"
+              class="inline-flex items-center gap-1.5 text-sm font-medium text-text/90"
+            >
               <span
-                v-if="tool.featured"
-                class="px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary-soft text-primary-deep"
-              >
-                Featured
-              </span>
-            </div>
-
-            <h1 class="font-serif font-bold text-text text-display md:text-[3rem] leading-[1.05] tracking-[-0.02em]">
-              {{ tool.title }}
-            </h1>
-
-            <p class="text-body-lg text-muted leading-relaxed max-w-2xl">
-              {{ tool.description }}
-            </p>
-
-            <div class="flex flex-wrap gap-3 mt-3">
-              <LinkButton
-                v-if="tool.url"
-                :to="tool.url"
-                variant="primary"
-                size="md"
-                class="rounded-lg"
-              >
-                Open tool →
-              </LinkButton>
-              <LinkButton
-                v-if="tool.repoUrl"
-                :to="tool.repoUrl"
-                variant="secondary"
-                size="md"
-                class="rounded-lg"
-              >
-                Source code
-              </LinkButton>
-            </div>
+                class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary-soft text-primary-deep"
+                aria-hidden="true"
+              >✓</span>
+              {{ badge }}
+            </span>
           </div>
         </div>
       </PageContainer>
     </div>
 
-    <!-- Body -->
-    <PageContainer width="wide" class="mt-12 md:mt-16">
-      <div class="flex flex-col lg:flex-row gap-12 lg:gap-20">
-        <!-- Main content -->
-        <div class="flex-1 min-w-0">
-          <!-- Keywords -->
-          <div v-if="tool.keywords.length" class="mb-10">
-            <h2 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
-              Keywords
-            </h2>
-            <div class="flex flex-wrap gap-2">
-              <Badge v-for="kw in tool.keywords" :key="kw" variant="tech">{{ kw }}</Badge>
-            </div>
-          </div>
+    <!-- Body — the workspace is the focal point; no keywords interlude -->
+    <PageContainer id="workspace" width="wide" class="mt-6 md:mt-8 scroll-mt-[7rem]">
+      <!-- Tool interface — renders the interactive component when
+           available, otherwise the Phase 4 placeholder. -->
+      <LazyDelimiterTool v-if="slug === 'delimiter'" />
+      <div
+        v-else
+        class="rounded-xl bg-surface-container-high p-10 md:p-14 flex flex-col items-center gap-3 text-center"
+      >
+        <span class="text-4xl mb-2">{{ tool.icon }}</span>
+        <p class="text-muted text-body-md">
+          The interactive interface for
+          <strong class="text-text">{{ tool.title }}</strong>
+          ships in Phase 4.
+        </p>
+        <p class="text-sm text-muted font-mono">
+          Registered in <code class="text-primary-deep">content.config.ts</code>
+          as the <code class="text-primary-deep">tools</code> collection
+          with <code class="text-primary-deep">ToolSchema</code>.
+        </p>
+      </div>
 
-          <!-- Tool interface placeholder -->
-          <div class="mb-10">
-            <h2 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
-              Tool
-            </h2>
-            <div class="rounded-xl bg-surface-container-high p-10 md:p-14 flex flex-col items-center gap-3 text-center">
-              <span class="text-4xl mb-2">{{ tool.icon }}</span>
-              <p class="text-muted text-body-md">
-                The interactive interface for
-                <strong class="text-text">{{ tool.title }}</strong>
-                ships in Phase 4.
-              </p>
-              <p class="text-sm text-muted font-mono">
-                Registered in <code class="text-primary-deep">content.config.ts</code>
-                as the <code class="text-primary-deep">tools</code> collection
-                with <code class="text-primary-deep">ToolSchema</code>.
-              </p>
-            </div>
-          </div>
-
-          <!-- Bottom CTAs -->
-          <div class="flex flex-wrap gap-3 mt-14 pt-10">
-            <LinkButton
-              v-if="tool.url"
-              :to="tool.url"
-              variant="primary"
-              size="md"
-              class="rounded-lg"
+      <!-- Related tools — compact strip, keeps the page dense (brief §10) -->
+      <section v-if="relatedTools.length" class="mt-8 md:mt-10">
+        <h2 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
+          Related tools
+        </h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <NuxtLink
+            v-for="t in relatedTools"
+            :key="t.slug"
+            :to="`/tools/${t.slug}`"
+            class="group rounded-xl border border-outline-variant bg-surface-container-low p-4 transition-colors hover:border-primary hover:bg-surface"
+          >
+            <span
+              class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary-soft text-primary-deep text-sm font-bold leading-none"
+              aria-hidden="true"
             >
-              Open tool →
-            </LinkButton>
-            <LinkButton
-              v-if="tool.repoUrl"
-              :to="tool.repoUrl"
-              variant="secondary"
-              size="md"
-              class="rounded-lg"
-            >
-              Source code
-            </LinkButton>
-            <NuxtLink
-              to="/tools"
-              class="inline-flex items-center px-4 py-2 text-sm text-muted hover:text-text transition-colors font-mono"
-            >
-              ← All tools
-            </NuxtLink>
-          </div>
+              {{ t.icon }}
+            </span>
+            <h3 class="mt-2.5 font-serif text-headline-sm font-bold text-text group-hover:text-primary-deep transition-colors">
+              {{ t.title }}
+            </h3>
+            <p class="mt-1 text-xs text-muted leading-relaxed line-clamp-2">
+              {{ t.description }}
+            </p>
+          </NuxtLink>
         </div>
+      </section>
 
-        <!-- Sidebar -->
-        <aside class="lg:w-72 shrink-0">
-          <div class="flex flex-col gap-10 lg:sticky lg:top-24">
-            <!-- Info -->
-            <div>
-              <h3 class="font-mono text-label-sm uppercase tracking-widest text-muted mb-4">
-                Details
-              </h3>
-              <dl class="flex flex-col gap-3">
-                <div class="flex flex-col gap-0.5 pb-3 border-b border-outline-variant last:border-0 last:pb-0">
-                  <dt class="font-mono text-xs uppercase tracking-wider text-muted">Category</dt>
-                  <dd class="text-sm text-text">{{ categoryLabel }}</dd>
-                </div>
-                <div class="flex flex-col gap-0.5 pb-3 border-b border-outline-variant last:border-0 last:pb-0">
-                  <dt class="font-mono text-xs uppercase tracking-wider text-muted">Status</dt>
-                  <dd class="text-sm text-text">
-                    <span class="text-amber-600 dark:text-amber-400">In development</span>
-                  </dd>
-                </div>
-                <div v-if="tool.url" class="flex flex-col gap-0.5 pb-3 border-b border-outline-variant last:border-0 last:pb-0">
-                  <dt class="font-mono text-xs uppercase tracking-wider text-muted">URL</dt>
-                  <dd>
-                    <a
-                      :href="tool.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-sm text-primary-deep hover:underline font-mono break-all"
-                    >
-                      {{ tool.url.replace(/^https?:\/\//, '').replace(/\/$/, '') }}
-                    </a>
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </aside>
+      <!-- Compact bottom nav — replaces the old tall CTA block -->
+      <div class="mt-6 pt-4 border-t border-outline-variant">
+        <NuxtLink
+          to="/tools"
+          class="inline-flex items-center px-2 py-1 text-sm text-muted hover:text-text transition-colors font-mono"
+        >
+          <span aria-hidden="true">←</span>
+          All tools
+        </NuxtLink>
       </div>
     </PageContainer>
   </article>

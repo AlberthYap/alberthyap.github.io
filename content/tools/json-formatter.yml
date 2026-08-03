@@ -1,0 +1,16 @@
+slug: json-formatter
+title: JSON Formatter
+category: developer
+description: Format, validate and minify JSON in one click. Paste any JSON blob, get clean indented output with error highlighting, then copy or download it.
+icon: "{ }"
+featured: false
+keywords:
+  - json
+  - formatter
+  - validator
+  - minify
+  - pretty-print
+  - developer
+seo:
+  title: JSON Formatter — Free Browser Tool
+  description: Format, validate and minify JSON in one click. Paste any JSON blob, get clean indented output with error highlighting, then copy or download it.

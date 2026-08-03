@@ -9,13 +9,23 @@
  */
 import { SITE_NAME, SOCIAL_LINKS } from '~~/shared/constants/site'
 
+interface Props {
+  compact?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  compact: false,
+})
 const currentYear = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="border-t border-outline-variant bg-bg mt-[var(--spacing-section)]">
+  <footer
+    class="border-t border-outline-variant bg-bg mt-[var(--spacing-section)]"
+    :class="props.compact && 'site-footer--compact'"
+  >
     <div
-      class="mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-[var(--spacing-section)] flex flex-col gap-[var(--spacing-lg)]"
+      class="site-footer__inner mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-[var(--spacing-section)] flex flex-col gap-[var(--spacing-lg)]"
     >
       <!-- Top row: brand wordmark + status pill on the left, social grid on the right. -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-[var(--spacing-lg)]">
@@ -70,3 +80,14 @@ const currentYear = new Date().getFullYear()
     </div>
   </footer>
 </template>
+
+<style scoped>
+.site-footer--compact {
+  margin-top: 40px;
+}
+
+.site-footer--compact .site-footer__inner {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+</style>
