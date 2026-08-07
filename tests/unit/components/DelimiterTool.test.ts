@@ -31,7 +31,9 @@ function getRowMeta(wrapper: ReturnType<typeof mount>) {
 // exercise split-mode semantics (SAMPLE-based test data). The
 // component's default mode is 'join', so tests that read row
 // counts off a multi-line CSV need to opt in to split first.
+// Also opens the sidebar since Split/Join buttons live inside it.
 async function enterSplitMode(wrapper: ReturnType<typeof mount>) {
+  await openSidebar(wrapper)
   const splitBtn = wrapper.findAll('button').find(
     (b) => b.text().trim() === 'Split' && b.classes().includes('dtool__seg-btn'),
   )
@@ -41,9 +43,49 @@ async function enterSplitMode(wrapper: ReturnType<typeof mount>) {
   }
 }
 
+// Helper: open the sidebar config (hidden by default per UX audit #7).
+// The Options toggle button sits in the workspace header.
+async function openSidebar(wrapper: ReturnType<typeof mount>) {
+  const optsBtn = wrapper.find('.dtool__options-toggle')
+  if (optsBtn.exists() && optsBtn.attributes('aria-expanded') === 'false') {
+    await optsBtn.trigger('click')
+    await nextTick()
+  }
+}
+
 describe('DelimiterTool — defaults', () => {
+  it('sidebar is hidden by default (Options toggle shows aria-expanded=false)', () => {
+    const wrapper = mount(DelimiterTool)
+    const toggle = wrapper.find('.dtool__options-toggle')
+    expect(toggle.exists()).toBe(true)
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(toggle.attributes('aria-controls')).toBe('dtool-sidebar')
+    expect(wrapper.find('#dtool-sidebar').exists()).toBe(false)
+  })
+
+  it('clicking Options toggle opens the sidebar and flips aria-expanded', async () => {
+    const wrapper = mount(DelimiterTool)
+    const toggle = wrapper.find('.dtool__options-toggle')
+    await toggle.trigger('click')
+    await nextTick()
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('#dtool-sidebar').exists()).toBe(true)
+  })
+
+  it('clicking Options toggle twice closes the sidebar again', async () => {
+    const wrapper = mount(DelimiterTool)
+    const toggle = wrapper.find('.dtool__options-toggle')
+    await toggle.trigger('click')
+    await nextTick()
+    await toggle.trigger('click')
+    await nextTick()
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('#dtool-sidebar').exists()).toBe(false)
+  })
+
   it('mounts in Join mode by default (Split segmented button is inactive)', async () => {
     const wrapper = mount(DelimiterTool)
+    await openSidebar(wrapper)
 
     const splitBtn = wrapper.findAll('button').find(
       (b) => b.text().trim() === 'Split' && b.classes().includes('dtool__seg-btn'),
@@ -61,6 +103,7 @@ describe('DelimiterTool — defaults', () => {
     vi.useFakeTimers()
     try {
       const wrapper = mount(DelimiterTool)
+      await openSidebar(wrapper)
       const split = wrapper.findAll('button').find((b) => b.text().trim() === 'Split')!
       await split.trigger('click')
 
@@ -156,8 +199,7 @@ describe('DelimiterTool — dedupe (remove duplicates)', () => {
     expect(parseRowCount(getRowMeta(wrapper).text())).toBe(7)
 
     // Sidebar checkbox label "Remove duplicates".
-    const checkbox = wrapper.find('input[type="checkbox"][aria-label="Remove duplicates"], input.dtool__check-input')
-    // Pick by walking up the label DOM
+    // Sidebar is open from enterSplitMode.
     const labels = wrapper.findAll('label.dtool__check')
     const removeDupLabel = labels.find((l) => l.text().includes('Remove duplicates'))
     expect(removeDupLabel, 'Remove-duplicates label must exist').toBeTruthy()

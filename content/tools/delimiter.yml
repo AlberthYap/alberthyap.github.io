@@ -1,7 +1,7 @@
 slug: delimiter
 title: Delimiter Converter
 category: developer
-description: Convert between delimiter formats — CSV to JSON, TSV to table, or swap commas for pipes. Paste any delimited text and transform it instantly, right in your browser.
+description: Paste CSV, TSV, or JSON. Convert instantly between delimiter formats. No uploads, no sign-up needed.
 icon: "⊞"
 featured: true
 keywords:
@@ -14,4 +14,4 @@ keywords:
   - parser
 seo:
   title: Delimiter Converter — Free Browser Tool
-  description: Convert between delimiter formats — CSV to JSON, TSV to table, or swap commas for pipes. Paste any delimited text and transform it instantly, right in your browser.
+  description: Convert between delimiter formats — CSV to JSON, TSV to table, or swap commas for pipes. Free browser tool, no data uploaded.

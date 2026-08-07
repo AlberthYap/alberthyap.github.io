@@ -28,3 +28,5 @@ logs
 !.env.example
 
 .agents
+
+*.db*

@@ -16,7 +16,7 @@
  *   │                            collapsed by default (▸/▾ headers)
  *   │   └ INPUT card .............. toolbar + textarea (compact, soft wrap)
  *   │   └ OUTPUT card ............. tabs [Table][JSON][Raw] + surface
- *   ├ action bar (below editor) ... ✨ Convert + Copy/Download/Unique/Clear
+ *   ├ action bar (below editor) ... Convert + Copy/Download/Unique/Clear
  *   ├ advanced utilities .......... collapsible text ops (Reverse…Count)
  *   └ footer hint (kbd shortcuts)
  *
@@ -91,6 +91,10 @@ type SectionKey = keyof typeof openSections.value
 function toggleSection(key: SectionKey) {
   openSections.value[key] = !openSections.value[key]
 }
+
+// Sidebar visibility — collapsed by default per UX audit: users come to
+// paste & convert, not configure. Toggle exposes settings when needed.
+const sidebarOpen = ref(false)
 
 // Advanced utilities toolbar — collapsed behind a toggle per brief #7.
 const utilitiesOpen = ref(false)
@@ -200,24 +204,49 @@ function copy() { return doCopy() }
     class="dtool flex flex-col gap-5"
     :data-hydrated="hydrated"
   >
+    <!-- Workspace divider — visual separation from hero, per UX audit. -->
+    <div class="dtool__section-divider" aria-hidden="true">
+      <span class="dtool__section-divider-label font-mono text-label-sm uppercase tracking-widest text-muted">
+        Converter Workspace
+      </span>
+    </div>
+
     <!-- Compact workspace header — the page hero owns the tool title. -->
     <header class="dtool__workspace-header">
       <div class="dtool__workspace-kicker">
-        <span class="dtool__workspace-kicker-mark" aria-hidden="true">↳</span>
-        <span class="dtool__title font-mono text-label-sm uppercase tracking-widest text-muted">
-          Workspace
-        </span>
-        <span class="dtool__workspace-note dtool__privacy-badge">Runs locally · no uploads</span>
+        <span class="dtool__workspace-kicker-mark" aria-hidden="true">↓</span>
+        <span class="dtool__workspace-note dtool__privacy-badge">Paste your data below</span>
+        <span class="dtool__workspace-note hidden sm:inline-flex" style="border-left: 1px solid var(--color-outline-variant); padding-left: 0.6rem; margin-left: 0.2rem;">Runs locally · no uploads</span>
       </div>
 
-      <!-- Status indicator — Ready / Detecting / Converted / Copied -->
-      <div class="dtool__status" role="status" aria-live="polite">
-        <span
-          class="dtool__status-dot"
-          :class="`dtool__status-dot--${status}`"
-          aria-hidden="true"
-        />
-        <span class="dtool__status-label">{{ statusLabel }}</span>
+      <div class="flex items-center gap-3">
+        <!-- Options toggle — collapsed sidebar by default (UX audit #7). -->
+        <button
+          type="button"
+          class="dtool__options-toggle"
+          :class="sidebarOpen && 'dtool__options-toggle--active'"
+          :aria-expanded="sidebarOpen"
+          aria-controls="dtool-sidebar"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <span aria-hidden="true">⚙</span>
+          Options
+          <span
+            class="dtool__accordion-caret"
+            :class="sidebarOpen && 'dtool__accordion-caret--open'"
+            aria-hidden="true"
+          >▾</span>
+        </button>
+
+        <!-- Status indicator — Ready / Detecting / Converted / Copied -->
+        <div class="dtool__status" role="status" aria-live="polite">
+          <span
+            class="dtool__status-dot"
+            :class="`dtool__status-dot--${status}`"
+            aria-hidden="true"
+          />
+          <span class="dtool__status-label">{{ statusLabel }}</span>
+        </div>
       </div>
     </header>
 
@@ -259,9 +288,10 @@ function copy() { return doCopy() }
     </div>
 
     <!-- ── Workspace: sidebar | input | output (+bars) ───────────── -->
-    <div class="dtool__workspace">
-      <!-- Sidebar (accordion) — LEFT on xl, stacked last on mobile -->
-      <aside class="dtool__sidebar flex flex-col gap-3 min-w-0" aria-label="Configuration">
+    <div class="dtool__workspace" :class="sidebarOpen && 'dtool__workspace--sidebar-open'">
+      <!-- Sidebar (accordion) — LEFT on xl, stacked last on mobile.
+           Collapsed by default per UX audit #7 → Options toggle shows it. -->
+      <aside v-if="sidebarOpen" id="dtool-sidebar" class="dtool__sidebar flex flex-col gap-3 min-w-0" aria-label="Configuration">
         <div class="dtool__sidebar-header flex items-center justify-between gap-3 flex-wrap">
           <h3 class="dtool__sidebar-heading font-mono text-label-sm uppercase tracking-widest text-muted">
             <span aria-hidden="true">⚙</span>
@@ -858,9 +888,9 @@ function copy() { return doCopy() }
         </div>
       </section>
 
-      <!-- Action bar — Convert dominates, utilities below (brief #6) ─ -->
-      <div class="dtool__actionbar flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6" role="toolbar" aria-label="Conversion actions">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <!-- Action bar — Convert dominates. Stacked on mobile, inline from sm+. -->
+      <div class="dtool__actionbar flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6" role="toolbar" aria-label="Conversion actions">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
           <button
             type="button"
             class="dtool__convert-btn"
@@ -868,7 +898,6 @@ function copy() { return doCopy() }
             title="Add data first, then convert"
             @click="convert"
           >
-            <span aria-hidden="true">✨</span>
             Convert
           </button>
 
@@ -1007,10 +1036,14 @@ function copy() { return doCopy() }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
   min-height: 32px;
-  padding: 0 2px 0.65rem;
-  border-bottom: 1px solid var(--color-outline-variant, #e5e7e2);
+  padding: 0 2px 0.25rem;
+  flex-wrap: wrap;
+}
+
+.dtool__workspace-header > div:last-child {
+  flex-shrink: 0;
 }
 
 .dtool__workspace-kicker {
@@ -1099,13 +1132,103 @@ function copy() { return doCopy() }
   50% { opacity: 0.35; }
 }
 
-/* Workspace — sidebar | input | output on xl; stacked on mobile in the
- * order Input → Output → Actions → Utilities → Settings. The action +
- * utility bars sit directly beneath the editor columns (brief #6). */
-.dtool__workspace {
+/* ── Mobile: compact editor heights so Convert is visible ── */
+@media (max-width: 639px) {
+  .dtool__editor-textarea {
+    min-height: 200px;
+  }
+  .output-surface,
+  .output-empty {
+    min-height: 200px;
+  }
+  .dtool__section-divider {
+    padding: 0 0 0.25rem;
+  }
+  .dtool__section-divider-label {
+    font-size: 10px;
+  }
+}
+
+/* ── Tablet: tighter editor heights, action bar inline ── */
+@media (min-width: 640px) and (max-width: 1279px) {
+  .dtool__editor-textarea {
+    min-height: 260px;
+  }
+  .output-surface,
+  .output-empty {
+    min-height: 260px;
+  }
+}
+
+/* Sidebar — opens above editors on mobile (order 0) so users see it
+   without scrolling. On xl, the grid repositions it to the left rail. */
+@media (max-width: 1279px) {
+  .dtool__workspace .dtool__sidebar {
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+}
+
+/* Section divider — visual handoff from hero to workspace (UX audit #5). */
+.dtool__section-divider {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.dtool__section-divider::before,
+.dtool__section-divider::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--color-outline-variant, #e5e7e2);
+}
+
+.dtool__section-divider-label {
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+/* Options toggle — sits in the workspace header (UX audit #7). */
+.dtool__options-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-outline-variant, #e5e7e2);
+  background: var(--color-surface-container-low, #f6f7f5);
+  color: var(--color-muted, #5f665f);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-micro, 150ms),
+    color var(--motion-micro, 150ms),
+    background var(--motion-micro, 150ms);
+}
+
+.dtool__options-toggle:hover {
+  border-color: var(--color-primary, #207a4a);
+  color: var(--color-primary-deep, #176b45);
+}
+
+.dtool__options-toggle:focus-visible {
+  outline: 2px solid var(--color-primary, #207a4a);
+  outline-offset: 2px;
+}
+
+.dtool__options-toggle--active {
+  background: var(--color-primary-soft, #deebe3);
+  border-color: var(--color-primary, #207a4a);
+  color: var(--color-primary-deep, #176b45);
 }
 
 .dtool__sidebar-header {
@@ -1137,28 +1260,36 @@ function copy() { return doCopy() }
 .dtool__workspace .editor-card--input { order: 1; }
 .dtool__workspace .editor-card--output { order: 2; }
 .dtool__workspace .dtool__actionbar { order: 3; }
-.dtool__workspace .dtool__sidebar { order: 4; }
+.dtool__workspace .dtool__sidebar { order: 0; }
 .dtool__workspace .dtool__utilitybar { order: 5; }
 
 @media (min-width: 1280px) {
+  /* Default: 2-column layout (sidebar hidden per UX audit #7). */
   .dtool__workspace {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "input output"
+      "actions actions"
+      "utils utils";
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .dtool__workspace .editor-card--input { grid-area: input; order: 0; }
+  .dtool__workspace .editor-card--output { grid-area: output; order: 0; }
+  .dtool__workspace .dtool__actionbar { grid-area: actions; order: 0; }
+  .dtool__workspace .dtool__sidebar { grid-area: side; order: 0; }
+  .dtool__workspace .dtool__utilitybar { grid-area: utils; order: 0; }
+
+  /* Sidebar-open: 3-column with 240px config rail on the left. */
+  .dtool__workspace--sidebar-open {
     grid-template-columns: 240px minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
       "side input output"
       "side actions actions"
       "side utils utils";
-    align-items: stretch;
-    gap: 1rem;
   }
-  .dtool__workspace .dtool__sidebar { grid-area: side; order: 0; }
-  .dtool__workspace .editor-card--input { grid-area: input; order: 0; }
-  .dtool__workspace .editor-card--output { grid-area: output; order: 0; }
-  .dtool__workspace .dtool__actionbar { grid-area: actions; order: 0; }
-  .dtool__workspace .dtool__utilitybar { grid-area: utils; order: 0; }
-  /* Keep the rail aligned with the editor without creating a second
-   * scroll container inside the page. */
-  .dtool__sidebar {
+  .dtool__workspace--sidebar-open .dtool__sidebar {
     align-self: start;
   }
 }
@@ -1435,6 +1566,47 @@ function copy() { return doCopy() }
   background: var(--color-surface, #ffffff);
   color: var(--color-muted, #5f665f);
   transform: none;
+}
+
+/* ── Convert CTA — primary action, prominent per UX audit #1/#9 ── */
+.dtool__convert-btn {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--color-button-primary, #386948);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow:
+    0 2px 8px -4px color-mix(in oklab, var(--color-button-primary, #386948) 40%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  transition:
+    background var(--motion-micro, 150ms),
+    transform var(--motion-micro, 150ms),
+    box-shadow var(--motion-micro, 150ms);
+}
+
+.dtool__convert-btn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--color-button-primary, #386948) 88%, #000);
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 16px -6px color-mix(in oklab, var(--color-button-primary, #386948) 50%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.dtool__convert-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.dtool__convert-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #207a4a);
+  outline-offset: 4px;
 }
 
 .dtool__pill:focus-visible {

@@ -38,9 +38,8 @@ const categoryLabel = computed(() => {
   return 'Design'
 })
 
-// Compact hero trust badges — replaces the old "Open the workspace" CTA.
-// The workspace is already below; a button that scrolls to it adds noise.
-const FEATURE_BADGES = ['Runs locally', 'No uploads', 'Instant conversion']
+// Compact hero trust badges — privacy-first messaging per UX audit.
+const FEATURE_BADGES = ['Runs locally', 'No uploads', 'Instant']
 
 useSeoMeta({
   title: tool.value.seo.title,
@@ -52,19 +51,20 @@ useSeoMeta({
 
 <template>
   <article v-if="tool" class="tool-detail-page pb-6 md:pb-8">
-    <!-- Hero — compact. `tool-hero` anchors e2e per-viewport metrics
-         (`.tool-hero h1` width). Reduced padding so the tool itself
-         rises toward the top (brief §2). -->
+    <!-- Hero — compact utility-tool header (UX audit: reduce height ~30%).
+         `tool-hero` anchors e2e per-viewport metrics (`.tool-hero h1` width). -->
     <div class="relative w-full bg-surface-container-high tool-hero">
-      <PageContainer width="wide" class="pt-[calc(var(--spacing-navbar-height)+var(--spacing-lg))] pb-8 md:pt-[calc(var(--spacing-navbar-height)+var(--spacing-xl))] md:pb-10">
-        <NuxtLink
-          to="/tools"
-          class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary-deep transition-colors font-mono mb-4"
-        >
-          <span aria-hidden="true">←</span> Back to tools
-        </NuxtLink>
+      <PageContainer width="wide" class="pt-[calc(var(--spacing-navbar-height)+var(--spacing-md))] pb-6 md:pt-[calc(var(--spacing-navbar-height)+var(--spacing-lg))] md:pb-8">
+        <!-- Breadcrumb — "Home / Tools / Converter" feels like an ecosystem. -->
+        <nav class="flex items-center gap-1.5 text-sm text-muted font-mono mb-4" aria-label="Breadcrumb">
+          <NuxtLink to="/" class="hover:text-text transition-colors hidden sm:inline">Home</NuxtLink>
+          <span aria-hidden="true" class="text-outline-variant hidden sm:inline">/</span>
+          <NuxtLink to="/tools" class="hover:text-text transition-colors">Tools</NuxtLink>
+          <span aria-hidden="true" class="text-outline-variant">/</span>
+          <span class="text-text font-medium truncate">{{ tool.title }}</span>
+        </nav>
 
-        <div class="flex flex-col gap-3 max-w-[40rem]">
+        <div class="flex flex-col gap-2.5 max-w-[40rem]">
           <div class="flex flex-wrap items-center gap-2">
             <span
               class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-primary-soft text-primary-deep text-sm font-bold leading-none"
@@ -72,27 +72,27 @@ useSeoMeta({
             >
               {{ tool.icon }}
             </span>
-            <Badge variant="default">{{ categoryLabel }}</Badge>
+            <Badge variant="default">{{ categoryLabel }} Tool</Badge>
             <span
               v-if="tool.featured"
               class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary-soft text-primary-deep"
             >
-              Featured
+              Local-first
             </span>
           </div>
 
-          <h1 class="font-serif font-bold text-text text-headline-lg md:text-display leading-[1.05] tracking-[-0.02em]">
+          <h1 class="font-serif font-bold text-text text-headline-lg leading-[1.1] tracking-[-0.02em]">
             {{ tool.title }}
           </h1>
 
           <p
-            class="text-body-md text-muted leading-relaxed max-w-[36rem] tool-hero__description"
+            class="text-body-sm md:text-body-md text-muted leading-relaxed max-w-[36rem] tool-hero__description"
             data-testid="hero-description"
           >
             {{ tool.description }}
           </p>
 
-          <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-1">
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-0.5">
             <span
               v-for="badge in FEATURE_BADGES"
               :key="badge"
