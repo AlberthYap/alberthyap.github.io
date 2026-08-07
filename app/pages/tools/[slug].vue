@@ -114,6 +114,7 @@ useSeoMeta({
       <!-- Tool interface — renders the interactive component when
            available, otherwise the Phase 4 placeholder. -->
       <LazyDelimiterTool v-if="slug === 'delimiter'" />
+      <LazyJsonFormatterTool v-else-if="slug === 'json-formatter'" />
       <div
         v-else
         class="rounded-xl bg-surface-container-high p-10 md:p-14 flex flex-col items-center gap-3 text-center"
