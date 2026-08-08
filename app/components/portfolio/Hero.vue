@@ -63,7 +63,7 @@ useParallax(heroBgRef, 0.35)
       class="sr-only"
     >
       <template v-if="name">{{ name }}</template>
-      <template v-if="eyebrow"> — {{ eyebrow }}</template>
+      <template v-if="eyebrow"> &middot; {{ eyebrow }}</template>
     </h1>
 
     <div

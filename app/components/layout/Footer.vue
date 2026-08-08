@@ -35,10 +35,7 @@ const currentYear = new Date().getFullYear()
           >
             {{ SITE_NAME }}
           </span>
-          <span class="status-pill">
-            <span class="status-dot" aria-hidden="true" />
-            All systems operational
-          </span>
+          <span class="text-sm text-muted font-mono">All systems operational</span>
         </div>
 
         <nav
@@ -75,7 +72,7 @@ const currentYear = new Date().getFullYear()
       <div
         class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 font-mono text-label-sm text-muted"
       >
-        <p>© {{ currentYear }} {{ SITE_NAME }} — Built for the high-performance web.</p>
+        <p>© {{ currentYear }} {{ SITE_NAME }} · Built for the high-performance web.</p>
       </div>
     </div>
   </footer>

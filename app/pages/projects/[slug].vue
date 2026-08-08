@@ -38,7 +38,7 @@ const galleryImages = computed(() => {
 })
 
 useSeoMeta({
-  title: `${project.value.title} — ${SITE_NAME}`,
+  title: `${project.value.title} | ${SITE_NAME}`,
   description: project.value.description,
   ogTitle: project.value.title,
   ogDescription: project.value.description,

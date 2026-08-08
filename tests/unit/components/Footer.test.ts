@@ -24,12 +24,9 @@ describe('Footer', () => {
     expect(wrapper.text()).toContain(SITE_NAME)
   })
 
-  it('carries the "All systems operational" status pill with a pulse dot', () => {
+  it('carries the "All systems operational" status text', () => {
     const wrapper = mount(Footer)
-    const pill = wrapper.find('.status-pill')
-    expect(pill.exists()).toBe(true)
-    expect(pill.text()).toContain('All systems operational')
-    expect(wrapper.find('.status-pill .status-dot').exists()).toBe(true)
+    expect(wrapper.text()).toContain('All systems operational')
   })
 
   it('includes the current year in the copyright line', () => {

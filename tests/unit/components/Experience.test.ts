@@ -61,8 +61,8 @@ describe('Experience', () => {
 
   it('renders a formatted period for each entry ("YYYY-MM" → "Mon YYYY")', () => {
     const wrapper = mount(Experience, { props: { experiences: entries } })
-    expect(wrapper.text()).toContain('Nov 2023 — Present')
-    expect(wrapper.text()).toContain('Aug 2022 — Nov 2023')
+    expect(wrapper.text()).toContain('Nov 2023-Present')
+    expect(wrapper.text()).toContain('Aug 2022-Nov 2023')
   })
 
   it('renders the summary line for each entry', () => {

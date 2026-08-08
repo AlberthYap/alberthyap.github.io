@@ -4,7 +4,7 @@ company: PT. Kita Indonesia Plus (WE+)
 role: Fullstack Developer
 startDate: 2023-11
 endDate: present
-summary: Designed and developed fullstack web applications with Django backend and React frontend. Built RESTful APIs using FastAPI for seamless frontend-backend communication and managed relational databases for efficient data operations.
+summary: Designed and developed fullstack web applications with Django backend and React frontend. Built RESTful APIs using FastAPI for reliable frontend-backend communication and managed relational databases for efficient data operations.
 location: Jakarta, Indonesia
 type: Full-time
 achievements:
@@ -22,4 +22,4 @@ skills:
     items: [MySQL, PostgreSQL]
 technologies: [React, Django, FastAPI, MySQL, Docker]
 ---
-Designed and developed fullstack web applications with Django backend and React frontend. Built RESTful APIs using FastAPI for seamless frontend-backend communication and managed relational databases for efficient data operations.
+Designed and developed fullstack web applications with Django backend and React frontend. Built RESTful APIs using FastAPI for reliable frontend-backend communication and managed relational databases for efficient data operations.

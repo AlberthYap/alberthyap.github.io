@@ -60,7 +60,7 @@ interface Entry {
 const entries = computed<Entry[]>(() =>
   props.experiences.map((e) => ({
     experience: e,
-    period: `${formatMonth(e.startDate)} — ${formatMonth(e.endDate)}`,
+    period: `${formatMonth(e.startDate)}-${formatMonth(e.endDate)}`,
     isCurrent: e.endDate === 'present',
   })),
 )

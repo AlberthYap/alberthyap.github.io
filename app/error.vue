@@ -28,7 +28,7 @@ function handleError() {
 }
 
 useSeoMeta({
-  title: `${heading.value} — ${SITE_NAME}`,
+  title: `${heading.value} | ${SITE_NAME}`,
   description: detail.value,
 })
 </script>

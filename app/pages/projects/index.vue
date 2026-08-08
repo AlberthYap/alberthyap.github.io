@@ -7,9 +7,9 @@ const { data: projects } = await useAsyncData(
 )
 
 useSeoMeta({
-  title: `Projects — ${SITE_NAME}`,
+  title: `Projects | ${SITE_NAME}`,
   description: 'Case studies of selected work.',
-  ogTitle: `Projects — ${SITE_NAME}`,
+  ogTitle: `Projects | ${SITE_NAME}`,
   ogDescription: 'Case studies of selected work.',
 })
 </script>

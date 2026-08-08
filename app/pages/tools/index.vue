@@ -7,7 +7,7 @@ const { data: tools } = await useAsyncData(
 )
 
 useSeoMeta({
-  title: `Tools — ${SITE_NAME}`,
+  title: `Tools | ${SITE_NAME}`,
   description: 'Browser-based utilities for developers and designers.',
 })
 </script>
