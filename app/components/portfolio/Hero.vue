@@ -41,7 +41,7 @@ useParallax(heroBgRef, 0.35)
     id="hero"
     data-section-id="hero"
     aria-labelledby="hero-heading"
-    class="relative min-h-screen flex items-center overflow-hidden"
+    class="relative min-h-[100dvh] flex items-center overflow-hidden"
   >
     <!-- Masked + low opacity so the bg reads as ambient texture rather than content. -->
     <img
@@ -67,7 +67,7 @@ useParallax(heroBgRef, 0.35)
     </h1>
 
     <div
-      class="relative mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-32 z-10"
+      class="relative mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-24 z-10"
     >
       <div
         class="grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-center"

@@ -16,7 +16,7 @@ describe('Hero (Organic Professional edition)', () => {
     const wrapper = mount(Hero, { props: baseProps })
     const section = wrapper.find('section[aria-labelledby="hero-heading"][data-section-id="hero"]')
     expect(section.exists()).toBe(true)
-    expect(section.classes()).toContain('min-h-screen')
+    expect(section.classes()).toContain('min-h-[100dvh]')
   })
 
   it('renders an sr-only headline carrying the developer identity', () => {
