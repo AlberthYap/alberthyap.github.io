@@ -76,9 +76,9 @@ useSeoMeta({
           <span
             class="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider"
             :class="project.status === 'shipped'
-              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              ? 'bg-primary-soft text-primary-deep'
               : project.status === 'in-progress'
-              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+              ? 'bg-warning/40 text-tertiary'
               : 'bg-surface-container-high text-muted'"
           >
             {{ statusLabel }}

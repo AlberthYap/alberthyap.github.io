@@ -24,7 +24,7 @@
 
 export const SITE_NAME = 'Alberth Yaputra'
 export const SITE_ROLE = 'Frontend Engineer'
-export const SITE_LEAD = 'Building accessible, performant web interfaces — from design tokens to production bundle.'
+export const SITE_LEAD = 'Building accessible, performant web interfaces - from design tokens to production bundle.'
 
 /**
  * Primary nav — all hash anchors for the home page's narrative sections.

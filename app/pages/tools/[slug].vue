@@ -116,6 +116,7 @@ useSeoMeta({
       <LazyDelimiterTool v-if="slug === 'delimiter'" />
       <LazyJsonFormatterTool v-else-if="slug === 'json-formatter'" />
       <LazyRegexTesterTool v-else-if="slug === 'regex-tester'" />
+      <LazyCsvCleanerTool v-else-if="slug === 'csv-cleaner'" />
       <div
         v-else
         class="rounded-xl bg-surface-container-high p-10 md:p-14 flex flex-col items-center gap-3 text-center"
