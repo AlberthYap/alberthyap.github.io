@@ -21,7 +21,7 @@ test.describe('Delimiter tool responsive layout', () => {
         pageWidth: document.documentElement.scrollWidth,
         heroCopyWidth: document.querySelector('.tool-hero h1')?.getBoundingClientRect().width ?? 0,
         heroDescriptionWidth: document.querySelector('.tool-hero__description')?.getBoundingClientRect().width ?? 0,
-        toolIntroWidth: document.querySelector('.dtool__title')?.getBoundingClientRect().width ?? 0,
+        toolIntroWidth: document.querySelector('.dtool__workspace-header')?.getBoundingClientRect().width ?? 0,
         workspacePrivacyWidth: document.querySelector('.dtool__privacy-badge')?.getBoundingClientRect().width ?? 0,
         workspaceWidth: document.querySelector('.dtool')?.getBoundingClientRect().width ?? 0,
         editorCount: document.querySelectorAll('.editor-card').length,
@@ -56,8 +56,9 @@ test.describe('Delimiter tool responsive layout', () => {
     await expect(page.locator('#delimiter-source')).toHaveValue(/Name , Role/)
     await expect(page.locator('.output-surface')).toBeVisible()
 
-    // Expand the Advanced accordion card first, then open transforms
-    // (v5 sidebar: Advanced starts collapsed).
+    // Sidebar is collapsed by default (UX audit #7) — open it via the
+    // Options toggle, then expand the Advanced accordion + transforms.
+    await page.getByRole('button', { name: 'Options', exact: true }).click()
     await page.getByRole('button', { name: 'Advanced', exact: true }).click()
     await page.getByRole('button', { name: /Advanced transforms/ }).click()
     await expect(page.locator('#delimiter-transforms')).toBeVisible()
@@ -135,8 +136,11 @@ test.describe('Delimiter tool responsive layout', () => {
     await page.goto('/tools/delimiter')
     await page.waitForLoadState('domcontentloaded')
     await page.locator('#delimiter-source').waitFor({ state: 'visible', timeout: 15000 })
+    // Wait for Vue hydration before interacting (Options toggle needs @click).
+    await page.locator('.dtool[data-hydrated="true"]').waitFor({ state: 'visible' })
 
-    // Sidebar exists
+    // Sidebar is collapsed by default (UX audit #7) — open it first.
+    await page.getByRole('button', { name: 'Options', exact: true }).click()
     const sidebar = page.locator('.dtool__sidebar')
     await expect(sidebar).toBeVisible()
 
