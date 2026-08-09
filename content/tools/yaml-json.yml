@@ -1,0 +1,15 @@
+slug: yaml-json
+title: YAML ⇄ JSON
+category: developer
+description: Convert between YAML and JSON in one click. Paste YAML config and get clean indented JSON, or go the other way. Everything runs locally in your browser.
+icon: "⇄"
+featured: false
+keywords:
+  - yaml
+  - json
+  - converter
+  - config
+  - developer
+seo:
+  title: YAML ⇄ JSON Converter | Free Browser Tool
+  description: Convert between YAML and JSON in one click. Paste YAML config and get clean indented JSON, or go the other way. Everything runs locally.

@@ -1,0 +1,16 @@
+slug: json-csv-converter
+title: JSON ⇄ CSV
+category: developer
+description: Convert between JSON and CSV in one click. Turn a JSON array of objects into a clean CSV table, or parse CSV back into structured JSON. No uploads, no sign-up.
+icon: "⇄"
+featured: false
+keywords:
+  - json
+  - csv
+  - converter
+  - table
+  - spreadsheet
+  - developer
+seo:
+  title: JSON ⇄ CSV Converter | Free Browser Tool
+  description: Convert between JSON and CSV in one click. Turn a JSON array of objects into a clean CSV table, or parse CSV back into structured JSON.

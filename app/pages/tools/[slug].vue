@@ -118,6 +118,8 @@ useSeoMeta({
       <LazyRegexTesterTool v-else-if="slug === 'regex-tester'" />
       <LazyCsvCleanerTool v-else-if="slug === 'csv-cleaner'" />
       <LazyTextDiffTool v-else-if="slug === 'text-diff'" />
+      <LazyJsonCsvConverterTool v-else-if="slug === 'json-csv-converter'" />
+      <LazyYamlJsonTool v-else-if="slug === 'yaml-json'" />
       <div
         v-else
         class="rounded-xl bg-surface-container-high p-10 md:p-14 flex flex-col items-center gap-3 text-center"
