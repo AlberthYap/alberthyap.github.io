@@ -75,39 +75,40 @@
  * type tokens auto-generate `text-*` with auto-paired line-height,
  * letter-spacing, and font-weight variants. */
 @theme {
-  /* Surfaces — light tonal layers from lowest (white) to highest (sage tint). */
-  --color-bg:                      #f7faf4;        /* background = surface */
-  --color-surface:                 #f7faf4;        /* base surface */
-  --color-surface-dim:             #d3dcd3;        /* deeper tone for darker shells */
-  --color-surface-bright:          #f7faf4;        /* = base for symmetry */
+  /* Surfaces — cool-neutral light tonal layers (GitHub-style zero cast),
+     lowest (white) to highest (light slate). */
+  --color-bg:                      #f7f8fa;        /* background = surface */
+  --color-surface:                 #f7f8fa;        /* base surface */
+  --color-surface-dim:             #d8dbe0;        /* deeper tone for darker shells */
+  --color-surface-bright:          #f7f8fa;        /* = base for symmetry */
   --color-surface-container-lowest: #ffffff;       /* pure white core */
-  --color-surface-container-low:   #f0f5ee;        /* palest sage tint */
-  --color-surface-container:       #e9f0e8;        /* gentle sage tint */
-  --color-surface-container-high:  #e3eae2;        /* deeper sage tint */
-  --color-surface-container-highest: #dce5db;      /* deepest sage tint */
-  --color-surface-variant:         #dce5db;        /* = highest */
+  --color-surface-container-low:   #f1f3f6;        /* palest slate tint */
+  --color-surface-container:       #e9ebef;        /* gentle slate tint */
+  --color-surface-container-high:  #e2e5ea;        /* deeper slate tint */
+  --color-surface-container-highest: #d9dde3;      /* deepest slate tint */
+  --color-surface-variant:         #d9dde3;        /* = highest */
 
   /* On-surface text/icon tones. */
-  --color-text:                    #2c342e;        /* on-surface default */
-  --color-muted:                   #59615a;        /* on-surface-variant */
-  --color-inverse-surface:         #0b0f0c;        /* dark for inverse use */
+  --color-text:                    #1f2328;        /* on-surface default — neutral near-black */
+  --color-muted:                   #57606a;        /* on-surface-variant — cool grey */
+  --color-inverse-surface:         #1f2328;        /* dark for inverse use */
   --color-inverse-on-surface:      #9a9e99;        /* light grey on dark */
 
   /* Outlines (subtle borders + hairlines). */
-  --color-outline:                 #747d75;
-  --color-outline-variant:         #abb4ac;
+  --color-outline:                 #6e7681;
+  --color-outline-variant:         #d0d7de;
 
-  /* Primary — deep, muted forest sage (Material tonal anchor). */
-  --color-primary:                 #4a8c66;        /* deep sage anchor. Light ~3.8:1 (AA Large accent),
-                                                          dark ~4.8:1 (AA body). */
-  --color-primary-tint:            #4a8c66;        /* surface-tint follows primary */
+  /* Primary — deep, muted forest sage (Material tonal anchor). Deepened
+     to #3f7d56 so normal body-size accent text clears AA (≥4.5:1 on
+     #f7f8fa). */
+  --color-primary:                 #3f7d56;        /* AA-normal sage anchor on light slate (~4.9:1). */
+  --color-primary-tint:            #3f7d56;        /* surface-tint follows primary */
   --color-button-primary:           #386948;        /* CTA-specific; deeper than --color-primary so white
                                                           text hits AA-normal (~6.1:1). Decoupled so accents
                                                           keep the lifted brand hue while CTAs stay compliant. */
-  --color-primary-deep:             #386948;        /* AA-normal text accent on cream bgs. Lifted primary
-                                                          clears only 3.83:1 — fails AA normal on body/small
-                                                          text. Use for: eyebrow labels, status pills, link
-                                                          hovers, 12–16px text-primary accent. */
+  --color-primary-deep:             #386948;        /* AA-normal text accent on light bgs — passes AA normal
+                                                          on body/small text. Use for: eyebrow labels, status
+                                                          pills, link hovers, 12–16px text-primary accent. */
   --color-on-primary:              #e8ffe9;        /* mint light */
   --color-primary-container:       #b9efc5;        /* pale sage container */
   --color-on-primary-container:    #2a5b3b;        /* deep sage text on container */
@@ -132,27 +133,27 @@
   --color-on-error-container:      #6e0a12;
 
   /* Semantic aliases (used by utility classes via legacy names). */
-  --color-border:        rgb(44 52 46 / 0.10);   /* hairline on light */
-  --color-border-strong: rgb(44 52 46 / 0.20);
+  --color-border:        rgb(31 35 40 / 0.10);   /* hairline on light */
+  --color-border-strong: rgb(31 35 40 / 0.20);
   --color-accent:        #bef5ca;                  /* = inverse-primary */
   --color-warning:       #fad998;                  /* = tertiary-container */
-  --color-danger:        #a83836;                  /* = error */  --color-primary-soft:  rgb(74 140 102 / 0.10);   /* tint for hover bg on light; hue tracks lifted primary #4a8c66 */
+  --color-danger:        #a83836;                  /* = error */  --color-primary-soft:  rgb(63 125 86 / 0.10);    /* tint for hover bg on light; hue tracks primary #3f7d56 */
 
-  /* Dashboard mockup tokens — paper cream panel in light, CRT-dark in
-   * dark, triggered by `useTheme`. Cream-on-dark vs cream-on-cream
-   * tonal contrast keeps the panel readable without flipping mode with
-   * the page. Syntax picks harmonise with the page tonal family. */
+  /* Dashboard mockup tokens — paper panel in light, CRT-dark in dark,
+   * triggered by `useTheme`. Slate-tinted panel in light (matches the
+   * new cool-neutral theme); syntax picks harmonise with the page
+   * tonal family. */
   --color-terminal-bg:            #FFFFFF;
-  --color-terminal-chrome:        #F0EDE6;
-  --color-terminal-fg:            #2c342e;
-  --color-terminal-caption:       #5A554F;   /* ~5.5:1 on chrome — safer margin above AA normal for 12px caption. */
-  --color-terminal-comment:       #6B6660;
-  --color-terminal-keyword:       #4a8c66;   /* highlight tier — `pub`/`impl`/`fn`/`self` structural cue. */
-  --color-terminal-fn:            #3F7250;
+  --color-terminal-chrome:        #F0F1F4;
+  --color-terminal-fg:            #1f2328;
+  --color-terminal-caption:       #57606a;   /* ~6:1 on chrome — passes AA normal for 12px caption. */
+  --color-terminal-comment:       #6b7280;
+  --color-terminal-keyword:       #3f7d56;   /* highlight tier — `pub`/`impl`/`fn`/`self` structural cue. */
+  --color-terminal-fn:            #356b48;
   --color-terminal-type:          #745C27;
   --color-terminal-string:        #B91C1C;
-  --color-terminal-tab-active:    #4a8c66;   /* active tab tracks the highlight tier. */
-  --color-terminal-border:        rgb(44 52 46 / 0.12);
+  --color-terminal-tab-active:    #3f7d56;   /* active tab tracks the highlight tier. */
+  --color-terminal-border:        rgb(31 35 40 / 0.12);
 
   /* Typography — DESIGN §4 "Organic Professional"
      Literata (serif headlines) + Nunito Sans (body) + Geist Mono (code). */
@@ -278,37 +279,39 @@
  * so the halo clears JND on near-black). Secondary/tertiary/accent/
  * error ramps still dark-tune per Material 3 spec. */
 :root[data-theme="dark"] {
-  --color-bg:                      #0b0f0c;
-  --color-surface:                 #151b16;
-  --color-surface-bright:          #262e28;
-  --color-surface-container-lowest: #000000;
-  --color-surface-container-low:   #0f1511;
-  --color-surface-container:       #151b16;
-  --color-surface-container-high:  #1a211c;
-  --color-surface-container-highest: #202822;
-  --color-surface-variant:         #202822;
+  /* Slate neutral (Opsi 2) — pure cool greys with zero colour cast so the
+     sage accent is the only hue that pops. GitHub/Vercel-style dark. */
+  --color-bg:                      #0d1117;
+  --color-surface:                 #161b22;
+  --color-surface-bright:          #232a31;
+  --color-surface-container-lowest: #0a0e14;
+  --color-surface-container-low:   #12171d;
+  --color-surface-container:       #161b22;
+  --color-surface-container-high:  #21262d;
+  --color-surface-container-highest: #262c34;
+  --color-surface-variant:         #262c34;
 
-  --color-text:                    #dfe8de;
-  --color-muted:                   #a4ada5;
+  --color-text:                    #e6edf3;
+  --color-muted:                   #9ba6b2;
   --color-inverse-surface:         #f7faf4;
   --color-inverse-on-surface:      #525652;
 
-  --color-outline:                 #6f7870;
-  --color-outline-variant:         #424a43;
+  --color-outline:                 #6e7681;
+  --color-outline-variant:         #3d444d;
 
-  --color-primary:                 #4a8c66;   /* brand parity + lift: now #4a8c66 (matches light) so dark contrast ~3:1 → ~4.8:1 */
-  --color-primary-deep:            #4a8c66;   /* = lifted sage in dark mode. Light-mode deep (#386948)
-                                                  would fail AA-normal against near-black (~3:1). */
-  --color-primary-tint:            #4a8c66;   /* = primary (lifted); tonal surface hint follows brand */
-  --color-on-primary:              #e8ffe9;   /* mint light text on deep sage button — matches light */
-  --color-primary-container:       #b9f0c6;       /* = light value; pale sage container tier above primary */
-  --color-on-primary-container:    #2a5b3b;       /* = light value; deep sage text on pale container */
-  --color-inverse-primary:         #bef5ca;       /* = light value; restores divergence from primary */
+  --color-primary:                 #5aa97b;   /* lifted fresh sage — pops on slate (dark ~6:1). */
+  --color-primary-deep:            #5aa97b;   /* = primary; text accent clears AA on near-black slate bg. */
+  --color-primary-tint:            #5aa97b;   /* = primary; tonal surface hint follows brand */
+  --color-on-primary:              #e8ffe9;   /* mint light — text on sage chips/containers; skip-link
+                                                  uses bg-button-primary (deep sage) so mint keeps AA. */
+  --color-primary-container:       #b9f0c6;   /* = light value; pale sage container tier above primary */
+  --color-on-primary-container:    #2a5b3b;   /* = light value; deep sage text on pale container */
+  --color-inverse-primary:         #bef5ca;   /* = light value; restores divergence from primary */
 
-  --color-secondary:               #d0c5b8;
-  --color-on-secondary:            #463f35;
-  --color-secondary-container:     #413a31;
-  --color-on-secondary-container:  #c8beb0;
+  --color-secondary:               #c3ccd6;
+  --color-on-secondary:            #2a323d;
+  --color-secondary-container:     #2f3742;
+  --color-on-secondary-container:  #c8d1dc;
 
   --color-tertiary:                #ffe8c0;
   --color-on-tertiary:             #6b5320;
@@ -320,29 +323,29 @@
   --color-error-container:         #871f21;
   --color-on-error-container:      #ff9993;
 
-  --color-border:        rgb(223 232 222 / 0.07);
-  --color-border-strong: rgb(223 232 222 / 0.14);
+  --color-border:        rgb(230 237 243 / 0.07);
+  --color-border-strong: rgb(230 237 243 / 0.14);
   --color-accent:        #b9f0c6;
   --color-warning:       #fad998;
-  --color-primary-soft:  rgb(74 140 102 / 0.20);   /* lifted-sage tinted soft; hue tracks primary #4a8c66;
+  --color-primary-soft:  rgb(90 169 123 / 0.20);   /* fresh-sage tint; hue tracks primary #5aa97b.
                                                       opacity stays lifted (0.20 on dark) to clear perceptual
-                                                      JND on #0b0f0c page bg */
+                                                      JND on #0d1117 page bg */
 
   /* Terminal tokens — THEME-AWARE in dark mode (paper cream in light,
-     CRT-dark here). Panel mirrors the page theme: deep near-black bg,
-     slightly-lighter chrome tier, off-white fg, saturated forest/mint
-     syntax readable on dark. */
-  --color-terminal-bg:            #0E1210;
-  --color-terminal-chrome:        #1A1F1C;
-  --color-terminal-fg:            #EAE8E1;
-  --color-terminal-caption:       #9C9990;
-  --color-terminal-comment:       #7E8E7E;   /* 5.30:1 on terminal-bg — passes AA normal for 12px labels. */
+     CRT-slate here). Panel mirrors the page theme: deep slate bg,
+     slightly-lighter chrome tier, cool off-white fg, saturated
+     mint/gold/rose syntax readable on dark. */
+  --color-terminal-bg:            #0d1117;
+  --color-terminal-chrome:        #161b22;
+  --color-terminal-fg:            #e6edf3;
+  --color-terminal-caption:       #9ba6b2;
+  --color-terminal-comment:       #8b949e;   /* slate comment tier — passes AA normal on terminal-bg. */
   --color-terminal-keyword:       #86EFAC;   /* lightest CRT mint tier, ~11.6:1 — passes AAA. Vocabulary highlight. */
   --color-terminal-fn:            #5EA877;   /* muted sage-mint fn tier, ~5.8:1 — passes AA. */
   --color-terminal-type:          #FBBF24;
   --color-terminal-string:        #FC8181;
   --color-terminal-tab-active:    #86EFAC;   /* round+5 sync: active tab tracks the new highlight tier. */
-  --color-terminal-border:        rgb(234 232 225 / 0.10);
+  --color-terminal-border:        rgb(230 237 243 / 0.10);
 }
 
   /* Anchor scroll-margin — navbar clicks land below the chrome.
@@ -718,7 +721,7 @@
   }
 
   /* Dark mode tonal-card — background lifts one tier so cards stand
-     apart from #0b0f0c bg. Shadow inset flips via --color-text auto.
+     apart from #0d1117 bg. Shadow inset flips via --color-text auto.
      Border gets a subtle primary tint so edges show without hover. */
   :root[data-theme="dark"] .tonal-card {
     background: var(--color-surface-container-high);
@@ -770,7 +773,7 @@
   }
 
   /* Dark-mode skill chip — bright mint text for legibility on
-     near-black surface-container-low (#0f1511). */
+     near-black surface-container-low (#12171d). */
   :root[data-theme="dark"] .skill-chip {
     color: var(--color-on-primary);
   }

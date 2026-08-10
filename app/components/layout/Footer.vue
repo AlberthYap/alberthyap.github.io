@@ -21,7 +21,7 @@ const currentYear = new Date().getFullYear()
 
 <template>
   <footer
-    class="border-t border-outline-variant bg-bg mt-[var(--spacing-section)]"
+    class="border-t border-outline-variant bg-surface-container-low mt-[var(--spacing-section)]"
     :class="props.compact && 'site-footer--compact'"
   >
     <div
@@ -31,7 +31,7 @@ const currentYear = new Date().getFullYear()
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-[var(--spacing-lg)]">
         <div class="space-y-4">
           <span
-            class="font-serif text-headline-xl font-bold text-text leading-none block"
+            class="font-serif font-bold text-text leading-none block text-[clamp(30px,8vw,48px)]"
           >
             {{ SITE_NAME }}
           </span>
@@ -40,7 +40,7 @@ const currentYear = new Date().getFullYear()
 
         <nav
           aria-label="Social"
-          class="grid grid-cols-2 sm:grid-cols-4 gap-x-12 gap-y-4 font-mono text-label-md uppercase tracking-widest"
+          class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 sm:gap-x-12 gap-y-3 font-mono text-label-md uppercase tracking-widest"
         >
           <a
             v-for="link in SOCIAL_LINKS"
@@ -68,11 +68,18 @@ const currentYear = new Date().getFullYear()
         </nav>
       </div>
 
-      <!-- Bottom row: copyright + version stamp. -->
+      <!-- Bottom row: copyright + tech stamp. -->
       <div
-        class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 font-mono text-label-sm text-muted"
+        class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-3 font-mono text-label-sm text-muted"
       >
-        <p>© {{ currentYear }} {{ SITE_NAME }} · Built for the high-performance web.</p>
+        <p class="text-center md:text-left">© {{ currentYear }} {{ SITE_NAME }} · Built for the high-performance web.</p>
+        <p class="flex items-center gap-2" aria-hidden="true">
+          <span>Nuxt</span>
+          <span class="text-outline-variant" aria-hidden="true">·</span>
+          <span>Vue</span>
+          <span class="text-outline-variant" aria-hidden="true">·</span>
+          <span>Tailwind</span>
+        </p>
       </div>
     </div>
   </footer>
