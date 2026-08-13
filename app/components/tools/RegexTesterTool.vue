@@ -3,7 +3,13 @@
  * RegexTesterTool — Live regex tester with highlighted matches, capture-group
  * breakdown, flag toggles and a quick-pattern cheatsheet.
  */
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+// Cap test-text size so a huge paste can't freeze the main thread while
+// matching (audit H7). 100 KB covers realistic regex testing; larger
+// inputs are rejected with an inline notice instead of silently parsed.
+const MAX_TEST_TEXT = 100_000
+const inputTooLarge = ref(false)
 
 // ─── Common patterns ──────────────────────────────────────
 const QUICK_PATTERNS = [
@@ -43,30 +49,49 @@ interface MatchInfo {
   groups: (string | undefined)[]
 }
 
-const matches = computed<MatchInfo[]>(() => {
-  if (!pattern.value.trim() || !testText.value) return []
-  try {
-    const re = new RegExp(pattern.value, flags.value)
-    const results: MatchInfo[] = []
-    let m: RegExpExecArray | null
-    if (flags.value.includes('g')) {
-      let safety = 0
-      const max = 10_000
-      while ((m = re.exec(testText.value)) !== null && safety < max) {
-        safety++
-        results.push({ index: m.index, text: m[0], groups: m.slice(1) })
-        // Prevent infinite loops on zero-length matches (e.g. /.*/g)
-        if (m[0] === '') re.lastIndex++
-      }
-    } else {
-      m = re.exec(testText.value)
-      if (m) results.push({ index: m.index, text: m[0], groups: m.slice(1) })
+// Debounced live matching (audit H7): catastrophic-backtracking patterns
+// still block the main thread inside a single `exec()`, but debouncing
+// stops the freeze from re-triggering on every keystroke and the size
+// cap above bounds the worst case. A Web Worker with a deadline would be
+// the full fix; debounce + cap is the pragmatic improvement here.
+const matches = ref<MatchInfo[]>([])
+watch(
+  [pattern, flags, testText],
+  () => {
+    if (!pattern.value.trim() || !testText.value) {
+      matches.value = []
+      return
     }
-    return results
-  } catch {
-    return []
-  }
-})
+    if (testText.value.length > MAX_TEST_TEXT) {
+      inputTooLarge.value = true
+      matches.value = []
+      return
+    }
+    inputTooLarge.value = false
+    try {
+      const re = new RegExp(pattern.value, flags.value)
+      const results: MatchInfo[] = []
+      let m: RegExpExecArray | null
+      if (flags.value.includes('g')) {
+        let safety = 0
+        const max = 10_000
+        while ((m = re.exec(testText.value)) !== null && safety < max) {
+          safety++
+          results.push({ index: m.index, text: m[0], groups: m.slice(1) })
+          // Prevent infinite loops on zero-length matches (e.g. /.*/g)
+          if (m[0] === '') re.lastIndex++
+        }
+      } else {
+        m = re.exec(testText.value)
+        if (m) results.push({ index: m.index, text: m[0], groups: m.slice(1) })
+      }
+      matches.value = results
+    } catch {
+      matches.value = []
+    }
+  },
+  { immediate: true, flush: 'sync' },
+)
 
 const regexError = computed(() => {
   if (!pattern.value.trim()) return ''
@@ -77,6 +102,9 @@ const regexError = computed(() => {
     return (e as Error).message
   }
 })
+
+// Matches count for the UI — previously `matches` was a computed.
+const matchCount = computed(() => matches.value.length)
 
 /** Escape user text for safe HTML insertion in v-html highlights. */
 function escapeHtml(s: string): string {
@@ -104,6 +132,7 @@ const highlightedHtml = computed(() => {
 function doClear() {
   testText.value = ''
   pattern.value = ''
+  inputTooLarge.value = false
 }
 
 async function doCopyMatches() {
@@ -229,6 +258,15 @@ async function copyText(text: string) {
           style="border: 1px solid var(--color-error); color: var(--color-error); background: color-mix(in oklab, var(--color-error) 8%, transparent)"
         >
           {{ regexError }}
+        </div>
+
+        <!-- Input too large (audit H7): refuse instead of freezing -->
+        <div
+          v-else-if="inputTooLarge"
+          class="rounded-xl p-4 font-mono text-sm"
+          style="border: 1px solid var(--color-error); color: var(--color-error); background: color-mix(in oklab, var(--color-error) 8%, transparent)"
+        >
+          Test text exceeds the {{ (MAX_TEST_TEXT / 1000).toFixed(0) }} KB safety limit. Trim it to run matching.
         </div>
 
         <!-- Highlighted preview -->

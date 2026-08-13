@@ -151,7 +151,7 @@ const bodyRows = computed(() =>
 // 5 columns · 120 KB". Uses the From → To preset language so it reads
 // as one coherent conversion statement.
 const FROM_PRESET_LABELS: Record<typeof fromPreset.value, string> = {
-  csv: 'CSV', tsv: 'TSV', semicolon: 'Semi', pipe: 'Pipe', custom: 'Custom',
+  csv: 'CSV', tsv: 'TSV', semicolon: 'Semi', pipe: 'Pipe', space: 'Space', custom: 'Custom',
 }
 const toPresetLabel = computed(() => {
   if (toPreset.value === 'json') return 'JSON'

@@ -1,11 +1,11 @@
 # portfolio-web-v2
 
-Portfolio site for **Alberth Yaputra**, Frontend Engineer. Built with Nuxt 4, Tailwind CSS v4, and Nuxt Content. Includes a five-tool developer utility suite that runs entirely in the browser — no uploads, no sign-up.
+Portfolio site for **Alberth Yaputra**, Frontend Engineer. Built with Nuxt 4, Tailwind CSS v4, and Nuxt Content. Includes a seven-tool developer utility suite that runs entirely in the browser — no uploads, no sign-up.
 
 ## Features
 
 - **Portfolio pages** — narrative single-page home (hero, about, skills, experience, projects) plus project case studies at `/projects/[slug]`.
-- **Tool suite** — five interactive, local-first developer tools at `/tools/[slug]`, all client-side with no backend:
+- **Tool suite** — seven interactive, local-first developer tools at `/tools/[slug]`, all client-side with no backend:
 
   | Tool | Route | What it does |
   |---|---|---|
@@ -14,6 +14,8 @@ Portfolio site for **Alberth Yaputra**, Frontend Engineer. Built with Nuxt 4, Ta
   | Regex Tester | `/tools/regex-tester` | Live regex matching against sample text with capture-group breakdown |
   | CSV Cleaner | `/tools/csv-cleaner` | Trim whitespace, drop blank lines, dedupe rows, and normalise quotes |
   | Text Diff | `/tools/text-diff` | Side-by-side line-level diff (LCS) with unified-diff copy |
+  | JSON ⇄ CSV Converter | `/tools/json-csv-converter` | Convert arrays of objects to CSV tables and back, with type coercion |
+  | YAML ⇄ JSON Converter | `/tools/yaml-json` | Convert YAML to JSON and back, preserving nested structure |
 
 - **Privacy-first** — every tool runs locally in the browser. No uploads, no tracking, no sign-up.
 - **Accessible** — WCAG 2.1 AA: keyboard-operable, semantic landmarks, skip-to-content, reduced-motion support, and a contrast-checked design token system.
@@ -51,22 +53,24 @@ npm run test:unit          # run once
 npm run test:unit:watch    # watch mode
 ```
 
-355 tests across 28 files: component contracts, composables, Zod schemas, and utility functions (`app/utils/jsonTools.ts`).
+390 tests across 31 files: component contracts, composables, Zod schemas, utility functions (`app/utils/jsonTools.ts`), and the build-time HTML sanitizer (`shared/sanitizeHtml.ts`).
 
 ### E2E tests (Playwright)
 
 ```bash
-PORT=3000 npx playwright test          # run once
-npm run test:e2e:ui                    # interactive UI mode
+npx playwright test          # run once (PORT env optional, default 3000)
+npm run test:e2e:ui          # interactive UI mode
 ```
 
-Playwright spins up `nuxi dev` via its `webServer` config and runs against Chromium. Coverage: navigation/scroll-spy, theme toggle, accessibility smoke tests, project pages, and the Delimiter tool's responsive layout (320-1440px).
+Playwright spins up a Nuxt server via its `webServer` config (dev locally, production preview in CI) and runs against Chromium. `PORT` env drives both the server and `baseURL`, so they can never drift. Coverage: navigation/scroll-spy, theme toggle, accessibility smoke tests, project pages, and tool layouts (320-1440px).
 
 ### Typecheck
 
 ```bash
-npx vue-tsc --noEmit
+npx nuxt typecheck
 ```
+
+Requires TypeScript ≥ 5.9 (the Nuxt-generated config uses `libReplacement`). The root `tsconfig.json` extends `./.nuxt/tsconfig.json` only — do not add a manual `include`/`references` there, or Nuxt auto-import types will be dropped and `nuxt typecheck` breaks.
 
 ## Building for Production
 
@@ -76,7 +80,7 @@ npm run generate     # static prerender (nuxt generate)
 npm run preview      # preview a build
 ```
 
-`nuxt.config.ts` prerenders `/`, `/projects`, `/tools`, `/404`, and applies security headers (CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy) to every route.
+`nuxt.config.ts` prerenders `/`, `/projects`, `/tools` (crawl-linked routes) with `failOnError: true`, and applies security headers (CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy) to every route.
 
 ## Project Structure
 
@@ -88,7 +92,8 @@ app/
     layout/                  # Navbar, Footer, PageContainer
     portfolio/               # Hero, About, Skills, Experience, ProjectCard
     tools/                   # DelimiterTool, JsonFormatterTool, RegexTesterTool,
-                             # CsvCleanerTool, TextDiffTool
+                             # CsvCleanerTool, TextDiffTool, JsonCsvConverterTool,
+                             # YamlJsonTool
   pages/
     index.vue                # single-page home with scroll-spy sections
     projects/                # index + [slug] case studies

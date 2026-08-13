@@ -1,37 +1,22 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
+  //
   // Stricter TypeScript flags (`noUncheckedIndexedAccess`, etc.) are
   // configured via `typescript.tsConfig` in `nuxt.config.ts` so Nuxt
   // injects them into the generated project-reference fragments.
   //
-  // `extends: "./.nuxt/tsconfig.json"` is required for tools that walk
-  // up the directory tree to find the active tsconfig (Vue's SFC
-  // compiler, oxc-minify, ESLint flat configs). Nuxt 4's solution-style
-  // `references` graph alone is not discoverable from those tools —
-  // they bail with "Tsconfig not found" on individual `.vue` files when
-  // the root config has no `include` of its own. Extending the
-  // Nuxt-generated base tsconfig (which has a comprehensive `include`
-  // list covering `app/**/*`) gives those tools the right project shape
-  // without disturbing Nuxt's stricter type-checking pipeline.
+  // This file intentionally contains ONLY `extends`: Nuxt generates a
+  // complete solution-style tsconfig at `.nuxt/tsconfig.json` with its
+  // own `include` (covering `app/**/*`, `shared/**/*`, `.nuxt/**/*`
+  // auto-import declarations, and Vite env types). Adding a manual
+  // `include`/`references` here REPLACES that generated include list
+  // (TypeScript merges `compilerOptions` via extends, but `include` is
+  // not inherited) — which silently drops `.nuxt/imports.d.ts` and
+  // breaks Nuxt auto-imports (`useSeoMeta`, `useRoute`, …) in
+  // `nuxt typecheck`, and referencing the non-composite generated
+  // fragments triggers TS6305/TS6306/TS6310.
   //
-  // Explicit `include` (mirroring the Nuxt-generated patterns) lets
-  // walk-up resolvers find this tsconfig when processing individual
-  // `.vue` files imported from tests — `extends` alone doesn't
-  // propagate `include` to every resolver. `shared/**/*` covers the
-  // cross-cutting types imported via `~~/shared/...` from both app and
-  // tests. Tests are intentionally NOT included — they're type-checked
-  // by vitest separately and adding them at root would invite IDE /
-  // linter noise under Nuxt's strict flags.
-  "extends": "./.nuxt/tsconfig.json",
-  "include": [
-    "app/**/*",
-    "shared/**/*"
-  ],
-  "files": [],
-  "references": [
-    { "path": "./.nuxt/tsconfig.app.json" },
-    { "path": "./.nuxt/tsconfig.server.json" },
-    { "path": "./.nuxt/tsconfig.shared.json" },
-    { "path": "./.nuxt/tsconfig.node.json" }
-  ]
+  // Run typechecking through Nuxt's pipeline (`nuxi typecheck`), which
+  // resolves the generated fragments correctly.
+  "extends": "./.nuxt/tsconfig.json"
 }

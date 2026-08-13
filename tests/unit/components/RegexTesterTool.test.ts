@@ -101,6 +101,20 @@ describe('RegexTesterTool — match, flags, errors', () => {
     expect(wrapper.find('.output-empty').exists()).toBe(true)
   })
 
+  it('rejects oversized test text with an inline limit notice (H7)', async () => {
+    const wrapper = mount(RegexTesterTool)
+    const testArea = wrapper.find('textarea')
+    // MAX_TEST_TEXT = 100_000 chars
+    await testArea.setValue('a'.repeat(100_001))
+    const patternInput = wrapper.find('input[aria-label="Regex pattern"]')
+    await patternInput.setValue('a')
+    await nextTick()
+
+    expect(wrapper.find('.regex-highlight').exists()).toBe(false)
+    expect(wrapper.text()).toContain('safety limit')
+    expect(wrapper.text()).toContain('100 KB')
+  })
+
   it('Copy matches button copies and shows Copied!', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {

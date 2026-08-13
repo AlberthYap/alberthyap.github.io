@@ -8,11 +8,30 @@ const slug = computed(() => {
   return Array.isArray(raw) ? raw[0] ?? '' : raw ?? ''
 })
 
-const { data: tool } = await useAsyncData(
-  `tool-${slug.value}`,
+// Reactive key + `watch: [slug]` so navigating directly from one tool to
+// another re-runs the query instead of serving stale data (audit M2).
+const dataKey = computed(() => `tool-${slug.value}`)
+
+const { data: tool, error: queryError } = await useAsyncData(
+  dataKey,
   () => queryCollection('tools').where('slug', '=', slug.value).first(),
+  { watch: [slug] },
 )
 
+// Distinguish a query/runtime failure (500) from a genuine not-found
+// (404) — previously any content-query failure was reported as 404
+// (audit M1).
+if (queryError.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Tool data could not be loaded',
+    fatal: true,
+  })
+}
+
+// With `await useAsyncData` in setup, status is settled here: either
+// `error` (handled above → 500) or `success` with possibly-null data.
+// A null result after a successful query is the only true 404.
 if (!tool.value) {
   throw createError({
     statusCode: 404,
@@ -26,6 +45,7 @@ if (!tool.value) {
 const { data: allTools } = await useAsyncData(
   `related-tools-${slug.value}`,
   () => queryCollection('tools').order('title', 'ASC').all(),
+  { watch: [slug] },
 )
 const relatedTools = computed(() =>
   (allTools.value ?? []).filter((t) => t.slug !== slug.value).slice(0, 4),

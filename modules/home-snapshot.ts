@@ -60,6 +60,8 @@ import { ExperienceSchema } from '../shared/schemas/experience'
 import { PersonalSkillsSchema } from '../shared/schemas/personal-skills'
 import { ProjectSchema } from '../shared/schemas/project'
 
+import { sanitizeMarkdownHtml } from '../shared/sanitizeHtml'
+
 type About = z.infer<typeof AboutSchema> & { bodyHtml: string }
 type Experience = z.infer<typeof ExperienceSchema>
 type Project = z.infer<typeof ProjectSchema>
@@ -121,9 +123,12 @@ async function generateSnapshot(rootDir: string): Promise<HomeSnapshot> {
   const aboutFm = matter(await fs.readFile(path.join(contentRoot, 'about.md'), 'utf8'))
   const aboutParsed = AboutSchema.parse(aboutFm.data)
   // `async: false` signals synchronous parsing explicitly.
-  const aboutBodyHtml = marked.parse(aboutFm.content, {
+  // Sanitize the rendered HTML at build time (audit C3): `marked` does
+  // not strip raw HTML/scripts, and this string is injected via `v-html`
+  // on the home page. The allowlist lives in `modules/sanitizeHtml.ts`.
+  const aboutBodyHtml = sanitizeMarkdownHtml(marked.parse(aboutFm.content, {
     async: false,
-  }) as string
+  }) as string)
 
   // === EXPERIENCE — markdown, frontmatter only on home ===
   const expDir = path.join(contentRoot, 'experience')

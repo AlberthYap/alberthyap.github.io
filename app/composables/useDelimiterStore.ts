@@ -84,7 +84,28 @@ const FORMAT_LABELS: Record<OutFormat, string> = {
 }
 
 const HISTORY_KEY = 'delimiter-tool-history'
+const HISTORY_VERSION = 1
 const MAX_HISTORY = 20
+
+// Minimal runtime validator for localStorage history (audit M4). Corrupt,
+// outdated, or hand-edited data must not crash restore — invalid records
+// are dropped instead of trusted.
+const DELIM_PRESETS: readonly DelimPreset[] = ['comma', 'tab', 'semicolon', 'pipe', 'space', 'custom']
+const MODES: readonly Mode[] = ['split', 'join']
+const OUT_FORMATS: readonly OutFormat[] = ['table', 'json-array', 'json-objects', 'delimited']
+
+function isHistoryEntry(v: unknown): v is HistoryEntry {
+  if (v === null || typeof v !== 'object') return false
+  const e = v as Record<string, unknown>
+  if (typeof e.input !== 'string' || e.input.length > 1_000_000) return false
+  if (!MODES.includes(e.mode as Mode)) return false
+  if (!DELIM_PRESETS.includes(e.inDelim as DelimPreset)) return false
+  if (typeof e.customInDelim !== 'string') return false
+  if (!DELIM_PRESETS.includes(e.outDelim as DelimPreset)) return false
+  if (!OUT_FORMATS.includes(e.outFormat as OutFormat)) return false
+  if (typeof e.ts !== 'number' || !Number.isFinite(e.ts)) return false
+  return true
+}
 
 // ─── Composable factory ────────────────────────────────────
 export function useDelimiterStore() {
@@ -139,6 +160,7 @@ export function useDelimiterStore() {
   // component state is fully isolated across mounts (tests rely on
   // this — each `mount()` resets the graph).
   let detectTimer: ReturnType<typeof setTimeout> | null = null
+  let copyResetTimer: ReturnType<typeof setTimeout> | null = null
   let detectDebounce: ReturnType<typeof setTimeout> | null = null
   let saveTimer: ReturnType<typeof setTimeout> | null = null
   let flashTimer: ReturnType<typeof setTimeout> | null = null
@@ -385,7 +407,8 @@ export function useDelimiterStore() {
       status.value = 'copied'
       showToast('Copied to clipboard')
       const snapshot = input.value
-      setTimeout(() => {
+      if (copyResetTimer) clearTimeout(copyResetTimer)
+      copyResetTimer = setTimeout(() => {
         copied.value = false
         // Don't re-assert 'completed' if the user changed the input
         // during the 2s window — the receipt would otherwise return
@@ -537,7 +560,10 @@ export function useDelimiterStore() {
   // already understands; To maps onto outFormat (+ outDelim for the
   // delimited outputs) so CSV → JSON / CSV → TSV flows reuse the exact
   // same output pipeline.
-  const fromPreset = computed<'csv' | 'tsv' | 'semicolon' | 'pipe' | 'custom'>(() => {
+  // `inDelim` can be `space` or `custom` too (both are valid presets in
+  // the sidebar delimiter picker), so the computed union must include
+  // them or the fallthrough `return inDelim.value` fails typecheck.
+  const fromPreset = computed<'csv' | 'tsv' | 'semicolon' | 'pipe' | 'space' | 'custom'>(() => {
     if (inDelim.value === 'comma') return 'csv'
     if (inDelim.value === 'tab') return 'tsv'
     return inDelim.value
@@ -630,13 +656,22 @@ export function useDelimiterStore() {
   function loadHistory() {
     try {
       const raw = localStorage.getItem(HISTORY_KEY)
-      if (raw) history.value = JSON.parse(raw) as HistoryEntry[]
+      if (!raw) { history.value = []; return }
+      // Cap the parse window before touching the JSON parser — a
+      // hand-edited or corrupted value must not balloon memory.
+      if (raw.length > 200_000) { history.value = []; return }
+      const parsed: unknown = JSON.parse(raw)
+      if (!Array.isArray(parsed)) { history.value = []; return }
+      history.value = parsed.filter(isHistoryEntry).slice(0, MAX_HISTORY)
     } catch { history.value = [] }
   }
 
   function saveHistory() {
     try {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.value.slice(0, MAX_HISTORY)))
+      localStorage.setItem(
+        HISTORY_KEY,
+        JSON.stringify({ v: HISTORY_VERSION, entries: history.value.slice(0, MAX_HISTORY) }),
+      )
     } catch { /* quota exceeded */ }
   }
 
@@ -811,6 +846,7 @@ export function useDelimiterStore() {
     if (pulseTimer) clearTimeout(pulseTimer)
     if (statusTimer) clearTimeout(statusTimer)
     if (toastTimer) clearTimeout(toastTimer)
+    if (copyResetTimer) clearTimeout(copyResetTimer)
   })
 
   // ─── Public API ──────────────────────────────────

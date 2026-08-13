@@ -62,24 +62,36 @@ export function flattenObject(obj: unknown, prefix = ''): Record<string, unknown
   return out
 }
 
-/** Reverse of flattenObject: { "a.b": 1 } → { a: { b: 1 } }. */
+/** Path segments that can walk through `Object.prototype` when assigned. */
+const BLOCKED_PATH_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+/**
+ * Reverse of flattenObject: { "a.b": 1 } → { a: { b: 1 } }.
+ *
+ * Prototype-pollution safe: every intermediate node is created with a
+ * null prototype (no `Object.prototype` setters like `__proto__`), and
+ * any key segment matching `__proto__` / `prototype` / `constructor` is
+ * skipped entirely rather than walked.
+ */
 export function unflattenObject(obj: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
+  const out = Object.create(null) as Record<string, unknown>
   for (const [k, v] of Object.entries(obj)) {
     const parts = k.split('.')
+    if (parts.some((p) => BLOCKED_PATH_KEYS.has(p))) continue
+
     let cursor = out
     for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i]
+      const part = parts[i]!
       const existing = cursor[part]
       if (existing === null || typeof existing !== 'object' || Array.isArray(existing)) {
-        const node: Record<string, unknown> = {}
+        const node = Object.create(null) as Record<string, unknown>
         cursor[part] = node
         cursor = node
       } else {
         cursor = existing as Record<string, unknown>
       }
     }
-    cursor[parts[parts.length - 1]] = v
+    cursor[parts[parts.length - 1]!] = v
   }
   return out
 }
@@ -125,15 +137,30 @@ function coerceCell(s: string): unknown {
   return s
 }
 
-/** Quote-aware CSV parser → array of objects (first row is the header). Throws on empty input. */
-export function parseCsv(text: string): unknown {
+export interface ParseCsvOptions {
+  /**
+   * Coerce cells to numbers / booleans / null when they look like one
+   * (default true — matches the JSON ⇄ CSV tool's expected output).
+   * Set false to keep every cell as the raw string it was typed in,
+   * which avoids silently corrupting values like `00123` or `true`.
+   */
+  coerce?: boolean
+}
+
+/**
+ * Quote-aware CSV parser → array of objects (first row is the header).
+ * Throws on empty input, unterminated quoted fields, and duplicate or
+ * blank headers (which would otherwise silently overwrite cells).
+ */
+export function parseCsv(text: string, options: ParseCsvOptions = {}): unknown {
+  const coerce = options.coerce ?? true
   const rows: string[][] = []
   let row: string[] = []
   let field = ''
   let inQuotes = false
   let i = 0
   while (i < text.length) {
-    const c = text[i]
+    const c = text[i]!
     if (inQuotes) {
       if (c === '"') {
         if (text[i + 1] === '"') {
@@ -161,19 +188,28 @@ export function parseCsv(text: string): unknown {
     }
     i++
   }
+  if (inQuotes) {
+    throw new Error('Unterminated quoted field in CSV input')
+  }
   if (field.length > 0 || row.length > 0) {
     row.push(field)
     rows.push(row)
   }
   // Drop trailing empty rows
-  while (rows.length > 0 && rows[rows.length - 1].every((f) => f.trim() === '')) rows.pop()
+  while (rows.length > 0 && rows[rows.length - 1]!.every((f) => f.trim() === '')) rows.pop()
   if (rows.length === 0) throw new Error('No rows found in CSV input')
 
-  const headers = rows[0].map((h) => h.trim())
+  const headers = rows[0]!.map((h) => h.trim())
+  const seen = new Set<string>()
+  for (const h of headers) {
+    if (h === '') throw new Error('Blank header in CSV input')
+    if (seen.has(h)) throw new Error(`Duplicate CSV header: "${h}"`)
+    seen.add(h)
+  }
   return rows.slice(1).map((r) => {
     const obj: Record<string, unknown> = {}
     headers.forEach((h, idx) => {
-      obj[h] = coerceCell(r[idx] ?? '')
+      obj[h] = coerce ? coerceCell(r[idx] ?? '') : r[idx] ?? ''
     })
     return obj
   })
@@ -206,9 +242,10 @@ function tokenizePath(expr: string): string[] {
   return tokens
 }
 
-function resolvePath(node: unknown, tokens: string[], pos: number): unknown {
+function resolvePath(node: unknown, tokens: readonly string[], pos: number): unknown {
   if (pos >= tokens.length) return node
   const tok = tokens[pos]
+  if (tok === undefined) return node
 
   if (tok === '[*]') {
     if (!Array.isArray(node)) throw new Error(`'[*]' applied to a non-array`)
@@ -272,32 +309,38 @@ export function diffLines(a: string[], b: string[]): DiffLine[] {
   const n = b.length
   const dp: number[][] = Array.from({ length: m + 1 }, () => new Array<number>(n + 1).fill(0))
   for (let i = m - 1; i >= 0; i--) {
+    const row = dp[i]!
+    const nextRow = dp[i + 1]!
     for (let j = n - 1; j >= 0; j--) {
-      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1])
+      row[j] = a[i] === b[j]
+        ? nextRow[j + 1]! + 1
+        : Math.max(nextRow[j]!, row[j + 1]!)
     }
   }
   const out: DiffLine[] = []
   let i = 0
   let j = 0
   while (i < m && j < n) {
-    if (a[i] === b[j]) {
-      out.push({ type: 'same', text: a[i] })
+    const ai = a[i]!
+    const bj = b[j]!
+    if (ai === bj) {
+      out.push({ type: 'same', text: ai })
       i++
       j++
-    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
-      out.push({ type: 'del', text: a[i] })
+    } else if (dp[i + 1]![j]! >= dp[i]![j + 1]!) {
+      out.push({ type: 'del', text: ai })
       i++
     } else {
-      out.push({ type: 'add', text: b[j] })
+      out.push({ type: 'add', text: bj })
       j++
     }
   }
   while (i < m) {
-    out.push({ type: 'del', text: a[i] })
+    out.push({ type: 'del', text: a[i]! })
     i++
   }
   while (j < n) {
-    out.push({ type: 'add', text: b[j] })
+    out.push({ type: 'add', text: b[j]! })
     j++
   }
   return out

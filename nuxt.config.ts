@@ -27,14 +27,25 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
-      failOnError: false,
-      routes: ['/', '/projects', '/tools', '/404'],
+      // Fail the build when a crawled/explicit route 404s instead of
+      // silently shipping broken project/tool pages (audit H2). `/404`
+      // was removed from the explicit list — no `app/pages/404.vue`
+      // exists, so prerendering it always logged "[404] Page not found"
+      // that the old `failOnError: false` masked.
+      failOnError: true,
+      routes: ['/', '/projects', '/tools'],
     },
     routeRules: {
       '/**': {
         headers: {
           'Content-Security-Policy': [
             "default-src 'self'",
+            // `script-src` keeps `'unsafe-inline'` for the no-flash theme
+            // resolver (app.head). `wasm-unsafe-eval` was dropped: all
+            // @nuxt/content collections are prerendered with route
+            // payloads (`clientDB: false` in content.config.ts), so the
+            // in-browser SQLite/WASM runtime is never initialized or
+            // fetched (audit H4/H5).
             "script-src 'self' 'unsafe-inline'",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https:",

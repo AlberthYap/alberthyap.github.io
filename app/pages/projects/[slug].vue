@@ -10,13 +10,33 @@ const slug = computed(() => {
   return Array.isArray(raw) ? raw[0] ?? '' : raw ?? ''
 })
 
-const { data: project } = await useAsyncData(
-  `project-${slug.value}`,
+// Reactive key + `watch: [slug]` so navigating directly from one project
+// to another (same page component, changed param) re-runs the query
+// instead of serving the previous slug's data (audit M2).
+const dataKey = computed(() => `project-${slug.value}`)
+
+const { data: project, error: queryError } = await useAsyncData(
+  dataKey,
   () => queryCollection('projects')
     .path(`/projects/${slug.value}`)
     .first(),
+  { watch: [slug] },
 )
 
+// Distinguish a query/runtime failure (500) from a genuine not-found
+// (404) — previously any content-query failure was reported as 404,
+// which masked the CSP/WASM issue (audit M1).
+if (queryError.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Project data could not be loaded',
+    fatal: true,
+  })
+}
+
+// With `await useAsyncData` in setup, status is settled here: either
+// `error` (handled above → 500) or `success` with possibly-null data.
+// A null result after a successful query is the only true 404.
 if (!project.value) {
   throw createError({
     statusCode: 404,

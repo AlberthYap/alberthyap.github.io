@@ -38,6 +38,24 @@ describe('jsonTools — flatten / unflatten', () => {
     const input = { x: { y: { z: 1 } }, list: [1, 2], keep: 'v' }
     expect(unflattenObject(flattenObject(input))).toEqual(input)
   })
+
+  it('does not pollute Object.prototype via __proto__ keys (C2)', () => {
+    const before = Object.prototype.polluted
+    unflattenObject({ '__proto__.polluted': 'yes', 'a.b': 1 })
+    expect(({} as Record<string, unknown>).polluted).toBe(before)
+    expect(Object.prototype).not.toHaveProperty('polluted')
+  })
+
+  it('skips constructor/prototype path segments instead of walking them (C2)', () => {
+    const result = unflattenObject({ 'constructor.prototype.x': 1, 'ok.y': 2 })
+    expect(result).toEqual({ ok: { y: 2 } })
+    expect(({} as Record<string, unknown>).x).toBeUndefined()
+  })
+
+  it('keeps safe nested values when blocking segments are present', () => {
+    expect(unflattenObject({ 'a.b': 1, 'a.__proto__.x': 2, 'a.c': 3 }))
+      .toEqual({ a: { b: 1, c: 3 } })
+  })
 })
 
 describe('jsonTools — CSV', () => {
@@ -87,6 +105,25 @@ describe('jsonTools — CSV', () => {
       { name: 'Grace', age: 45 },
     ]
     expect(parseCsv(toCsv(data))).toEqual(data)
+  })
+
+  it('rejects an unterminated quoted field (H6)', () => {
+    expect(() => parseCsv('a,b\n1,"unclosed')).toThrow(/Unterminated quoted/)
+  })
+
+  it('rejects duplicate headers instead of silently overwriting (H6)', () => {
+    expect(() => parseCsv('a,a\n1,2')).toThrow(/Duplicate CSV header/)
+  })
+
+  it('rejects blank headers (H6)', () => {
+    expect(() => parseCsv('a,\n1,2')).toThrow(/Blank header/)
+  })
+
+  it('preserves raw strings when coerce is disabled (H6)', () => {
+    const parsed = parseCsv('code,flag,note\n00123,true,plain')
+    expect(parsed).toEqual([{ code: 123, flag: true, note: 'plain' }])
+    const raw = parseCsv('code,flag\n00123,true', { coerce: false })
+    expect(raw).toEqual([{ code: '00123', flag: 'true' }])
   })
 })
 

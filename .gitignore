@@ -30,3 +30,6 @@ logs
 .agents
 
 *.db*
+.claude
+.freebuff
+skills-lock.json
