@@ -28,6 +28,7 @@ import { computed, ref } from 'vue'
 import type { Project } from '~~/shared/types'
 
 import LinkButton from '~~/app/components/ui/LinkButton.vue'
+import ThemeImage from '~~/app/components/ui/ThemeImage.vue'
 import { useCardTilt } from '~~/app/composables/useCardTilt'
 
 interface Props {
@@ -81,13 +82,14 @@ const displayUrl = computed<string>(() => {
         :aria-label="`Open ${props.project.title} case study`"
         class="relative block aspect-video overflow-hidden bg-surface-container"
       >
-        <img
+        <ThemeImage
           v-if="props.project.thumbnail"
-          :src="props.project.thumbnail"
+          :light="props.project.thumbnail"
+          :dark="props.project.thumbnailDark"
           :alt="`${props.project.title} cover`"
-          loading="lazy"
+          lazy
           class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        >
+        />
         <div
           v-else
           class="w-full h-full bg-surface-container-high flex items-center justify-center font-serif text-headline-lg text-muted/40"
@@ -129,13 +131,14 @@ const displayUrl = computed<string>(() => {
         :aria-label="`Open ${props.project.title} case study`"
         class="relative block aspect-video overflow-hidden bg-surface-container"
       >
-        <img
+        <ThemeImage
           v-if="props.project.thumbnail"
-          :src="props.project.thumbnail"
+          :light="props.project.thumbnail"
+          :dark="props.project.thumbnailDark"
           :alt="`${props.project.title} cover`"
-          loading="lazy"
+          lazy
           class="w-full h-full object-cover aspect-video transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
-        >
+        />
         <div
           v-else
           class="w-full h-full aspect-video bg-surface-container-high flex items-center justify-center font-serif text-headline-lg text-muted/40"

@@ -164,11 +164,11 @@ test.describe('Delimiter tool responsive layout', () => {
     await expect(page.getByLabel('Header row')).toBeChecked()
   })
 
-  // Regression test for the description <p> collapsed to 48px (one word per
-  // line). Tailwind v4 emits .max-w-2xl as max-width:var(--container-2xl);
-  // when @theme didn't define --container-2xl, var() fell back to
-  // var(--spacing-2xl)=48px and crushed the column. Fix: 13 --container-*
-  // tokens added to @theme in app/assets/css/main.css.
+  // Regression test for the description <p> collapsed to one word per line.
+  // Tailwind v4 emitted .max-w-2xl as max-width:var(--spacing-2xl)=48px
+  // because the custom named --spacing-* tokens shadowed the --container-*
+  // scale. Fix: removed the named --spacing-{xs..2xl} tokens from @theme in
+  // app/assets/css/main.css so max-w-{size} resolves via --container-*.
   //
   // Pass = AT LEAST ONE of: (a) surgical max-w-[42rem] literal in [slug].vue,
   // (b) @theme var(--container-2xl) resolves correctly. Fail = BOTH paths

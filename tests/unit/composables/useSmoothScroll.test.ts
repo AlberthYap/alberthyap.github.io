@@ -239,7 +239,7 @@ describe('useSmoothScroll', () => {
 
     it('subtracts the element\'s scroll-margin-top so the ramp lands below the navbar (not at viewport y=0)', () => {
       // Mirrors the CSS `[id="hero|about|skills|experience|projects"] { scroll-margin-top: calc(...) }` rule.
-      // 96 px = --spacing-navbar-height (80) + --spacing-md (16); update together if either token changes.
+      // 96 px = --spacing-navbar-height (80) + --spacing-4 (16); update together if either token changes.
       const el = document.createElement('div')
       el.id = 'about'
       el.style.scrollMarginTop = '96px'

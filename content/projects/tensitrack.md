@@ -29,6 +29,10 @@ technologies:
   - name: date-fns
     purpose: Date formatting with Indonesian locale
 thumbnail: /projects/tensitrack/cover.webp
+# Dark-mode screenshot variant — swapped in automatically by ThemeImage
+# when the site theme is dark. Placeholder generated from the light shot;
+# replace with a real dark-mode capture from the app.
+thumbnailDark: /projects/tensitrack/cover-dark.webp
 images: []
 liveUrl: https://tensi-track.vercel.app/
 repoUrl: https://github.com/AlberthYap/TensiTrack

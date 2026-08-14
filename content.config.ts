@@ -28,49 +28,35 @@ import { PersonalSkillsSchema } from './shared/schemas/personal-skills'
 
 export default defineContentConfig({
   collections: {
-    // `clientDB: false` opts a collection out of the @nuxt/content
-    // runtime SQLite layer. Disabling prevents the runtime SQLite engine
-    // (OPFS WASM + worker) from initializing on first `queryCollection()`
-    // call — chunks still ship in build output, but runtime calls will
-    // throw if they ever land. `projects` and `tools` keep default because
-    // their `[slug]` routes may runtime-nav to non-prerendered entries;
-    // same applies for any future route adding a runtime `queryCollection`.
-    // `clientDB: false` for `projects` and `tools` too: every slug is
-    // known at build time (static markdown/YAML) and is explicitly
-    // prerendered with its route payload, so client-side navigation
-    // hydrates `useAsyncData` from the payload — the in-browser SQLite
-    // engine (OPFS WASM + worker, ~1.7 MB) is never initialized and the
-    // `wasm-unsafe-eval` CSP allowance can be dropped (audit H4/H5).
-    // If a future slug is genuinely dynamic, re-enable clientDB for it.
+    // Content is queried exclusively server-side: pages fetch `server/api/*`
+    // endpoints via `useFetch`, and those handlers call `queryCollection`
+    // inside Nitro. The client never runs `queryCollection`, so the
+    // in-browser SQLite engine (OPFS WASM + worker, ~1.7 MB) is never
+    // loaded and the `wasm-unsafe-eval` CSP allowance stays unnecessary.
     projects: defineCollection({
       type: 'page', // Markdown + rendered body; case-study narratives
       source: 'projects/**/*.md',
       schema: ProjectSchema,
-      clientDB: false,
     }),
     tools: defineCollection({
       type: 'data', // YAML-only structured records; tool metadata
       source: 'tools/**/*.yml',
       schema: ToolSchema,
-      clientDB: false,
     }),
     about: defineCollection({
       type: 'page',
       source: 'about.md',
       schema: AboutSchema,
-      clientDB: false,
     }),
     experience: defineCollection({
       type: 'page',
       source: 'experience/**/*.md',
       schema: ExperienceSchema,
-      clientDB: false,
     }),
     personalSkills: defineCollection({
       type: 'data',
       source: 'skills/personal-skills.yml',
       schema: PersonalSkillsSchema,
-      clientDB: false,
     }),
   },
 })

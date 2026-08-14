@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { SITE_NAME } from '~~/shared/constants/site'
 
-const { data: tools } = await useAsyncData(
-  'all-tools',
-  () => queryCollection('tools').order('title', 'ASC').all(),
-)
+const { data: tools } = await useFetch('/api/tools')
 
 useSeoMeta({
   title: `Tools | ${SITE_NAME}`,

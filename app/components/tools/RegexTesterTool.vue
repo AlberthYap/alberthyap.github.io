@@ -103,7 +103,7 @@ const regexError = computed(() => {
   }
 })
 
-// Matches count for the UI — previously `matches` was a computed.
+// Match count for the results header (derived from the `matches` ref).
 const matchCount = computed(() => matches.value.length)
 
 /** Escape user text for safe HTML insertion in v-html highlights. */

@@ -25,10 +25,10 @@ const currentYear = new Date().getFullYear()
     :class="props.compact && 'site-footer--compact'"
   >
     <div
-      class="site-footer__inner mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-[var(--spacing-section)] flex flex-col gap-[var(--spacing-lg)]"
+      class="site-footer__inner mx-auto w-full max-w-[var(--spacing-container)] px-6 md:px-12 lg:px-16 py-[var(--spacing-section)] flex flex-col gap-[var(--spacing-6)]"
     >
       <!-- Top row: brand wordmark + status pill on the left, social grid on the right. -->
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-[var(--spacing-lg)]">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-[var(--spacing-6)]">
         <div class="space-y-4">
           <span
             class="font-serif font-bold text-text leading-none block text-[clamp(30px,8vw,48px)]"

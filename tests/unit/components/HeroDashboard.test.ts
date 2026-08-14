@@ -12,7 +12,9 @@ vi.mock('~~/app/composables/useCountUp', () => ({
   }),
 }))
 
-import HeroDashboard from '~~/app/components/portfolio/HeroDashboard.vue'// HeroDashboard — 3D-tilted glass-panel mockup matching example.html's
+import HeroDashboard from '~~/app/components/portfolio/HeroDashboard.vue'
+
+// HeroDashboard — 3D-tilted glass-panel mockup matching example.html's
 // `portfolio_v2` panel. Stack: chrome bar (3 dots + caption), metrics
 // row (Uptime / Latency), code editor (`engine.ts` tab), infra visual
 // (origin → ring → origin). All decorative elements carry aria-hidden;

@@ -8,30 +8,26 @@ const slug = computed(() => {
   return Array.isArray(raw) ? raw[0] ?? '' : raw ?? ''
 })
 
-// Reactive key + `watch: [slug]` so navigating directly from one tool to
-// another re-runs the query instead of serving stale data (audit M2).
-const dataKey = computed(() => `tool-${slug.value}`)
-
-const { data: tool, error: queryError } = await useAsyncData(
-  dataKey,
-  () => queryCollection('tools').where('slug', '=', slug.value).first(),
-  { watch: [slug] },
+// Data is fetched from server endpoints rather than `queryCollection`
+// directly, so the in-browser SQLite/WASM runtime is never loaded (the
+// strict CSP would otherwise block it during client-side navigation).
+// The reactive URL re-fetches when `slug` changes (tool → tool).
+const { data: tool, error: queryError } = await useFetch(
+  () => `/api/tools/${slug.value}`,
 )
 
 // Distinguish a query/runtime failure (500) from a genuine not-found
-// (404) — previously any content-query failure was reported as 404
-// (audit M1).
+// (404) — the endpoint throws the right status, mirrored here so the
+// error page shows the correct message.
 if (queryError.value) {
   throw createError({
-    statusCode: 500,
-    statusMessage: 'Tool data could not be loaded',
+    statusCode: queryError.value.statusCode ?? 500,
+    statusMessage: queryError.value.statusMessage || 'Tool data could not be loaded',
     fatal: true,
   })
 }
 
-// With `await useAsyncData` in setup, status is settled here: either
-// `error` (handled above → 500) or `success` with possibly-null data.
-// A null result after a successful query is the only true 404.
+// A null result after a successful fetch is the only true 404.
 if (!tool.value) {
   throw createError({
     statusCode: 404,
@@ -42,11 +38,7 @@ if (!tool.value) {
 
 // Related tools — sibling entries from the tools collection (max 4).
 // Compact strip below the workspace, before the footer, per brief §10.
-const { data: allTools } = await useAsyncData(
-  `related-tools-${slug.value}`,
-  () => queryCollection('tools').order('title', 'ASC').all(),
-  { watch: [slug] },
-)
+const { data: allTools } = await useFetch('/api/tools')
 const relatedTools = computed(() =>
   (allTools.value ?? []).filter((t) => t.slug !== slug.value).slice(0, 4),
 )
@@ -74,7 +66,7 @@ useSeoMeta({
     <!-- Hero — compact utility-tool header (UX audit: reduce height ~30%).
          `tool-hero` anchors e2e per-viewport metrics (`.tool-hero h1` width). -->
     <div class="relative w-full bg-surface-container-high tool-hero">
-      <PageContainer width="wide" class="pt-[calc(var(--spacing-navbar-height)+var(--spacing-md))] pb-6 md:pt-[calc(var(--spacing-navbar-height)+var(--spacing-lg))] md:pb-8">
+      <PageContainer width="wide" class="pt-[calc(var(--spacing-navbar-height)+var(--spacing-4))] pb-6 md:pt-[calc(var(--spacing-navbar-height)+var(--spacing-6))] md:pb-8">
         <!-- Breadcrumb — "Home / Tools / Converter" feels like an ecosystem. -->
         <nav class="flex items-center gap-1.5 text-sm text-muted font-mono mb-4" aria-label="Breadcrumb">
           <NuxtLink to="/" class="hover:text-text transition-colors hidden sm:inline">Home</NuxtLink>
@@ -131,8 +123,8 @@ useSeoMeta({
 
     <!-- Body — the workspace is the focal point; no keywords interlude -->
     <PageContainer id="workspace" width="wide" class="mt-6 md:mt-8 scroll-mt-[7rem]">
-      <!-- Tool interface — renders the interactive component when
-           available, otherwise the Phase 4 placeholder. -->
+      <!-- Tool interface — renders the matching tool component, or a
+           generic coming-soon fallback for unrecognized slugs. -->
       <LazyDelimiterTool v-if="slug === 'delimiter'" />
       <LazyJsonFormatterTool v-else-if="slug === 'json-formatter'" />
       <LazyRegexTesterTool v-else-if="slug === 'regex-tester'" />

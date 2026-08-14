@@ -210,13 +210,15 @@
   --text-label-sm--letter-spacing: 0.060em;
   --text-label-sm--font-weight: 500;
 
-  /* Spacing — 8px baseline rhythm (DESIGN §5). */
-  --spacing-xs:  4px;
-  --spacing-sm:  8px;            /* base rhythm */
-  --spacing-md:  16px;           /* gutter / column gap */
-  --spacing-lg:  24px;           /* margin / section margin */
-  --spacing-xl:  32px;
-  --spacing-2xl: 48px;
+  /* Spacing — 8px baseline rhythm (DESIGN §5). Only non-colliding custom
+     tokens live here. The named sizes (xs/sm/md/lg/xl/2xl) were removed
+     because they shadow Tailwind v4's `--container-*` scale: `max-w-lg`
+     compiled to `max-width: var(--spacing-lg)` (24px) instead of
+     `var(--container-lg)` (32rem), collapsing prose columns to one word
+     per line on /projects/[slug]. Tailwind's numeric scale already
+     provides the same values (1=4px, 2=8px, 4=16px, 6=24px, 8=32px,
+     12=48px), so former `var(--spacing-md)`/`var(--spacing-lg)` callers
+     now use `var(--spacing-4)`/`var(--spacing-6)`. */
   --spacing-section: 120px;      /* py between narrative sections */
   --spacing-container: 1200px;   /* max content width */
   --spacing-navbar-height: 80px; /* floating glass-panel pill bottom-edge.
@@ -224,19 +226,9 @@
                                     via `top-[var(--spacing-navbar-height)]`
                                     so they track re-flows. */
 
-  /* Container scale — Tailwind v4 auto-emits `max-w-{size}` from these.
-     Defining them explicitly prevents a build-time variable-resolution
-     bug where the project's custom `--spacing-2xl: 48px` was being
-     substituted into `.max-w-2xl{max-width:var(--spacing-2xl)}` and
-     collapsing prose columns to a 48px floor (the symptoms seen on
-     /tools/delimiter). Values match Tailwind v4 defaults verbatim
-     (16–80 rem ladder) so behaviour is identical to a vanilla install
-     — we only make the resolution deterministic.
-
-     Paired surgical stopgap: the description `<p>` with
-     `data-testid="hero-description"` in `app/pages/tools/[slug].vue`
-     uses `max-w-[42rem]` until the next full dev restart, when var()
-     resolution reliably picks up these @theme tokens. */
+  /* Container scale — Tailwind v4 emits `max-w-{size}` from these named
+     tokens. Kept explicit for documentation; values match Tailwind v4
+     defaults verbatim (16–80 rem ladder). */
   --container-3xs: 16rem;
   --container-2xs: 18rem;
   --container-xs:  20rem;
@@ -357,7 +349,7 @@
   [id="experience"],
   [id="projects"] {
     scroll-margin-top: calc(
-      var(--spacing-navbar-height) + var(--spacing-md)
+      var(--spacing-navbar-height) + var(--spacing-4)
     );
   }
 

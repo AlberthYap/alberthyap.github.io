@@ -23,7 +23,22 @@ export const ProjectSchema = z.object({
     })
   ),
   thumbnail: z.string(),
-  images: z.array(z.string()).default([]),
+  // Optional dark-mode variant of the cover screenshot. When present,
+  // ThemeImage swaps `thumbnail` ↔ `thumbnailDark` with the active
+  // theme so a light-mode screenshot never blinds dark-mode readers.
+  // Absent → falls back to `thumbnail` in both themes.
+  thumbnailDark: z.string().optional(),
+  // Gallery screenshots. Each entry pairs a required light shot with an
+  // optional dark-mode variant (same content, dark tone). An explicit
+  // `{ light, dark }` object — instead of two parallel `images`/`imagesDark`
+  // arrays — keeps the pairing unambiguous: a shot missing its dark variant
+  // can never shift its neighbours' pairing by index.
+  images: z.array(
+    z.object({
+      light: z.string(),
+      dark: z.string().optional(),
+    })
+  ).default([]),
   liveUrl: safeExternalUrl.nullable(),
   repoUrl: safeExternalUrl.nullable(),
   metrics: z.array(

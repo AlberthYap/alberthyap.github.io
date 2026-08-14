@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 /**
  * URL validators shared by content schemas (`ProjectSchema`,
- * `ToolSchema`, …). Zod's stock `z.string().url()` only checks "can
- * the WHATWG URL constructor parse this?" — which still accepts
+ * `ToolSchema`, …). Zod's stock `z.string().url()` only checks whether
+ * the WHATWG URL constructor can parse the string — which still accepts
  * `javascript:`, `data:`, `vbscript:`, and several other schemes
  * whose resolved behavior in browser href attributes is "execute as
  * code" or "exfiltrate data". This helper enforces an explicit
@@ -16,7 +16,7 @@ const SAFE_PROTOCOLS: ReadonlySet<string> = new Set([
 ])
 
 /**
- * Parser the WHATWG URL constructor would itself reject — for
+ * Rejects inputs the WHATWG URL constructor would itself reject — for
  * instance bare paths (no scheme + host) and most custom schemes.
  * Rejecting early avoids surfacing the `.refine()` error for inputs
  * that aren't even URL-shaped.

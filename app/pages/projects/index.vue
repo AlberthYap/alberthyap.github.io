@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { SITE_NAME } from '~~/shared/constants/site'
 
-const { data: projects } = await useAsyncData(
-  'all-projects',
-  () => queryCollection('projects').order('year', 'DESC').all(),
-)
+const { data: projects } = await useFetch('/api/projects')
 
 useSeoMeta({
   title: `Projects | ${SITE_NAME}`,
