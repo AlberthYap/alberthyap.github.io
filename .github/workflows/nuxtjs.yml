@@ -45,12 +45,15 @@ jobs:
         # disagree. If a contributor committed a package.json change
         # without running `npm install`, `npm ci` fails with
         # "Missing: <pkg>@<ver> from lock file".
-        # `npm install --package-lock-only` rewrites the lockfile
-        # in-place to match package.json (no node_modules changes), so
-        # the subsequent `npm ci` will be reproducible.
+        # `npm install --package-lock-only --ignore-scripts` rewrites
+        # the lockfile in-place to match package.json without touching
+        # node_modules. --ignore-scripts is required because
+        # postinstall: nuxt prepare runs nuxt CLI, which isn't
+        # installed yet in --package-lock-only mode (causes
+        # "sh: nuxt: not found" → exit 127).
         # Safe to keep: if the lockfile is already in sync, this is a
         # near-no-op (npm exits without writing).
-        run: npm install --package-lock-only --no-audit --no-fund
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
