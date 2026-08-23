@@ -20,6 +20,11 @@
  */
 @import "tailwindcss";
 
+/* Typography plugin — powers the `prose` class on rendered markdown
+ * bodies (project case studies). Without it `prose` emits no CSS and
+ * headings/lists render as unstyled browser defaults. */
+@plugin "@tailwindcss/typography";
+
 /* @source — explicitly tell Tailwind v4 which source files to scan for
  * utility classes. The `@tailwindcss/vite` plugin's default heuristics
  * miss content-collection-driven Nuxt pages (e.g., `app/pages/tools/
